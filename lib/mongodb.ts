@@ -63,7 +63,7 @@ export async function connectToDatabase() {
   mongooseCache.uri = env.MONGODB_URI;
   mongooseCache.promise = mongoose
     .connect(env.MONGODB_URI, {
-      dbName: env.MONGODB_DB_NAME ?? "ai-tools-finder",
+      dbName: env.MONGODB_DB_NAME ?? "aitoolsfinder",
       serverSelectionTimeoutMS: 3_000
     })
     .then((connection) => {

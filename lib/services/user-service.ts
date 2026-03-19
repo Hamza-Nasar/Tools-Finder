@@ -31,7 +31,7 @@ interface AppUserRecord {
 
 export class UserService {
   private static getDatabaseName() {
-    return env.MONGODB_DB_NAME ?? "ai-tools-finder";
+    return env.MONGODB_DB_NAME ?? "aitoolsfinder";
   }
 
   private static getStableAppUserId(record: Pick<AppUserRecord, "_id" | "appUserId" | "userId">) {

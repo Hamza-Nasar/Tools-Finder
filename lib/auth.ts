@@ -7,7 +7,7 @@ import { UserService } from "@/lib/services/user-service";
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(() => getMongoClient(), {
-    databaseName: env.MONGODB_DB_NAME ?? "ai-tools-finder"
+    databaseName: env.MONGODB_DB_NAME ?? "aitoolsfinder"
   }),
   session: {
     strategy: "database"

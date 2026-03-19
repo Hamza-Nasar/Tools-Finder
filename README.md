@@ -53,6 +53,46 @@ $env:NODE_OPTIONS='--max-old-space-size=4096'; cmd /c npm run typecheck
 $env:NODE_OPTIONS='--max-old-space-size=4096'; cmd /c npm run build
 ```
 
+## Atlas database setup
+
+The app is configured to use MongoDB Atlas for both development and production while keeping the same database name:
+
+- `MONGODB_URI` points to Atlas
+- `MONGODB_DB_NAME=aitoolsfinder`
+- `MIGRATION_SOURCE_MONGODB_URI=mongodb://127.0.0.1:27017/aitoolsfinder`
+
+This keeps the live app on Atlas while still allowing you to pull data from the old local MongoDB database whenever you need to resync.
+
+## Atlas migration and sync
+
+Copy existing local development data into Atlas:
+
+```powershell
+cmd /c npm run migrate-atlas
+```
+
+Dry run without writes:
+
+```powershell
+cmd /c npm run migrate-atlas -- --dry-run
+```
+
+Verification only:
+
+```powershell
+cmd /c npm run migrate-atlas -- --verify-only
+```
+
+The migration:
+
+- reads from `MIGRATION_SOURCE_MONGODB_URI`
+- writes to `MONGODB_URI`
+- uses `MONGODB_DB_NAME=aitoolsfinder` on both source and target
+- preserves existing Atlas documents
+- avoids duplicates with stable keys such as email, slug, website domain, session token, and relation signatures
+- remaps linked ids so favorites, submissions, reviews, tool activity, and auth records stay attached to the right users and tools
+- verifies tools, searchability, category coverage, and relational integrity after the sync
+
 ## Real tool import
 
 Use the importer to pull real AI tools from public sources and insert them through the same submission and approval flow used by the application:
@@ -101,6 +141,7 @@ Critical variables:
 - `NEXT_PUBLIC_APP_URL`
 - `MONGODB_URI`
 - `MONGODB_DB_NAME`
+- `MIGRATION_SOURCE_MONGODB_URI`
 - `NEXTAUTH_URL`
 - `NEXTAUTH_SECRET`
 - `ADMIN_EMAIL`
@@ -124,6 +165,7 @@ Critical variables:
 ## Production notes
 
 - MongoDB indexes are defined in the Mongoose models and will be created from the application layer.
+- Use the same Atlas `MONGODB_DB_NAME` in development and production if you want one shared live dataset.
 - Featured listing revenue is tracked in `PaymentRecord` and surfaced in the admin analytics dashboard.
 - Search and homepage discovery are cached with `unstable_cache`.
 - Tool pages remain server-rendered for SEO.
