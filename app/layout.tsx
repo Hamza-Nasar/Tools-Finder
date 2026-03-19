@@ -1,0 +1,49 @@
+import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
+import { getServerSession } from "next-auth";
+import "@/app/globals.css";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { AppProviders } from "@/components/layout/app-providers";
+import { authOptions } from "@/lib/auth";
+import { buildMetadata } from "@/lib/seo";
+
+const bodyFont = Plus_Jakarta_Sans({
+  variable: "--font-body",
+  subsets: ["latin"]
+});
+
+const headingFont = Space_Grotesk({
+  variable: "--font-heading",
+  subsets: ["latin"]
+});
+
+export const metadata: Metadata = buildMetadata({
+  title: "AI Tools Finder",
+  description:
+    "Discover, compare, and submit the best AI tools across writing, image generation, video, coding, marketing, productivity, chatbots, and research."
+});
+
+export default async function RootLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const session = await getServerSession(authOptions);
+
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${bodyFont.variable} ${headingFont.variable} overflow-x-hidden font-[family-name:var(--font-body)]`}
+      >
+        <AppProviders session={session}>
+          <div className="relative flex min-h-screen flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </div>
+        </AppProviders>
+      </body>
+    </html>
+  );
+}
