@@ -36,6 +36,11 @@ export function buildMetadata({
     description,
     keywords,
     metadataBase: new URL(siteConfig.url),
+    icons: {
+      icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+      shortcut: [{ url: "/icon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/icon.svg", type: "image/svg+xml" }]
+    },
     alternates: {
       canonical: url
     },
