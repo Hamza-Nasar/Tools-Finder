@@ -2,6 +2,7 @@
 
 import { startTransition, useOptimistic, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { toggleFavoriteAction } from "@/lib/actions/favorite-actions";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export function FavoriteToggle({
 }: FavoriteToggleProps) {
   const { data: session } = useSession();
   const [isPending, setIsPending] = useState(false);
+  const reduceMotion = useReducedMotion();
   const [isFavorited, updateOptimisticFavorite] = useOptimistic(
     initialIsFavorited,
     (_, nextState: boolean) => nextState
@@ -44,9 +46,33 @@ export function FavoriteToggle({
   }
 
   return (
-    <Button type="button" variant={isFavorited ? "secondary" : "outline"} onClick={handleToggle} disabled={isPending}>
-      <Heart className={`mr-2 h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
-      {isFavorited ? "Saved" : "Save tool"}
-    </Button>
+    <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+      <Button
+        type="button"
+        variant={isFavorited ? "secondary" : "outline"}
+        onClick={handleToggle}
+        disabled={isPending}
+        className="min-w-[9rem]"
+      >
+        <motion.span
+          animate={reduceMotion ? undefined : isFavorited ? { scale: [1, 1.22, 1], rotate: [0, -8, 0] } : { scale: 1, rotate: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="mr-2 inline-flex"
+        >
+          <Heart className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
+        </motion.span>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={isFavorited ? "saved" : "save"}
+            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+            transition={{ duration: 0.16 }}
+          >
+            {isFavorited ? "Saved" : "Save tool"}
+          </motion.span>
+        </AnimatePresence>
+      </Button>
+    </motion.div>
   );
 }

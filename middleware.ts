@@ -17,7 +17,9 @@ export async function middleware(request: NextRequest) {
 
   if (
     request.nextUrl.pathname.startsWith("/admin") ||
+    request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/favorites") ||
+    request.nextUrl.pathname.startsWith("/my-stack") ||
     request.nextUrl.pathname.startsWith("/submit")
   ) {
     if (!authenticated) {
@@ -29,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/favorites/:path*", "/submit/:path*"]
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/favorites/:path*", "/my-stack/:path*", "/submit/:path*"]
 };

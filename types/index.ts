@@ -4,8 +4,16 @@ export type ToolStatus = "draft" | "pending" | "approved" | "rejected";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
 export type ToolSort = "newest" | "popular" | "favorited" | "featured";
 export type FeatureSource = "manual" | "stripe";
+export type UserActivityKind = "tool_saved" | "tool_submitted" | "tool_viewed";
 export type SearchResultSource = "local" | "web";
 export type ExternalDiscoveryProvider = "futurepedia" | "theresanaiforthat" | "github" | "producthunt";
+export type PromptCategory =
+  | "Writing"
+  | "Research"
+  | "Design"
+  | "Coding"
+  | "Marketing"
+  | "Productivity";
 
 export interface NavItem {
   label: string;
@@ -113,6 +121,19 @@ export interface Favorite {
   createdAt: string;
 }
 
+export interface UserActivity {
+  id: string;
+  userId: string;
+  kind: UserActivityKind;
+  toolId?: string | null;
+  submissionId?: string | null;
+  toolName?: string | null;
+  toolSlug?: string | null;
+  submissionName?: string | null;
+  submissionSlug?: string | null;
+  createdAt: string;
+}
+
 export interface PaginatedResult<T> {
   data: T[];
   total: number;
@@ -198,4 +219,71 @@ export interface RevenueMetric {
 export interface AnalyticsPoint {
   label: string;
   value: number;
+}
+
+export interface ToolRecommendation {
+  tool: Tool;
+  score: number;
+  reason: string;
+  matchedCategories: string[];
+  matchedTags: string[];
+}
+
+export interface PromptEntry {
+  id: string;
+  toolSlug: string;
+  toolName: string;
+  title: string;
+  category: PromptCategory;
+  description: string;
+  prompt: string;
+  featured?: boolean;
+}
+
+export interface PromptToolGroup {
+  slug: string;
+  toolName: string;
+  description: string;
+  promptCount: number;
+  prompts: PromptEntry[];
+}
+
+export interface TodayToolsFeed {
+  todayNew: Tool[];
+  trendingToday: Tool[];
+  editorPicks: Tool[];
+}
+
+export interface WorkflowStep {
+  title: string;
+  description: string;
+  toolSlugs: string[];
+}
+
+export interface Workflow {
+  slug: string;
+  title: string;
+  description: string;
+  audience: string;
+  outcome: string;
+  toolsUsed: string[];
+  steps: WorkflowStep[];
+}
+
+export interface UserStack {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string | null;
+  tools: Tool[];
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface FeaturedStackPreset {
+  slug: string;
+  title: string;
+  description: string;
+  audience: string;
+  toolSlugs: string[];
 }

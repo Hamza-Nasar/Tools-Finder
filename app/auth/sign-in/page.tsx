@@ -19,7 +19,7 @@ function GoogleMark() {
 
 export default function SignInPage() {
   const searchParams = useSearchParams();
-  const callbackUrl = useMemo(() => searchParams.get("callbackUrl") ?? "/favorites", [searchParams]);
+  const callbackUrl = useMemo(() => searchParams.get("callbackUrl") ?? "/dashboard", [searchParams]);
 
   return (
     <div className="page-frame flex min-h-[70vh] max-w-xl items-center py-12">

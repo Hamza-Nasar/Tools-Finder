@@ -9,9 +9,7 @@ export const siteConfig = {
 
 export const mainNav: NavItem[] = [
   { label: "Directory", href: "/tools" },
-  { label: "Categories", href: "/categories" },
-  { label: "Submit", href: "/submit" },
-  { label: "Favorites", href: "/favorites" }
+  { label: "Categories", href: "/categories" }
 ];
 
 export const adminNav: NavItem[] = [

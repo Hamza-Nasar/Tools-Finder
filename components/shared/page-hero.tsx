@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { MotionReveal } from "@/components/shared/motion-reveal";
 import { cn } from "@/lib/utils";
 
 interface PageHeroStat {
@@ -29,7 +30,7 @@ export function PageHero({
       <div className="absolute -left-10 top-12 h-40 w-40 rounded-full bg-secondary/45 blur-3xl" />
       <div className="absolute bottom-0 right-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
-        <div className="max-w-3xl">
+        <MotionReveal className="max-w-3xl" y={24}>
           <p className="inline-flex rounded-full border border-primary/15 bg-primary/8 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             {eyebrow}
           </p>
@@ -40,12 +41,16 @@ export function PageHero({
             {description}
           </p>
           {actions ? <div className="mt-7 flex flex-wrap gap-3">{actions}</div> : null}
-        </div>
+        </MotionReveal>
 
         {stats.length ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-            {stats.map((stat) => (
-              <div key={stat.label} className="rounded-[1.5rem] border border-white/75 bg-white/82 px-5 py-4 shadow-sm backdrop-blur">
+            {stats.map((stat, index) => (
+              <MotionReveal
+                key={stat.label}
+                delay={index * 0.06}
+                className="rounded-[1.5rem] border border-white/75 bg-white/82 px-5 py-4 shadow-sm backdrop-blur"
+              >
                 <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary">
                   {stat.label}
                 </p>
@@ -53,7 +58,7 @@ export function PageHero({
                   {stat.value}
                 </p>
                 {stat.detail ? <p className="mt-2 text-sm leading-6 text-muted-foreground">{stat.detail}</p> : null}
-              </div>
+              </MotionReveal>
             ))}
           </div>
         ) : null}

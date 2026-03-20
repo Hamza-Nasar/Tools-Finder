@@ -6,8 +6,8 @@ const getHomepageToolsCached = unstable_cache(
   async () => {
     const [featured, trending, latest] = await Promise.all([
       ToolService.listFeaturedTools(6),
-      ToolService.listTrendingTools(3),
-      ToolService.listLatestTools(3)
+      ToolService.listTrendingTools(6),
+      ToolService.listLatestTools(6)
     ]);
 
     return { featured, trending, latest };
@@ -16,6 +16,15 @@ const getHomepageToolsCached = unstable_cache(
   {
     revalidate: 120,
     tags: ["tools", "categories"]
+  }
+);
+
+const getTodayToolsFeedCachedInternal = unstable_cache(
+  async () => ToolService.getTodayToolsFeed(6),
+  ["today-tools-feed"],
+  {
+    revalidate: 120,
+    tags: ["tools"]
   }
 );
 
@@ -57,13 +66,42 @@ const getToolBySlugCachedInternal = unstable_cache(
   }
 );
 
-const getSimilarToolsCachedInternal = unstable_cache(
-  async (categorySlug: string, excludeSlug: string) =>
-    ToolService.listSimilarTools(categorySlug, excludeSlug),
-  ["similar-tools"],
+const getRelatedToolsCachedInternal = unstable_cache(
+  async (slug: string, categorySlug: string, tagsKey: string, limit: number) =>
+    ToolService.listRelatedTools({
+      slug,
+      categorySlug,
+      tags: tagsKey ? tagsKey.split(",") : [],
+      limit
+    }),
+  ["related-tools"],
+  {
+    revalidate: 120,
+    tags: ["tools", "categories"]
+  }
+);
+
+const getTrendingToolsCachedInternal = unstable_cache(
+  async (limit: number) => ToolService.listTrendingTools(limit),
+  ["trending-tools"],
   {
     revalidate: 120,
     tags: ["tools"]
+  }
+);
+
+const getCollectionToolsCachedInternal = unstable_cache(
+  async (categoryKey: string, tagsKey: string, pricing: "Free" | "Freemium" | "Paid" | undefined, limit: number) =>
+    ToolService.listCollectionTools({
+      categorySlugs: categoryKey ? categoryKey.split(",") : [],
+      tags: tagsKey ? tagsKey.split(",") : [],
+      pricing,
+      limit
+    }),
+  ["collection-tools"],
+  {
+    revalidate: 300,
+    tags: ["tools", "categories"]
   }
 );
 
@@ -73,6 +111,22 @@ export async function getHomepageTools() {
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
       return { featured: [], trending: [], latest: [] };
+    }
+
+    throw error;
+  }
+}
+
+export async function getTodayToolsFeedCached() {
+  try {
+    return await getTodayToolsFeedCachedInternal();
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return {
+        todayNew: [],
+        trendingToday: [],
+        editorPicks: []
+      };
     }
 
     throw error;
@@ -123,9 +177,53 @@ export async function getToolBySlugCached(slug: string) {
   return getToolBySlugCachedInternal(slug);
 }
 
-export async function getSimilarToolsCached(categorySlug: string, excludeSlug: string) {
+export async function getRelatedToolsCached(input: {
+  slug: string;
+  categorySlug: string;
+  tags: string[];
+  limit?: number;
+}) {
   try {
-    return await getSimilarToolsCachedInternal(categorySlug, excludeSlug);
+    return await getRelatedToolsCachedInternal(
+      input.slug,
+      input.categorySlug,
+      input.tags.join(","),
+      input.limit ?? 6
+    );
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+export async function getTrendingToolsCached(limit = 6) {
+  try {
+    return await getTrendingToolsCachedInternal(limit);
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+export async function getCollectionToolsCached(input: {
+  categorySlugs?: string[];
+  tags?: string[];
+  pricing?: "Free" | "Freemium" | "Paid";
+  limit?: number;
+}) {
+  try {
+    return await getCollectionToolsCachedInternal(
+      (input.categorySlugs ?? []).join(","),
+      (input.tags ?? []).join(","),
+      input.pricing,
+      input.limit ?? 18
+    );
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
       return [];

@@ -62,3 +62,23 @@ export function isDatabaseUnavailableError(error: unknown) {
     "MONGODB_URI is not configured"
   ].some((token) => haystack.includes(token));
 }
+
+export function isMissingTextIndexError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const candidate = error as {
+    code?: unknown;
+    codeName?: unknown;
+    message?: unknown;
+  };
+
+  const haystack = [
+    ...collectErrorStrings(error),
+    typeof candidate.codeName === "string" ? candidate.codeName : "",
+    typeof candidate.message === "string" ? candidate.message : ""
+  ].join(" ");
+
+  return candidate.code === 27 || haystack.includes("IndexNotFound") || haystack.includes("text index required for $text query");
+}

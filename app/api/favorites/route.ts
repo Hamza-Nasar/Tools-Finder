@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { created, handleApiError, paginated, parseRequestBody, parseSearchParams } from "@/lib/api";
+import { created, handleApiError, ok, paginated, parseRequestBody, parseSearchParams } from "@/lib/api";
 import { requireAuthenticatedSession } from "@/lib/server-guards";
 import { FavoriteService } from "@/lib/services/favorite-service";
 import { UserService } from "@/lib/services/user-service";
@@ -29,6 +29,19 @@ export async function POST(request: NextRequest) {
     const favorite = await FavoriteService.addFavorite(user.id, payload.toolId);
 
     return created(favorite);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await requireAuthenticatedSession();
+    const user = await UserService.syncSessionUser(session);
+    const payload = await parseRequestBody(request, createFavoriteSchema);
+    await FavoriteService.removeFavorite(user.id, payload.toolId);
+
+    return ok({ toolId: payload.toolId, removed: true });
   } catch (error) {
     return handleApiError(error);
   }

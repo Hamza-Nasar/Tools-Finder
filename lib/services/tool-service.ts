@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import type { PricingTier, ToolDirectoryFacets, ToolSort, ToolSuggestion } from "@/types";
+import type { PricingTier, TodayToolsFeed, Tool, ToolDirectoryFacets, ToolSort, ToolSuggestion } from "@/types";
 import { slugify } from "@/utils/slugify";
 import { connectToDatabase } from "@/lib/mongodb";
-import { AppError } from "@/lib/errors";
+import { AppError, isMissingTextIndexError } from "@/lib/errors";
 import { toObjectId } from "@/lib/object-id";
 import { serializeTool } from "@/lib/serializers/tool";
 import { sanitizeOptionalUrl, sanitizeTagList, sanitizeText, sanitizeUrl } from "@/lib/sanitize";
@@ -53,6 +53,20 @@ interface ToolWriteInput {
   sourceSubmission?: string | null;
 }
 
+interface RelatedToolsOptions {
+  slug: string;
+  categorySlug: string;
+  tags: string[];
+  limit?: number;
+}
+
+interface CollectionToolsOptions {
+  categorySlugs?: string[];
+  tags?: string[];
+  pricing?: PricingTier;
+  limit?: number;
+}
+
 const NEW_TOOL_WINDOW_DAYS = 30;
 const TOOL_LIST_PROJECTION = {
   name: 1,
@@ -84,9 +98,37 @@ const TOOL_LIST_PROJECTION = {
   latestClickAt: 1,
   createdBy: 1
 } as const;
+let toolIndexSetupPromise: Promise<void> | null = null;
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildRegexSearchClause(query: string, prefixOnly = false) {
+  const pattern = prefixOnly
+    ? new RegExp(`^${escapeRegExp(query)}`, "i")
+    : new RegExp(escapeRegExp(query), "i");
+
+  return [
+    { name: pattern },
+    { tagline: pattern },
+    { description: pattern },
+    { tags: pattern },
+    { categoryName: pattern }
+  ];
+}
+
+function ensureToolSearchIndexes() {
+  if (!toolIndexSetupPromise) {
+    toolIndexSetupPromise = ToolModel.createIndexes()
+      .then(() => undefined)
+      .catch((error) => {
+        toolIndexSetupPromise = null;
+        console.error("Failed to ensure tool search indexes", error);
+      });
+  }
+
+  return toolIndexSetupPromise;
 }
 
 function normalizeTags(tags: string[] | undefined) {
@@ -100,6 +142,29 @@ function getRecentCutoffDate(days = NEW_TOOL_WINDOW_DAYS) {
   const cutoff = new Date();
   cutoff.setUTCDate(cutoff.getUTCDate() - days);
   return cutoff;
+}
+
+function getStartOfToday() {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function scoreRelatedTool(
+  record: Record<string, unknown>,
+  options: { categorySlug: string; tags: string[] }
+) {
+  const recordTags = Array.isArray(record.tags)
+    ? record.tags.map((tag) => String(tag).trim().toLowerCase()).filter(Boolean)
+    : [];
+  const sharedTagCount = recordTags.filter((tag) => options.tags.includes(tag)).length;
+  const sameCategory = String(record.categorySlug) === options.categorySlug;
+  const featuredBoost = record.featured ? 1.5 : 0;
+  const trendingBoost = Number(record.trendingScore ?? 0) / 25;
+  const favoritesBoost = Number(record.favoritesCount ?? 0) / 100;
+  const viewsBoost = Number(record.viewsCount ?? 0) / 400;
+
+  return (sameCategory ? 6 : 0) + sharedTagCount * 3.5 + featuredBoost + trendingBoost + favoritesBoost + viewsBoost;
 }
 
 function buildSort(sort: ToolSort, hasTextSearch: boolean) {
@@ -166,6 +231,14 @@ function buildSuggestion(record: Record<string, unknown> & { _id: unknown }): To
   };
 }
 
+function orderSerializedTools(records: Array<Record<string, unknown> & { _id: unknown }>, orderedIds: string[]) {
+  const toolsById = new Map(records.map((record) => [String(record._id), serializeTool(record)]));
+
+  return orderedIds
+    .map((id) => toolsById.get(id))
+    .filter((tool): tool is Tool => Boolean(tool));
+}
+
 async function findDuplicateTool(options: {
   slug?: string;
   websiteDomain?: string | null;
@@ -214,6 +287,7 @@ export class ToolService {
   static async listTools(options: ListToolsOptions) {
     await connectToDatabase();
     await FeaturedListingService.expireListingsIfNeeded();
+    void ensureToolSearchIndexes();
 
     const skip = (options.page - 1) * options.limit;
     const filter: Record<string, unknown> = {};
@@ -255,14 +329,7 @@ export class ToolService {
     if (hasTextSearch && trimmedQuery) {
       filter.$text = { $search: trimmedQuery };
     } else if (hasRegexSearch && trimmedQuery) {
-      const pattern = new RegExp(escapeRegExp(trimmedQuery), "i");
-      filter.$or = [
-        { name: pattern },
-        { tagline: pattern },
-        { description: pattern },
-        { tags: pattern },
-        { categoryName: pattern }
-      ];
+      filter.$or = buildRegexSearchClause(trimmedQuery);
     }
 
     const projection = hasTextSearch
@@ -273,18 +340,44 @@ export class ToolService {
       : TOOL_LIST_PROJECTION;
     const sort = buildSort(options.sort ?? "newest", hasTextSearch);
 
-    const [records, total] = await Promise.all([
-      ToolModel.find(filter, projection).sort(sort).skip(skip).limit(options.limit).lean(),
-      ToolModel.countDocuments(filter)
-    ]);
+    try {
+      const [records, total] = await Promise.all([
+        ToolModel.find(filter, projection).sort(sort).skip(skip).limit(options.limit).lean(),
+        ToolModel.countDocuments(filter)
+      ]);
 
-    return {
-      data: records.map((record) => serializeTool(record)),
-      total,
-      page: options.page,
-      limit: options.limit,
-      totalPages: Math.max(Math.ceil(total / options.limit), 1)
-    };
+      return {
+        data: records.map((record) => serializeTool(record)),
+        total,
+        page: options.page,
+        limit: options.limit,
+        totalPages: Math.max(Math.ceil(total / options.limit), 1)
+      };
+    } catch (error) {
+      if (!(hasTextSearch && trimmedQuery && isMissingTextIndexError(error))) {
+        throw error;
+      }
+
+      delete filter.$text;
+      filter.$or = buildRegexSearchClause(trimmedQuery);
+
+      const [records, total] = await Promise.all([
+        ToolModel.find(filter, TOOL_LIST_PROJECTION)
+          .sort(buildSort(options.sort ?? "newest", false))
+          .skip(skip)
+          .limit(options.limit)
+          .lean(),
+        ToolModel.countDocuments(filter)
+      ]);
+
+      return {
+        data: records.map((record) => serializeTool(record)),
+        total,
+        page: options.page,
+        limit: options.limit,
+        totalPages: Math.max(Math.ceil(total / options.limit), 1)
+      };
+    }
   }
 
   static async getDirectoryFacets(limit = 12): Promise<ToolDirectoryFacets> {
@@ -308,6 +401,7 @@ export class ToolService {
   static async listSearchSuggestions(query: string, limit = 6) {
     await connectToDatabase();
     await FeaturedListingService.expireListingsIfNeeded();
+    void ensureToolSearchIndexes();
 
     const trimmedQuery = query.trim();
 
@@ -339,22 +433,42 @@ export class ToolService {
     const seenSlugs = new Set(prefixMatches.map((tool) => String(tool.slug)));
 
     if (prefixMatches.length < limit) {
-      const textMatches = await ToolModel.find(
-        {
-          status: "approved",
-          $text: { $search: trimmedQuery },
-          slug: { $nin: Array.from(seenSlugs) }
-        },
-        {
-          ...projection,
-          score: { $meta: "textScore" as const }
-        }
-      )
-        .sort({ score: { $meta: "textScore" }, featured: -1, favoritesCount: -1, createdAt: -1 })
-        .limit(limit - prefixMatches.length)
-        .lean();
+      try {
+        const textMatches = await ToolModel.find(
+          {
+            status: "approved",
+            $text: { $search: trimmedQuery },
+            slug: { $nin: Array.from(seenSlugs) }
+          },
+          {
+            ...projection,
+            score: { $meta: "textScore" as const }
+          }
+        )
+          .sort({ score: { $meta: "textScore" }, featured: -1, favoritesCount: -1, createdAt: -1 })
+          .limit(limit - prefixMatches.length)
+          .lean();
 
-      prefixMatches.push(...textMatches);
+        prefixMatches.push(...textMatches);
+      } catch (error) {
+        if (!isMissingTextIndexError(error)) {
+          throw error;
+        }
+
+        const fallbackMatches = await ToolModel.find(
+          {
+            status: "approved",
+            slug: { $nin: Array.from(seenSlugs) },
+            $or: buildRegexSearchClause(trimmedQuery)
+          },
+          projection
+        )
+          .sort({ featured: -1, favoritesCount: -1, trendingScore: -1, createdAt: -1 })
+          .limit(limit - prefixMatches.length)
+          .lean();
+
+        prefixMatches.push(...fallbackMatches);
+      }
     }
 
     return prefixMatches.map((record) => buildSuggestion(record));
@@ -452,19 +566,187 @@ export class ToolService {
     return result.data;
   }
 
-  static async listSimilarTools(categorySlug: string, excludeSlug: string, limit = 3) {
+  static async listToolsBySlugs(slugs: string[]) {
     await connectToDatabase();
-    await FeaturedListingService.expireListingsIfNeeded();
+
+    const normalizedSlugs = Array.from(new Set(slugs.map((slug) => slug.trim()).filter(Boolean)));
+
+    if (!normalizedSlugs.length) {
+      return [];
+    }
 
     const records = await ToolModel.find(
       {
-        categorySlug,
-        slug: { $ne: excludeSlug },
+        slug: { $in: normalizedSlugs },
         status: "approved"
       },
       TOOL_LIST_PROJECTION
+    ).lean();
+
+    const toolsBySlug = new Map(records.map((record) => [String(record.slug), serializeTool(record)]));
+
+    return normalizedSlugs
+      .map((slug) => toolsBySlug.get(slug))
+      .filter((tool): tool is Tool => Boolean(tool));
+  }
+
+  static async listToolsByIds(toolIds: string[]) {
+    await connectToDatabase();
+
+    const objectIds = toolIds.map((toolId) => toObjectId(toolId, "toolId"));
+
+    if (!objectIds.length) {
+      return [];
+    }
+
+    const records = await ToolModel.find(
+      {
+        _id: { $in: objectIds },
+        status: "approved"
+      },
+      TOOL_LIST_PROJECTION
+    ).lean();
+
+    return orderSerializedTools(records, objectIds.map((toolId) => toolId.toString()));
+  }
+
+  static async getTodayToolsFeed(limit = 6): Promise<TodayToolsFeed> {
+    await connectToDatabase();
+    await FeaturedListingService.expireListingsIfNeeded();
+
+    const startOfToday = getStartOfToday();
+    const [todayNewRecords, todayActivity, editorPickRecords] = await Promise.all([
+      ToolModel.find(
+        {
+          status: "approved",
+          createdAt: { $gte: startOfToday }
+        },
+        TOOL_LIST_PROJECTION
+      )
+        .sort({ createdAt: -1, featured: -1 })
+        .limit(limit)
+        .lean(),
+      ToolActivityService.listTrendingToolIdsForDate(startOfToday, limit),
+      ToolModel.find(
+        {
+          status: "approved",
+          $or: [
+            getActiveFeaturedFilter(),
+            {
+              createdAt: { $gte: getRecentCutoffDate(21) }
+            }
+          ]
+        },
+        TOOL_LIST_PROJECTION
+      )
+        .sort({ featured: -1, rating: -1, reviewCount: -1, favoritesCount: -1, createdAt: -1 })
+        .limit(limit)
+        .lean()
+    ]);
+
+    const todayNew =
+      todayNewRecords.length > 0
+        ? todayNewRecords.map((record) => serializeTool(record))
+        : await this.listLatestTools(limit);
+    const trendingToolIds = todayActivity.map((entry) => entry.toolId.toString());
+    const trendingRecords = trendingToolIds.length
+      ? await ToolModel.find(
+          {
+            _id: { $in: todayActivity.map((entry) => entry.toolId) },
+            status: "approved"
+          },
+          TOOL_LIST_PROJECTION
+        ).lean()
+      : [];
+    const trendingToday = trendingToolIds.length
+      ? orderSerializedTools(trendingRecords, trendingToolIds).slice(0, limit)
+      : await this.listTrendingTools(limit);
+    const editorPicks =
+      editorPickRecords.length > 0
+        ? editorPickRecords.map((record) => serializeTool(record)).slice(0, limit)
+        : await this.listFeaturedTools(limit);
+
+    return {
+      todayNew,
+      trendingToday,
+      editorPicks
+    };
+  }
+
+  static async listRelatedTools({ slug, categorySlug, tags, limit = 6 }: RelatedToolsOptions) {
+    await connectToDatabase();
+    await FeaturedListingService.expireListingsIfNeeded();
+
+    const normalizedTags = normalizeTags(tags);
+    const relatedFilter: Record<string, unknown> = {
+      slug: { $ne: slug },
+      status: "approved"
+    };
+
+    if (normalizedTags.length) {
+      relatedFilter.$or = [{ categorySlug }, { tags: { $in: normalizedTags } }];
+    } else {
+      relatedFilter.categorySlug = categorySlug;
+    }
+
+    const records = await ToolModel.find(
+      relatedFilter,
+      TOOL_LIST_PROJECTION
     )
       .sort({ trendingScore: -1, favoritesCount: -1, createdAt: -1 })
+      .limit(Math.max(limit * 4, 12))
+      .lean();
+
+    return records
+      .map((record) => ({
+        tool: serializeTool(record),
+        score: scoreRelatedTool(record, {
+          categorySlug,
+          tags: normalizedTags
+        })
+      }))
+      .sort((left, right) => right.score - left.score)
+      .slice(0, limit)
+      .map((entry) => entry.tool);
+  }
+
+  static async listCollectionTools({
+    categorySlugs = [],
+    tags = [],
+    pricing,
+    limit = 18
+  }: CollectionToolsOptions) {
+    await connectToDatabase();
+    await FeaturedListingService.expireListingsIfNeeded();
+
+    const normalizedCategorySlugs = categorySlugs.map((value) => value.trim()).filter(Boolean);
+    const normalizedTags = normalizeTags(tags);
+    const discoveryClauses: Record<string, unknown>[] = [];
+
+    if (normalizedCategorySlugs.length) {
+      discoveryClauses.push({ categorySlug: { $in: normalizedCategorySlugs } });
+    }
+
+    if (normalizedTags.length) {
+      discoveryClauses.push({ tags: { $in: normalizedTags } });
+    }
+
+    const filter: Record<string, unknown> = {
+      status: "approved"
+    };
+
+    if (pricing) {
+      filter.pricing = pricing;
+    }
+
+    if (discoveryClauses.length === 1) {
+      Object.assign(filter, discoveryClauses[0]);
+    } else if (discoveryClauses.length > 1) {
+      filter.$or = discoveryClauses;
+    }
+
+    const records = await ToolModel.find(filter, TOOL_LIST_PROJECTION)
+      .sort({ featured: -1, trendingScore: -1, favoritesCount: -1, createdAt: -1 })
       .limit(limit)
       .lean();
 
@@ -487,6 +769,11 @@ export class ToolService {
     }
 
     await ToolActivityService.recordView(tool._id as ObjectId);
+
+    return {
+      id: String(tool._id),
+      slug
+    };
   }
 
   static async recordClickBySlug(slug: string) {

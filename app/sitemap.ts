@@ -1,16 +1,27 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/constants";
 import { getPublicCategories } from "@/lib/data/categories";
+import { toolCollections } from "@/lib/collections";
+import { getPromptToolGroups } from "@/lib/prompt-library";
 import { ToolService } from "@/lib/services/tool-service";
 import { seoLandingPages } from "@/lib/seo-landings";
+import { workflows } from "@/lib/workflows";
 import { isDatabaseUnavailableError } from "@/lib/errors";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const promptGroups = getPromptToolGroups();
   const staticRoutes = [
     "",
     "/tools",
     "/categories",
+    "/find-ai-tool",
+    "/prompts",
+    "/today-ai-tools",
+    "/workflows",
     "/submit",
+    ...toolCollections.map((collection) => `/collections/${collection.slug}`),
+    ...promptGroups.map((group) => `/prompts/${group.slug}`),
+    ...workflows.map((workflow) => `/workflows/${workflow.slug}`),
     ...seoLandingPages.map((page) => `/${page.slug}`)
   ].map((route) => ({
     url: `${siteConfig.url}${route}`,
@@ -36,6 +47,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: tool.featured ? 0.9 : 0.7
     }));
 
+    const alternativeRoutes = tools.data.map((tool) => ({
+      url: `${siteConfig.url}/alternatives/${tool.slug}`,
+      lastModified: new Date(tool.createdAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.65
+    }));
+
     const categoryRoutes = categories.map((category) => ({
       url: `${siteConfig.url}/categories/${category.slug}`,
       lastModified: new Date(),
@@ -43,7 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7
     }));
 
-    return [...staticRoutes, ...toolRoutes, ...categoryRoutes];
+    return [...staticRoutes, ...toolRoutes, ...alternativeRoutes, ...categoryRoutes];
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
       return staticRoutes;

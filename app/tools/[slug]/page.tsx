@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getToolBySlugCached, getSimilarToolsCached } from "@/lib/data/tools";
+import { getRelatedToolsCached, getToolBySlugCached } from "@/lib/data/tools";
 import { isAppError, isDatabaseUnavailableError } from "@/lib/errors";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { getOptionalSession } from "@/lib/server-guards";
@@ -86,8 +86,13 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
     notFound();
   }
 
-  const [similarTools, session] = await Promise.all([
-    getSimilarToolsCached(tool.categorySlug, tool.slug),
+  const [relatedTools, session] = await Promise.all([
+    getRelatedToolsCached({
+      slug: tool.slug,
+      categorySlug: tool.categorySlug,
+      tags: tool.tags,
+      limit: 6
+    }),
     getOptionalSession()
   ]);
   const user = session?.user ? await UserService.syncSessionUser(session) : null;
@@ -123,7 +128,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
       />
       <ToolDetail
         tool={tool}
-        similarTools={similarTools}
+        relatedTools={relatedTools}
         action={
           <div className="space-y-3">
             {user ? (

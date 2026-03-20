@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { AppProviders } from "@/components/layout/app-providers";
+import { PageTransition } from "@/components/shared/page-transition";
 import { authOptions } from "@/lib/auth";
 import { buildMetadata } from "@/lib/seo";
 
@@ -39,7 +40,9 @@ export default async function RootLayout({
         <AppProviders session={session}>
           <div className="relative flex min-h-screen flex-col">
             <SiteHeader />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              <PageTransition>{children}</PageTransition>
+            </main>
             <SiteFooter />
           </div>
         </AppProviders>

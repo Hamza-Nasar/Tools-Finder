@@ -159,7 +159,7 @@ export function HybridDiscoveryPanel({
           description="These matches are already indexed locally, moderated, and ready to browse without any external fetch."
         />
         {localTools.length ? (
-          <div className="mt-4 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {localTools.map((tool) => (
               <ToolCard key={tool.id} tool={tool} />
             ))}
@@ -169,7 +169,7 @@ export function HybridDiscoveryPanel({
             <EmptyState
               label="Local"
               title="No local matches yet"
-              description={`Nothing in the local database matched “${query}”. Web discovery is still running below.`}
+              description={`Nothing in the local database matched "${query}". Web discovery is still running below.`}
             />
           </div>
         )}
@@ -184,7 +184,7 @@ export function HybridDiscoveryPanel({
         />
 
         {status === "loading" ? (
-          <div className="mt-4 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="surface-card p-6">
                 <div className="skeleton-shimmer h-12 w-12 rounded-2xl" />
@@ -199,7 +199,7 @@ export function HybridDiscoveryPanel({
 
         {status === "ready" && webPayload?.results.length ? (
           <>
-            <div className="mt-4 grid gap-5 lg:grid-cols-3">
+            <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {webPayload.results.map((tool) => (
                 <DiscoveredToolCard
                   key={tool.id}
@@ -226,7 +226,7 @@ export function HybridDiscoveryPanel({
             <EmptyState
               label="Web"
               title="No external matches surfaced"
-              description={`No additional web results were found for “${query}” after deduping against your local directory.`}
+              description={`No additional web results were found for "${query}" after deduping against your local directory.`}
             />
           </div>
         ) : null}

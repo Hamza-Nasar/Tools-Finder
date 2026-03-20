@@ -1,7 +1,10 @@
 import { NextRequest } from "next/server";
 import { handleApiError, noContent } from "@/lib/api";
 import { takeRateLimit } from "@/lib/rate-limit/memory-store";
+import { getOptionalSession } from "@/lib/server-guards";
 import { ToolService } from "@/lib/services/tool-service";
+import { UserActivityService } from "@/lib/services/user-activity-service";
+import { UserService } from "@/lib/services/user-service";
 
 function getIpAddress(request: NextRequest) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
@@ -20,7 +23,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return noContent();
     }
 
-    await ToolService.recordViewBySlug(slug);
+    const [viewRecord, session] = await Promise.all([ToolService.recordViewBySlug(slug), getOptionalSession()]);
+
+    if (session?.user) {
+      const user = await UserService.syncSessionUser(session);
+      await UserActivityService.recordToolViewed(user.id, viewRecord.id);
+    }
 
     return noContent();
   } catch (error) {

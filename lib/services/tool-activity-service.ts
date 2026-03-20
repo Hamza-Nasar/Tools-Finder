@@ -212,6 +212,43 @@ export class ToolActivityService {
     ]);
   }
 
+  static async listTrendingToolIdsForDate(date = new Date(), limit = 12) {
+    await connectToDatabase();
+
+    const bucketDate = getBucketDate(date);
+    const records = await ToolActivityModel.find(
+      {
+        bucketDate
+      },
+      {
+        toolId: 1,
+        views: 1,
+        favorites: 1,
+        clicks: 1
+      }
+    )
+      .sort({ favorites: -1, views: -1, clicks: -1 })
+      .limit(Math.max(limit * 4, 12))
+      .lean();
+
+    return records
+      .map((record) => ({
+        toolId: record.toolId,
+        recentViews: Number(record.views ?? 0),
+        recentFavorites: Number(record.favorites ?? 0),
+        recentClicks: Number(record.clicks ?? 0),
+        activityScore:
+          Number(record.favorites ?? 0) * FAVORITE_TREND_WEIGHT +
+          Number(record.views ?? 0) * VIEW_TREND_WEIGHT +
+          Number(record.clicks ?? 0) * CLICK_TREND_WEIGHT
+      }))
+      .sort((left, right) => right.activityScore - left.activityScore);
+  }
+
+  static getBucketDate(date = new Date()) {
+    return getBucketDate(date);
+  }
+
   static getRecencyBoost(createdAt: Date | string) {
     return getRecencyBoost(createdAt);
   }

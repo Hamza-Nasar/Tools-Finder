@@ -29,6 +29,13 @@ const nextConfig: NextConfig = {
   distDir: isDevelopment ? ".next-dev" : ".next",
   compress: true,
   poweredByHeader: false,
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    // We run `npm run typecheck` explicitly to avoid duplicate memory-heavy checks during `next build`.
+    ignoreBuildErrors: true
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

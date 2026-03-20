@@ -9,11 +9,11 @@ import { compactNumber, formatRelativeDate, getHostnameLabel } from "@/lib/utils
 
 export function ToolDetail({
   tool,
-  similarTools,
+  relatedTools,
   action
 }: {
   tool: Tool;
-  similarTools: Tool[];
+  relatedTools: Tool[];
   action?: ReactNode;
 }) {
   return (
@@ -163,7 +163,63 @@ export function ToolDetail({
                   <Link href={`/categories/${tool.categorySlug}`} className="mt-3 block text-sm font-medium text-primary">
                     Browse more {tool.category.toLowerCase()} tools
                   </Link>
+                  <Link href={`/alternatives/${tool.slug}`} className="mt-2 block text-sm font-medium text-primary">
+                    See alternatives to {tool.name}
+                  </Link>
+                  {relatedTools[0] ? (
+                    <Link
+                      href={`/compare/${tool.slug}-vs-${relatedTools[0].slug}`}
+                      className="mt-2 block text-sm font-medium text-primary"
+                    >
+                      Compare with {relatedTools[0].name}
+                    </Link>
+                  ) : null}
                 </div>
+              </div>
+
+              <div className="surface-subtle p-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">Related tools</h2>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      More products in {tool.category.toLowerCase()} with overlapping workflows and tags.
+                    </p>
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/alternatives/${tool.slug}`}>See all alternatives</Link>
+                  </Button>
+                </div>
+                {relatedTools.length ? (
+                  <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                    {relatedTools.map((relatedTool) => (
+                      <Link
+                        key={relatedTool.id}
+                        href={`/tools/${relatedTool.slug}`}
+                        className="rounded-[1.35rem] border border-border/70 bg-background/52 p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-white/82 hover:shadow-sm"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="font-semibold">{relatedTool.name}</p>
+                            <p className="mt-1 text-sm text-muted-foreground">{relatedTool.tagline}</p>
+                          </div>
+                          {relatedTool.featured ? <Badge variant="accent">Featured</Badge> : null}
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Badge variant="muted">{relatedTool.category}</Badge>
+                          {relatedTool.tags.slice(0, 2).map((tag) => (
+                            <Badge key={tag} variant="muted">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-4 rounded-[1.5rem] border border-dashed border-border bg-background/70 px-5 py-10 text-sm text-muted-foreground">
+                    Related tools will appear here as more overlapping listings are indexed.
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -229,27 +285,28 @@ export function ToolDetail({
 
           <Card className="overflow-hidden">
             <CardHeader className="border-b border-border/70 bg-gradient-to-br from-white via-white to-background/60">
-              <CardTitle>Similar tools</CardTitle>
-              <CardDescription>More products from the same category.</CardDescription>
+              <CardTitle>Keep exploring</CardTitle>
+              <CardDescription>Jump deeper into the category and alternative paths around this tool.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {similarTools.length ? (
-                similarTools.map((similarTool) => (
-                  <Link
-                    key={similarTool.id}
-                    href={`/tools/${similarTool.slug}`}
-                    className="block rounded-[1.35rem] border border-border/70 bg-background/52 p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-white/82 hover:shadow-sm"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold">{similarTool.name}</p>
-                      {similarTool.featured ? <Badge variant="accent">Featured</Badge> : null}
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{similarTool.tagline}</p>
-                  </Link>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">No similar tools have been indexed yet.</p>
-              )}
+              <Link
+                href={`/categories/${tool.categorySlug}`}
+                className="block rounded-[1.35rem] border border-border/70 bg-background/52 p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-white/82 hover:shadow-sm"
+              >
+                <p className="font-semibold">Browse {tool.category} tools</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Compare more tools in the same category and workflow.
+                </p>
+              </Link>
+              <Link
+                href={`/alternatives/${tool.slug}`}
+                className="block rounded-[1.35rem] border border-border/70 bg-background/52 p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-white/82 hover:shadow-sm"
+              >
+                <p className="font-semibold">{tool.name} alternatives</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Explore the strongest overlapping options for this use case.
+                </p>
+              </Link>
             </CardContent>
           </Card>
         </div>

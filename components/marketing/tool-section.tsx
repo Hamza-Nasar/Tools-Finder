@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Tool } from "@/types";
+import { MotionReveal } from "@/components/shared/motion-reveal";
 import { ToolCard } from "@/components/tools/tool-card";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ export function ToolSection({ eyebrow, title, description, tools }: ToolSectionP
   }
 
   return (
-    <section className="page-frame py-10 md:py-14">
+    <section className="page-frame py-12 md:py-16">
       <SectionHeading
         eyebrow={eyebrow}
         title={title}
@@ -28,11 +29,11 @@ export function ToolSection({ eyebrow, title, description, tools }: ToolSectionP
           </Button>
         }
       />
-      <div className="mt-8 grid gap-5 lg:grid-cols-3">
+      <MotionReveal className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3" y={14}>
         {tools.map((tool) => (
           <ToolCard key={tool.id} tool={tool} />
         ))}
-      </div>
+      </MotionReveal>
     </section>
   );
 }

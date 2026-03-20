@@ -13,6 +13,7 @@ import { UserModel } from "@/models/User";
 import { CategoryService } from "@/lib/services/category-service";
 import { EmailService } from "@/lib/services/email-service";
 import { ToolService } from "@/lib/services/tool-service";
+import { UserActivityService } from "@/lib/services/user-activity-service";
 
 type ObjectId = mongoose.Types.ObjectId;
 
@@ -153,6 +154,7 @@ export class SubmissionService {
     q?: string;
     category?: string;
     status?: "pending" | "approved" | "rejected";
+    submittedBy?: string;
   }) {
     await connectToDatabase();
 
@@ -165,6 +167,10 @@ export class SubmissionService {
 
     if (options.status) {
       filter.status = options.status;
+    }
+
+    if (options.submittedBy) {
+      filter.submittedBy = toObjectId(options.submittedBy, "submittedBy");
     }
 
     if (options.q) {
@@ -196,6 +202,22 @@ export class SubmissionService {
     }
 
     return serializeSubmission(record);
+  }
+
+  static async listSubmissionsForUser(
+    userId: string,
+    options: {
+      page: number;
+      limit: number;
+      status?: "pending" | "approved" | "rejected";
+    }
+  ) {
+    return this.listSubmissions({
+      page: options.page,
+      limit: options.limit,
+      status: options.status,
+      submittedBy: userId
+    });
   }
 
   static async createSubmission(
@@ -240,6 +262,10 @@ export class SubmissionService {
       status: "pending",
       submittedBy: input.submittedBy ? toObjectId(input.submittedBy, "submittedBy") : null
     });
+
+    if (input.submittedBy) {
+      await UserActivityService.recordToolSubmitted(input.submittedBy, submission._id.toString());
+    }
 
     if (!options?.disableNotifications) {
       await Promise.all([

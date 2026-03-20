@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Search, Sparkles, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Category, TagFacet, ToolSuggestion } from "@/types";
@@ -22,9 +23,13 @@ function parseTags(value: string) {
     .filter(Boolean);
 }
 
+const chipClasses =
+  "rounded-full px-4 py-2 text-sm font-medium transition duration-200 hover:-translate-y-0.5 motion-safe:active:scale-[0.97]";
+
 export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersProps) {
   const router = useRouter();
   const { searchParams, updateFilters, isPending } = useToolFilters();
+  const reduceMotion = useReducedMotion();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [tagInput, setTagInput] = useState(searchParams.get("tags") ?? searchParams.get("tag") ?? "");
   const [suggestions, setSuggestions] = useState<ToolSuggestion[]>([]);
@@ -120,7 +125,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
   }
 
   return (
-    <div className="surface-card p-5">
+    <div className="surface-card p-5 md:p-6">
       <div className="flex flex-col gap-3 border-b border-border/70 pb-5 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Search and refine</p>
@@ -149,50 +154,58 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
               />
             </div>
 
-            {isSearchFocused && (suggestions.length > 0 || isSuggestionsLoading) ? (
-              <div className="absolute z-20 mt-3 w-full rounded-[1.35rem] border border-border/70 bg-white/95 p-2 shadow-floating backdrop-blur">
-                {isSuggestionsLoading ? (
-                  <div className="space-y-2 p-2">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <div key={index} className="skeleton-shimmer h-12 w-full rounded-[1rem]" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    {suggestions.map((suggestion) => (
-                      <button
-                        key={suggestion.id}
-                        type="button"
-                        onMouseDown={() => router.push(`/tools/${suggestion.slug}`)}
-                        className="flex w-full items-center justify-between rounded-[1rem] px-3 py-3 text-left transition hover:bg-background/70"
-                      >
-                        <div>
-                          <p className="font-medium text-foreground">{suggestion.name}</p>
-                          <p className="mt-1 text-sm text-muted-foreground">{suggestion.category}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {suggestion.featured ? (
-                            <span className="rounded-full border border-accent/70 bg-accent/70 px-2.5 py-1 text-xs font-semibold text-accent-foreground">
-                              Featured
+            <AnimatePresence>
+              {isSearchFocused && (suggestions.length > 0 || isSuggestionsLoading) ? (
+                <motion.div
+                  initial={reduceMotion ? false : { opacity: 0, y: 8, scale: 0.98 }}
+                  animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+                  transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute z-20 mt-3 w-full rounded-[1.35rem] border border-border/70 bg-white/95 p-2 shadow-floating backdrop-blur"
+                >
+                  {isSuggestionsLoading ? (
+                    <div className="space-y-2 p-2">
+                      {Array.from({ length: 3 }).map((_, index) => (
+                        <div key={index} className="skeleton-shimmer h-12 w-full rounded-[1rem]" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {suggestions.map((suggestion) => (
+                        <button
+                          key={suggestion.id}
+                          type="button"
+                          onMouseDown={() => router.push(`/tools/${suggestion.slug}`)}
+                          className="flex w-full items-center justify-between rounded-[1rem] px-3 py-3 text-left transition duration-200 hover:bg-background/70"
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">{suggestion.name}</p>
+                            <p className="mt-1 text-sm text-muted-foreground">{suggestion.category}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {suggestion.featured ? (
+                              <span className="rounded-full border border-accent/70 bg-accent/70 px-2.5 py-1 text-xs font-semibold text-accent-foreground">
+                                Featured
+                              </span>
+                            ) : null}
+                            <span className="rounded-full border border-border bg-white px-2.5 py-1 text-xs text-muted-foreground">
+                              {suggestion.pricing}
                             </span>
-                          ) : null}
-                          <span className="rounded-full border border-border bg-white px-2.5 py-1 text-xs text-muted-foreground">
-                            {suggestion.pricing}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                    <Link
-                      href={query ? `/tools?q=${encodeURIComponent(query)}` : "/tools"}
-                      className="flex items-center gap-2 rounded-[1rem] px-3 py-3 text-sm font-medium text-primary transition hover:bg-background/70"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      Search the full directory for “{query.trim()}”
-                    </Link>
-                  </div>
-                )}
-              </div>
-            ) : null}
+                          </div>
+                        </button>
+                      ))}
+                      <Link
+                        href={query ? `/tools?q=${encodeURIComponent(query)}` : "/tools"}
+                        className="flex items-center gap-2 rounded-[1rem] px-3 py-3 text-sm font-medium text-primary transition duration-200 hover:bg-background/70"
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        Search the full directory for "{query.trim()}"
+                      </Link>
+                    </div>
+                  )}
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </div>
 
           <div>
@@ -257,7 +270,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
       <div className="mt-5 grid gap-4 xl:grid-cols-[1fr_auto]">
         <div>
           <label className="mb-2 block text-sm font-semibold">Pricing</label>
-          <div className="flex flex-wrap gap-2">
+          <motion.div layout className="flex flex-wrap gap-2">
             {pricingOptions.map((pricing) => {
               const active = activePricing === pricing;
 
@@ -271,7 +284,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                       page: undefined
                     })
                   }
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`${chipClasses} ${
                     active
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
@@ -281,12 +294,12 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                 </button>
               );
             })}
-          </div>
+          </motion.div>
         </div>
 
         <div>
           <label className="mb-2 block text-sm font-semibold">Quick filters</label>
-          <div className="flex flex-wrap gap-2">
+          <motion.div layout className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() =>
@@ -295,7 +308,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                   page: undefined
                 })
               }
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`${chipClasses} ${
                 activeFeatured
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
@@ -311,7 +324,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                   page: undefined
                 })
               }
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`${chipClasses} ${
                 activeRecent
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
@@ -319,14 +332,14 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             >
               Added in last 30 days
             </button>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {topTags.length ? (
         <div className="mt-5">
           <label className="mb-2 block text-sm font-semibold">Popular tags</label>
-          <div className="flex flex-wrap gap-2">
+          <motion.div layout className="flex flex-wrap gap-2">
             {topTags.map((tag) => {
               const active = activeTags.includes(tag.tag);
 
@@ -335,7 +348,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                   key={tag.tag}
                   type="button"
                   onClick={() => toggleTopTag(tag.tag)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`${chipClasses} ${
                     active
                       ? "bg-secondary text-secondary-foreground shadow-sm"
                       : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
@@ -345,12 +358,12 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                 </button>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       ) : null}
 
       <div className="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap gap-2">
+        <motion.div layout className="flex flex-wrap gap-2">
           {activeCategory ? (
             <button
               type="button"
@@ -409,7 +422,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
               Search: {query} x
             </button>
           ) : null}
-        </div>
+        </motion.div>
 
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <button

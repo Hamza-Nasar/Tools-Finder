@@ -6,6 +6,7 @@ import { serializeTool } from "@/lib/serializers/tool";
 import { FavoriteModel } from "@/models/Favorite";
 import { ToolModel } from "@/models/Tool";
 import { ToolActivityService } from "@/lib/services/tool-activity-service";
+import { UserActivityService } from "@/lib/services/user-activity-service";
 
 export class FavoriteService {
   static async listFavoritesForUser(userId: string, options: { page: number; limit: number }) {
@@ -101,7 +102,10 @@ export class FavoriteService {
     }
 
     if (writeResult.upsertedCount > 0) {
-      await ToolActivityService.recordFavorite(toolIdObject);
+      await Promise.all([
+        ToolActivityService.recordFavorite(toolIdObject),
+        UserActivityService.recordToolSaved(userId, toolId)
+      ]);
     }
 
     return serializeFavorite(favorite);

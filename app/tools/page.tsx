@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { getPublicCategories } from "@/lib/data/categories";
 import { getPublicToolList, getToolDirectoryFacets } from "@/lib/data/tools";
 import { pricingOptions } from "@/lib/constants";
@@ -6,9 +7,27 @@ import { compactNumber } from "@/lib/utils";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
 import { PaginationControls } from "@/components/shared/pagination-controls";
-import { HybridDiscoveryPanel } from "@/components/tools/hybrid-discovery-panel";
 import { ToolCard } from "@/components/tools/tool-card";
 import { ToolFilters } from "@/components/tools/tool-filters";
+
+const HybridDiscoveryPanel = dynamic(
+  () => import("@/components/tools/hybrid-discovery-panel").then((module) => module.HybridDiscoveryPanel),
+  {
+    loading: () => (
+      <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div key={index} className="surface-card p-6">
+            <div className="skeleton-shimmer h-12 w-12 rounded-2xl" />
+            <div className="mt-4 skeleton-shimmer h-5 w-2/3 rounded-full" />
+            <div className="mt-3 skeleton-shimmer h-4 w-full rounded-full" />
+            <div className="mt-2 skeleton-shimmer h-4 w-5/6 rounded-full" />
+            <div className="mt-6 skeleton-shimmer h-10 w-full rounded-xl" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+);
 
 export const metadata = buildMetadata({
   title: "AI Tools Directory",
@@ -175,7 +194,7 @@ export default async function ToolsPage({
               Search runs against indexed catalog fields and keeps this URL shareable.
             </p>
           </div>
-          <div className="mt-4 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {tools.data.map((tool) => (
               <ToolCard key={tool.id} tool={tool} />
             ))}

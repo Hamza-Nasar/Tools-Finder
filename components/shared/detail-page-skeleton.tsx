@@ -1,8 +1,10 @@
+import { MotionReveal } from "@/components/shared/motion-reveal";
+
 export function DetailPageSkeleton() {
   return (
     <div className="page-frame py-12">
       <div className="grid gap-8 lg:grid-cols-[1.5fr_0.9fr]">
-        <div className="surface-card p-8">
+        <MotionReveal className="surface-card p-8" y={18}>
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
             <div className="flex gap-4">
               <div className="skeleton-shimmer h-16 w-16 rounded-[1.3rem]" />
@@ -28,9 +30,9 @@ export function DetailPageSkeleton() {
             <div className="skeleton-shimmer aspect-[16/10] rounded-[1.5rem]" />
             <div className="skeleton-shimmer aspect-[16/10] rounded-[1.5rem]" />
           </div>
-        </div>
+        </MotionReveal>
         <div className="space-y-6">
-          <div className="surface-card p-6">
+          <MotionReveal className="surface-card p-6" delay={0.06} y={18}>
             <div className="skeleton-shimmer h-6 w-40" />
             <div className="mt-6 space-y-3">
               <div className="skeleton-shimmer h-5 w-full" />
@@ -38,14 +40,14 @@ export function DetailPageSkeleton() {
               <div className="skeleton-shimmer h-5 w-full" />
               <div className="skeleton-shimmer h-12 w-full" />
             </div>
-          </div>
-          <div className="surface-card p-6">
+          </MotionReveal>
+          <MotionReveal className="surface-card p-6" delay={0.12} y={18}>
             <div className="skeleton-shimmer h-6 w-36" />
             <div className="mt-6 space-y-3">
               <div className="skeleton-shimmer h-20 w-full rounded-[1.25rem]" />
               <div className="skeleton-shimmer h-20 w-full rounded-[1.25rem]" />
             </div>
-          </div>
+          </MotionReveal>
         </div>
       </div>
     </div>
