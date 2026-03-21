@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/constants";
 import { getPublicCategories } from "@/lib/data/categories";
+import { getSeoComparisonPairsCached } from "@/lib/data/tools";
 import { toolCollections } from "@/lib/collections";
 import { getPromptToolGroups } from "@/lib/prompt-library";
 import { ToolService } from "@/lib/services/tool-service";
@@ -31,8 +32,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
-    const [categories, tools] = await Promise.all([
+    const [categories, comparisons, tools] = await Promise.all([
       getPublicCategories(),
+      getSeoComparisonPairsCached(),
       ToolService.listTools({
         page: 1,
         limit: 500,
@@ -54,6 +56,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.65
     }));
 
+    const comparisonRoutes = comparisons.map((pair) => ({
+      url: `${siteConfig.url}/compare/${pair.slugA}-vs-${pair.slugB}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.6
+    }));
+
     const categoryRoutes = categories.map((category) => ({
       url: `${siteConfig.url}/categories/${category.slug}`,
       lastModified: new Date(),
@@ -61,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7
     }));
 
-    return [...staticRoutes, ...toolRoutes, ...alternativeRoutes, ...categoryRoutes];
+    return [...staticRoutes, ...toolRoutes, ...alternativeRoutes, ...comparisonRoutes, ...categoryRoutes];
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
       return staticRoutes;

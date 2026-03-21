@@ -22,6 +22,7 @@ interface SubmissionWriteInput {
   tagline: string;
   website: string;
   affiliateUrl?: string | null;
+  launchYear?: number | null;
   description: string;
   categorySlug: string;
   tags: string[];
@@ -32,6 +33,21 @@ interface SubmissionWriteInput {
   status?: "pending" | "approved" | "rejected";
   moderationNote?: string | null;
   submittedBy?: string | null;
+}
+
+function sanitizeLaunchYear(value: number | null | undefined) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const currentYear = new Date().getFullYear();
+  const normalized = Math.floor(Number(value));
+
+  if (!Number.isFinite(normalized) || normalized < 1990 || normalized > currentYear) {
+    return null;
+  }
+
+  return normalized;
 }
 
 async function resolveRecipientEmail(input: {
@@ -250,6 +266,7 @@ export class SubmissionService {
       website: sanitizedWebsite,
       websiteDomain,
       affiliateUrl: sanitizeOptionalUrl(input.affiliateUrl ?? null),
+      launchYear: sanitizeLaunchYear(input.launchYear),
       description: sanitizeText(input.description),
       category: toObjectId(category.id, "category"),
       categoryName: category.name,
@@ -345,6 +362,7 @@ export class SubmissionService {
       submission.websiteDomain = nextWebsiteDomain;
     }
     if (input.affiliateUrl !== undefined) submission.affiliateUrl = sanitizeOptionalUrl(input.affiliateUrl ?? null);
+    if (input.launchYear !== undefined) submission.launchYear = sanitizeLaunchYear(input.launchYear);
     if (input.description !== undefined) submission.description = sanitizeText(input.description);
     if (input.tags !== undefined) submission.tags = sanitizeTagList(input.tags);
     if (input.pricing !== undefined) submission.pricing = input.pricing;
@@ -375,6 +393,7 @@ export class SubmissionService {
         tagline: submission.tagline,
         website: submission.website,
         affiliateUrl: submission.affiliateUrl,
+        launchYear: submission.launchYear,
         description: submission.description,
         categorySlug: submission.categorySlug,
         tags: submission.tags,

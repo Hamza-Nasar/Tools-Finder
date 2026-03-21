@@ -25,6 +25,10 @@ const ToolActivitySchema = new Schema(
     clicks: {
       type: Number,
       default: 0
+    },
+    comparisonClicks: {
+      type: Number,
+      default: 0
     }
   },
   {
@@ -36,6 +40,7 @@ ToolActivitySchema.index({ toolId: 1, bucketDate: 1 }, { unique: true });
 ToolActivitySchema.index({ bucketDate: -1, favorites: -1 });
 ToolActivitySchema.index({ bucketDate: -1, views: -1 });
 ToolActivitySchema.index({ bucketDate: -1, clicks: -1 });
+ToolActivitySchema.index({ bucketDate: -1, comparisonClicks: -1 });
 
 export type ToolActivityDocument = InferSchemaType<typeof ToolActivitySchema>;
 

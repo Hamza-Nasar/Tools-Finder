@@ -38,6 +38,9 @@ export const categoryGradientMap: Record<string, string> = {
   coding: "from-slate-700 to-slate-500",
   marketing: "from-cyan-600 to-teal-500",
   productivity: "from-emerald-600 to-lime-500",
+  education: "from-indigo-600 to-sky-500",
   chatbots: "from-cyan-700 to-blue-500",
-  research: "from-sky-700 to-blue-500"
+  research: "from-sky-700 to-blue-500",
+  design: "from-pink-600 to-rose-500",
+  audio: "from-amber-600 to-orange-500"
 };

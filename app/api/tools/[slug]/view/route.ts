@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { handleApiError, noContent } from "@/lib/api";
 import { takeRateLimit } from "@/lib/rate-limit/memory-store";
 import { getOptionalSession } from "@/lib/server-guards";
-import { ToolService } from "@/lib/services/tool-service";
+import { ToolAnalyticsService } from "@/lib/services/tool-analytics-service";
 import { UserActivityService } from "@/lib/services/user-activity-service";
 import { UserService } from "@/lib/services/user-service";
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return noContent();
     }
 
-    const [viewRecord, session] = await Promise.all([ToolService.recordViewBySlug(slug), getOptionalSession()]);
+    const [viewRecord, session] = await Promise.all([ToolAnalyticsService.recordToolView(slug), getOptionalSession()]);
 
     if (session?.user) {
       const user = await UserService.syncSessionUser(session);

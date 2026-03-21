@@ -6,8 +6,10 @@ import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { getOptionalSession } from "@/lib/server-guards";
 import { FavoriteService } from "@/lib/services/favorite-service";
 import { UserService } from "@/lib/services/user-service";
+import { workflows } from "@/lib/workflows";
 import { FeatureListingButton } from "@/components/tools/feature-listing-button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { NewsletterForm } from "@/components/shared/newsletter-form";
 import { Button } from "@/components/ui/button";
 import { FavoriteToggle } from "@/components/tools/favorite-toggle";
 import { ToolDetail } from "@/components/tools/tool-detail";
@@ -57,10 +59,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return buildMetadata({
-    title: `${tool.name} | AI Tools Finder`,
-    description: tool.description,
+    title: `${tool.name}: ${tool.tagline} | AI Tools Finder`,
+    description: `${tool.tagline} ${tool.description}`.slice(0, 155),
     path: `/tools/${tool.slug}`,
-    keywords: [tool.name, tool.category, ...tool.tags.slice(0, 5)]
+    keywords: [tool.name, tool.category, ...tool.tags.slice(0, 5)],
+    imagePath: tool.logo ?? undefined
   });
 }
 
@@ -97,6 +100,19 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
   ]);
   const user = session?.user ? await UserService.syncSessionUser(session) : null;
   const isFavorited = user ? await FavoriteService.isFavorited(user.id, tool.id) : false;
+  const workflowsUsingTool = workflows
+    .filter(
+      (workflow) =>
+        workflow.toolsUsed.includes(tool.slug) ||
+        workflow.steps.some((step) => step.toolSlugs.includes(tool.slug))
+    )
+    .slice(0, 3)
+    .map((workflow) => ({
+      slug: workflow.slug,
+      title: workflow.title,
+      description: workflow.description
+    }));
+  const comparisonTools = relatedTools.filter((relatedTool) => relatedTool.categorySlug === tool.categorySlug).slice(0, 3);
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -106,6 +122,9 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
     operatingSystem: "Web",
     mainEntityOfPage: absoluteUrl(`/tools/${tool.slug}`),
     sameAs: [tool.website],
+    datePublished: tool.launchYear ? `${tool.launchYear}-01-01` : undefined,
+    keywords: tool.tags.join(", "),
+    image: tool.logo ?? absoluteUrl("/opengraph-image"),
     offers: {
       "@type": "Offer",
       price: tool.pricing === "Paid" ? "Paid" : "0",
@@ -129,6 +148,8 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
       <ToolDetail
         tool={tool}
         relatedTools={relatedTools}
+        comparisonTools={comparisonTools}
+        workflowsUsingTool={workflowsUsingTool}
         action={
           <div className="space-y-3">
             {user ? (
@@ -148,6 +169,17 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           </div>
         }
       />
+      <section className="page-frame pb-12">
+        <NewsletterForm
+          source="tool-page"
+          toolSlug={tool.slug}
+          pagePath={`/tools/${tool.slug}`}
+          compact
+          title={`Get more tools like ${tool.name} without checking the directory every day.`}
+          description={`Join the newsletter for new ${tool.category.toLowerCase()} tools, comparison pages, and workflow updates surfaced from the fastest-moving parts of the catalog.`}
+          buttonLabel="Send me updates"
+        />
+      </section>
     </>
   );
 }

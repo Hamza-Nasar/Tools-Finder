@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { Button } from "@/components/ui/button";
 
 function getInitials(name?: string | null, email?: string | null) {
@@ -48,7 +49,7 @@ export function HeaderAuthControls() {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
   const callbackUrl = pathname && pathname !== "/auth/sign-in" ? pathname : "/dashboard";
 
   useEffect(() => {
@@ -135,7 +136,6 @@ export function HeaderAuthControls() {
           whileTap={reduceMotion ? undefined : { scale: 0.97 }}
         >
           {session.user.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <motion.img
               src={session.user.image}
               alt={session.user.name ?? "Signed-in user"}

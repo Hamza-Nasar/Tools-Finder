@@ -38,6 +38,7 @@ export interface Tool {
   description: string;
   website: string;
   affiliateUrl?: string | null;
+  launchYear?: number | null;
   categoryId: string;
   category: string;
   categorySlug: string;
@@ -57,6 +58,7 @@ export interface Tool {
   favoritesCount: number;
   viewsCount: number;
   clicksCount: number;
+  comparisonClicksCount?: number;
   latestFavoriteAt?: string | null;
   latestViewAt?: string | null;
   latestClickAt?: string | null;
@@ -82,6 +84,7 @@ export interface ToolSubmissionPayload {
   tagline: string;
   website: string;
   affiliateUrl?: string | null;
+  launchYear?: number | null;
   description: string;
   category: string;
   tags: string[];
@@ -98,6 +101,7 @@ export interface Submission {
   tagline: string;
   website: string;
   affiliateUrl?: string | null;
+  launchYear?: number | null;
   description: string;
   categoryId: string;
   category: string;

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getRelatedToolsCached, getToolBySlugCached } from "@/lib/data/tools";
-import { buildMetadata } from "@/lib/seo";
+import { getRelatedToolsCached, getSeoComparisonPairsCached, getToolBySlugCached } from "@/lib/data/tools";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
 import { ToolComparison } from "@/components/tools/tool-comparison";
@@ -21,6 +21,18 @@ function parseComparisonSlug(slug: string) {
   };
 }
 
+export async function generateStaticParams() {
+  try {
+    const pairs = await getSeoComparisonPairsCached();
+
+    return pairs.map((pair) => ({
+      slug: `${pair.slugA}-vs-${pair.slugB}`
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolved = parseComparisonSlug((await params).slug);
 
@@ -36,12 +48,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       getToolBySlugCached(resolved.toolASlug),
       getToolBySlugCached(resolved.toolBSlug)
     ]);
+    const year = new Date().getFullYear();
 
     return buildMetadata({
-      title: `${toolA.name} vs ${toolB.name}`,
-      description: `Compare ${toolA.name} vs ${toolB.name} across pricing, category fit, popularity, and overall discovery signals.`,
+      title: `${toolA.name} vs ${toolB.name} (${year})`,
+      description: `Compare ${toolA.name} vs ${toolB.name} across pricing, category fit, launch timing, popularity, and overall discovery signals.`,
       path: `/compare/${resolved.toolASlug}-vs-${resolved.toolBSlug}`,
-      keywords: [`${toolA.name} vs ${toolB.name}`, toolA.category, toolB.category, ...toolA.tags.slice(0, 3)]
+      keywords: [`${toolA.name} vs ${toolB.name}`, toolA.category, toolB.category, ...toolA.tags.slice(0, 3)],
+      imagePath: toolA.logo ?? toolB.logo ?? undefined
     });
   } catch {
     return buildMetadata({
@@ -67,15 +81,33 @@ export default async function ToolComparisonPage({
       getToolBySlugCached(resolved.toolASlug),
       getToolBySlugCached(resolved.toolBSlug)
     ]);
+    const year = new Date().getFullYear();
     const alternatives = await getRelatedToolsCached({
       slug: toolA.slug,
       categorySlug: toolA.categorySlug,
       tags: [...toolA.tags, ...toolB.tags],
       limit: 4
     });
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: `${toolA.name} vs ${toolB.name}`,
+      description: `Compare ${toolA.name} and ${toolB.name} across pricing, category fit, launch timing, and popularity.`,
+      datePublished: `${year}-01-01`,
+      mainEntityOfPage: absoluteUrl(`/compare/${toolA.slug}-vs-${toolB.slug}`),
+      about: [toolA.name, toolB.name],
+      author: {
+        "@type": "Organization",
+        name: "AI Tools Finder"
+      }
+    };
 
     return (
       <div className="page-frame py-12">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <PageHero
           eyebrow="Comparison"
           title={`${toolA.name} vs ${toolB.name}`}

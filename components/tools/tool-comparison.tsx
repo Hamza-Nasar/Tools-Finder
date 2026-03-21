@@ -97,6 +97,11 @@ function getFeatureRows(toolA: Tool, toolB: Tool) {
       b: toolB.category
     },
     {
+      label: "Launch year",
+      a: toolA.launchYear ? String(toolA.launchYear) : "Not listed",
+      b: toolB.launchYear ? String(toolB.launchYear) : "Not listed"
+    },
+    {
       label: "Pricing",
       a: toolA.pricing,
       b: toolB.pricing

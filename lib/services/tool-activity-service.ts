@@ -7,6 +7,7 @@ import { ToolModel } from "@/models/Tool";
 const VIEW_TREND_WEIGHT = 0.75;
 const FAVORITE_TREND_WEIGHT = 6;
 const CLICK_TREND_WEIGHT = 2.5;
+const COMPARISON_TREND_WEIGHT = 3.5;
 const NEW_TOOL_TREND_WINDOW_DAYS = 30;
 const TRENDING_ACTIVITY_WINDOW_DAYS = 14;
 const RECENT_ACTIVITY_LOOKBACK_DAYS = 7;
@@ -125,6 +126,34 @@ export class ToolActivityService {
     ]);
   }
 
+  static async recordComparisonClick(toolId: string | ObjectId) {
+    await connectToDatabase();
+
+    const objectId = toToolObjectId(toolId);
+    const now = new Date();
+    const bucketDate = getBucketDate(now);
+
+    await Promise.all([
+      ToolActivityModel.updateOne(
+        { toolId: objectId, bucketDate },
+        {
+          $setOnInsert: { toolId: objectId, bucketDate },
+          $inc: { comparisonClicks: 1 }
+        },
+        { upsert: true }
+      ),
+      ToolModel.updateOne(
+        { _id: objectId },
+        {
+          $inc: {
+            comparisonClicksCount: 1,
+            trendingScore: COMPARISON_TREND_WEIGHT
+          }
+        }
+      )
+    ]);
+  }
+
   static async decrementFavoriteCount(toolId: string | ObjectId) {
     await connectToDatabase();
 
@@ -155,8 +184,11 @@ export class ToolActivityService {
       recentViews: number;
       recentFavorites: number;
       recentClicks: number;
+      recentComparisonClicks: number;
       recentViews7d: number;
       recentFavorites7d: number;
+      recentClicks7d: number;
+      recentComparisonClicks7d: number;
       activityScore: number;
     }>([
       {
@@ -170,6 +202,7 @@ export class ToolActivityService {
           recentViews: { $sum: "$views" },
           recentFavorites: { $sum: "$favorites" },
           recentClicks: { $sum: "$clicks" },
+          recentComparisonClicks: { $sum: "$comparisonClicks" },
           recentViews7d: {
             $sum: {
               $cond: [{ $gte: ["$bucketDate", recencyCutoff] }, "$views", 0]
@@ -178,6 +211,16 @@ export class ToolActivityService {
           recentFavorites7d: {
             $sum: {
               $cond: [{ $gte: ["$bucketDate", recencyCutoff] }, "$favorites", 0]
+            }
+          },
+          recentClicks7d: {
+            $sum: {
+              $cond: [{ $gte: ["$bucketDate", recencyCutoff] }, "$clicks", 0]
+            }
+          },
+          recentComparisonClicks7d: {
+            $sum: {
+              $cond: [{ $gte: ["$bucketDate", recencyCutoff] }, "$comparisonClicks", 0]
             }
           }
         }
@@ -189,13 +232,23 @@ export class ToolActivityService {
               { $multiply: ["$recentFavorites", FAVORITE_TREND_WEIGHT] },
               { $multiply: ["$recentViews", VIEW_TREND_WEIGHT] },
               { $multiply: [{ $ifNull: ["$recentClicks", 0] }, CLICK_TREND_WEIGHT] },
-              { $multiply: ["$recentFavorites7d", 2] },
-              { $multiply: ["$recentViews7d", 0.5] }
+              { $multiply: [{ $ifNull: ["$recentComparisonClicks", 0] }, COMPARISON_TREND_WEIGHT] },
+              { $multiply: ["$recentFavorites7d", 3] },
+              { $multiply: ["$recentViews7d", 0.9] },
+              { $multiply: [{ $ifNull: ["$recentClicks7d", 0] }, 1.5] },
+              { $multiply: [{ $ifNull: ["$recentComparisonClicks7d", 0] }, 2.2] }
             ]
           }
         }
       },
-      { $sort: { activityScore: -1, recentFavorites: -1, recentViews: -1 } },
+      {
+        $sort: {
+          activityScore: -1,
+          recentFavorites7d: -1,
+          recentComparisonClicks7d: -1,
+          recentViews7d: -1
+        }
+      },
       { $limit: Math.max(limit * 4, 12) },
       {
         $project: {
@@ -204,8 +257,11 @@ export class ToolActivityService {
           recentViews: 1,
           recentFavorites: 1,
           recentClicks: 1,
+          recentComparisonClicks: 1,
           recentViews7d: 1,
           recentFavorites7d: 1,
+          recentClicks7d: 1,
+          recentComparisonClicks7d: 1,
           activityScore: 1
         }
       }
@@ -224,10 +280,11 @@ export class ToolActivityService {
         toolId: 1,
         views: 1,
         favorites: 1,
-        clicks: 1
+        clicks: 1,
+        comparisonClicks: 1
       }
     )
-      .sort({ favorites: -1, views: -1, clicks: -1 })
+      .sort({ favorites: -1, comparisonClicks: -1, views: -1, clicks: -1 })
       .limit(Math.max(limit * 4, 12))
       .lean();
 
@@ -237,10 +294,12 @@ export class ToolActivityService {
         recentViews: Number(record.views ?? 0),
         recentFavorites: Number(record.favorites ?? 0),
         recentClicks: Number(record.clicks ?? 0),
+        recentComparisonClicks: Number(record.comparisonClicks ?? 0),
         activityScore:
           Number(record.favorites ?? 0) * FAVORITE_TREND_WEIGHT +
           Number(record.views ?? 0) * VIEW_TREND_WEIGHT +
-          Number(record.clicks ?? 0) * CLICK_TREND_WEIGHT
+          Number(record.clicks ?? 0) * CLICK_TREND_WEIGHT +
+          Number(record.comparisonClicks ?? 0) * COMPARISON_TREND_WEIGHT
       }))
       .sort((left, right) => right.activityScore - left.activityScore);
   }

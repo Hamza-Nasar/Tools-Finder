@@ -5,15 +5,20 @@ import type { Tool } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrackedCompareLink } from "@/components/tools/tracked-compare-link";
 import { compactNumber, formatRelativeDate, getHostnameLabel } from "@/lib/utils";
 
 export function ToolDetail({
   tool,
   relatedTools,
+  comparisonTools,
+  workflowsUsingTool,
   action
 }: {
   tool: Tool;
   relatedTools: Tool[];
+  comparisonTools: Tool[];
+  workflowsUsingTool: Array<{ slug: string; title: string; description: string }>;
   action?: ReactNode;
 }) {
   return (
@@ -167,11 +172,21 @@ export function ToolDetail({
                     See alternatives to {tool.name}
                   </Link>
                   {relatedTools[0] ? (
-                    <Link
+                    <TrackedCompareLink
                       href={`/compare/${tool.slug}-vs-${relatedTools[0].slug}`}
+                      sourceSlug={tool.slug}
+                      targetSlug={relatedTools[0].slug}
                       className="mt-2 block text-sm font-medium text-primary"
                     >
                       Compare with {relatedTools[0].name}
+                    </TrackedCompareLink>
+                  ) : null}
+                  {workflowsUsingTool[0] ? (
+                    <Link
+                      href={`/workflows/${workflowsUsingTool[0].slug}`}
+                      className="mt-2 block text-sm font-medium text-primary"
+                    >
+                      Use it inside {workflowsUsingTool[0].title}
                     </Link>
                   ) : null}
                 </div>
@@ -264,6 +279,12 @@ export function ToolDetail({
                 <span className="text-muted-foreground">Website</span>
                 <span className="font-semibold">{getHostnameLabel(tool.website)}</span>
               </div>
+              {tool.launchYear ? (
+                <div className="surface-subtle flex items-center justify-between px-4 py-3">
+                  <span className="text-muted-foreground">Launch year</span>
+                  <span className="font-semibold">{tool.launchYear}</span>
+                </div>
+              ) : null}
               {tool.featuredUntil ? (
                 <div className="surface-subtle flex items-center justify-between px-4 py-3">
                   <span className="text-muted-foreground">Featured until</span>
@@ -307,6 +328,32 @@ export function ToolDetail({
                   Explore the strongest overlapping options for this use case.
                 </p>
               </Link>
+              {comparisonTools.slice(0, 2).map((comparisonTool) => (
+                <TrackedCompareLink
+                  key={comparisonTool.id}
+                  href={`/compare/${tool.slug}-vs-${comparisonTool.slug}`}
+                  sourceSlug={tool.slug}
+                  targetSlug={comparisonTool.slug}
+                  className="block rounded-[1.35rem] border border-border/70 bg-background/52 p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-white/82 hover:shadow-sm"
+                >
+                  <p className="font-semibold">
+                    {tool.name} vs {comparisonTool.name}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Compare pricing, popularity, and workflow fit side by side.
+                  </p>
+                </TrackedCompareLink>
+              ))}
+              {workflowsUsingTool.slice(0, 2).map((workflow) => (
+                <Link
+                  key={workflow.slug}
+                  href={`/workflows/${workflow.slug}`}
+                  className="block rounded-[1.35rem] border border-border/70 bg-background/52 p-4 transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-white/82 hover:shadow-sm"
+                >
+                  <p className="font-semibold">{workflow.title}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{workflow.description}</p>
+                </Link>
+              ))}
             </CardContent>
           </Card>
         </div>

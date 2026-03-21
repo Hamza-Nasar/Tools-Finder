@@ -44,6 +44,7 @@ export function serializeSubmission(record: SerializableRecord): Submission {
     tagline: String(record.tagline),
     website: String(record.website),
     affiliateUrl: record.affiliateUrl ? String(record.affiliateUrl) : null,
+    launchYear: typeof record.launchYear === "number" ? record.launchYear : null,
     description: String(record.description),
     categoryId: toObjectIdString(record.category),
     category: String(record.categoryName),

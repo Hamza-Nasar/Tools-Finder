@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
 
   return (
     <AnimatePresence mode="wait" initial={false}>

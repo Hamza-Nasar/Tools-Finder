@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { takeRateLimit } from "@/lib/rate-limit/memory-store";
 import { ToolService } from "@/lib/services/tool-service";
+import { ToolAnalyticsService } from "@/lib/services/tool-analytics-service";
 
 function getIpAddress(request: NextRequest) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   });
 
   if (rateLimit.allowed) {
-    await ToolService.recordClickBySlug(slug);
+    await ToolAnalyticsService.recordAffiliateClick(slug);
   }
 
   return NextResponse.redirect(tool.affiliateUrl || tool.website, {

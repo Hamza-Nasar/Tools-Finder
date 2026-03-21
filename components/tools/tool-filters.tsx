@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Search, Sparkles, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Category, TagFacet, ToolSuggestion } from "@/types";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { pricingOptions, sortOptions } from "@/lib/constants";
 import { useToolFilters } from "@/hooks/use-tool-filters";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,7 @@ const chipClasses =
 export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersProps) {
   const router = useRouter();
   const { searchParams, updateFilters, isPending } = useToolFilters();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [tagInput, setTagInput] = useState(searchParams.get("tags") ?? searchParams.get("tag") ?? "");
   const [suggestions, setSuggestions] = useState<ToolSuggestion[]>([]);
@@ -199,7 +200,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                         className="flex items-center gap-2 rounded-[1rem] px-3 py-3 text-sm font-medium text-primary transition duration-200 hover:bg-background/70"
                       >
                         <Sparkles className="h-4 w-4" />
-                        Search the full directory for "{query.trim()}"
+                        Search the full directory for &quot;{query.trim()}&quot;
                       </Link>
                     </div>
                   )}

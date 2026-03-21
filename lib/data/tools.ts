@@ -105,6 +105,15 @@ const getCollectionToolsCachedInternal = unstable_cache(
   }
 );
 
+const getSeoComparisonPairsCachedInternal = unstable_cache(
+  async () => ToolService.listSeoComparisonPairs(3),
+  ["seo-comparison-pairs"],
+  {
+    revalidate: 300,
+    tags: ["tools", "categories"]
+  }
+);
+
 export async function getHomepageTools() {
   try {
     return await getHomepageToolsCached();
@@ -224,6 +233,18 @@ export async function getCollectionToolsCached(input: {
       input.pricing,
       input.limit ?? 18
     );
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+export async function getSeoComparisonPairsCached() {
+  try {
+    return await getSeoComparisonPairsCachedInternal();
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
       return [];

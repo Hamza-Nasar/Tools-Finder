@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { cn } from "@/lib/utils";
 
 interface MotionRevealProps extends Omit<HTMLMotionProps<"div">, "children"> {
@@ -23,7 +24,7 @@ export function MotionReveal({
   whileTap,
   ...props
 }: MotionRevealProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
 
   return (
     <motion.div

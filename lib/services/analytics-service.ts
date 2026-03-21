@@ -53,6 +53,7 @@ export class AnalyticsService {
       mostViewedRecords,
       mostFavoritedRecords,
       mostClickedRecords,
+      mostComparedRecords,
       trendingTools,
       topCategories,
       activityRows,
@@ -68,14 +69,15 @@ export class AnalyticsService {
         featured: true,
         $or: [{ featuredUntil: null }, { featuredUntil: { $gte: new Date() } }]
       }),
-      ToolModel.aggregate<{ _id: null; views: number; favorites: number; clicks: number }>([
+      ToolModel.aggregate<{ _id: null; views: number; favorites: number; clicks: number; comparisonClicks: number }>([
         { $match: { status: "approved" } },
         {
           $group: {
             _id: null,
             views: { $sum: "$viewsCount" },
             favorites: { $sum: "$favoritesCount" },
-            clicks: { $sum: "$clicksCount" }
+            clicks: { $sum: "$clicksCount" },
+            comparisonClicks: { $sum: "$comparisonClicksCount" }
           }
         }
       ]),
@@ -92,6 +94,10 @@ export class AnalyticsService {
         .sort({ clicksCount: -1, latestClickAt: -1, createdAt: -1 })
         .limit(5)
         .lean(),
+      ToolModel.find({ status: "approved" })
+        .sort({ comparisonClicksCount: -1, clicksCount: -1, createdAt: -1 })
+        .limit(5)
+        .lean(),
       ToolService.listTrendingTools(5),
       ToolModel.aggregate<{
         slug: string;
@@ -100,6 +106,7 @@ export class AnalyticsService {
         totalViews: number;
         totalFavorites: number;
         totalClicks: number;
+        totalComparisonClicks: number;
       }>([
         { $match: { status: "approved" } },
         {
@@ -108,7 +115,8 @@ export class AnalyticsService {
             toolCount: { $sum: 1 },
             totalViews: { $sum: "$viewsCount" },
             totalFavorites: { $sum: "$favoritesCount" },
-            totalClicks: { $sum: "$clicksCount" }
+            totalClicks: { $sum: "$clicksCount" },
+            totalComparisonClicks: { $sum: "$comparisonClicksCount" }
           }
         },
         { $sort: { toolCount: -1, totalViews: -1 } },
@@ -121,7 +129,8 @@ export class AnalyticsService {
             toolCount: 1,
             totalViews: 1,
             totalFavorites: 1,
-            totalClicks: 1
+            totalClicks: 1,
+            totalComparisonClicks: 1
           }
         }
       ]),
@@ -130,6 +139,7 @@ export class AnalyticsService {
         views: number;
         favorites: number;
         clicks: number;
+        comparisonClicks: number;
       }>([
         { $match: { bucketDate: { $gte: cutoffDate } } },
         {
@@ -139,7 +149,8 @@ export class AnalyticsService {
             },
             views: { $sum: "$views" },
             favorites: { $sum: "$favorites" },
-            clicks: { $sum: "$clicks" }
+            clicks: { $sum: "$clicks" },
+            comparisonClicks: { $sum: "$comparisonClicks" }
           }
         },
         {
@@ -148,7 +159,8 @@ export class AnalyticsService {
             key: "$_id",
             views: 1,
             favorites: 1,
-            clicks: 1
+            clicks: 1,
+            comparisonClicks: 1
           }
         }
       ]),
@@ -216,6 +228,7 @@ export class AnalyticsService {
           views: 0,
           favorites: 0,
           clicks: 0,
+          comparisonClicks: 0,
           submissions: 0,
           purchases: 0,
           revenue: 0
@@ -229,6 +242,7 @@ export class AnalyticsService {
       current.views = row.views;
       current.favorites = row.favorites;
       current.clicks = row.clicks;
+      current.comparisonClicks = row.comparisonClicks;
     }
 
     for (const row of submissionRows) {
@@ -244,7 +258,7 @@ export class AnalyticsService {
       current.revenue = row.revenue;
     }
 
-    const totalsRow = totals[0] ?? { views: 0, favorites: 0, clicks: 0 };
+    const totalsRow = totals[0] ?? { views: 0, favorites: 0, clicks: 0, comparisonClicks: 0 };
     const primaryRevenue = revenueOverview.totals[0] ?? {
       currency: "usd",
       totalRevenue: 0,
@@ -262,6 +276,7 @@ export class AnalyticsService {
         totalViews: totalsRow.views,
         totalFavorites: totalsRow.favorites,
         totalClicks: totalsRow.clicks,
+        totalComparisonClicks: totalsRow.comparisonClicks,
         totalRevenue: primaryRevenue.totalRevenue,
         revenueCurrency: primaryRevenue.currency,
         paidFeaturedListings: primaryRevenue.paidFeaturedListings
@@ -271,6 +286,7 @@ export class AnalyticsService {
         mostViewed: mostViewedRecords.map((record) => serializeTool(record)),
         mostFavorited: mostFavoritedRecords.map((record) => serializeTool(record)),
         mostClicked: mostClickedRecords.map((record) => serializeTool(record)),
+        mostCompared: mostComparedRecords.map((record) => serializeTool(record)),
         trending: trendingTools
       },
       topCategories,

@@ -11,7 +11,17 @@ export async function GET(request: Request) {
     const query = parseSearchParams(new URL(request.url).searchParams, trendingQuerySchema);
     const tools = await ToolService.listTrendingTools(query.limit);
 
-    return ok(tools);
+    return ok(
+      {
+        tools,
+        generatedAt: new Date().toISOString()
+      },
+      {
+        headers: {
+          "Cache-Control": "s-maxage=300, stale-while-revalidate=600"
+        }
+      }
+    );
   } catch (error) {
     return handleApiError(error);
   }

@@ -41,6 +41,12 @@ const ToolSchema = new Schema(
       type: String,
       default: null
     },
+    launchYear: {
+      type: Number,
+      default: null,
+      min: 1990,
+      max: new Date().getFullYear()
+    },
     category: {
       type: Types.ObjectId,
       ref: "Category",
@@ -101,6 +107,10 @@ const ToolSchema = new Schema(
       type: Number,
       default: 0
     },
+    comparisonClicksCount: {
+      type: Number,
+      default: 0
+    },
     latestFavoriteAt: {
       type: Date,
       default: null
@@ -151,6 +161,7 @@ ToolSchema.index({ status: 1, trendingScore: -1, favoritesCount: -1, viewsCount:
 ToolSchema.index({ status: 1, favoritesCount: -1, latestFavoriteAt: -1, createdAt: -1 });
 ToolSchema.index({ status: 1, viewsCount: -1, latestViewAt: -1, createdAt: -1 });
 ToolSchema.index({ status: 1, clicksCount: -1, latestClickAt: -1, createdAt: -1 });
+ToolSchema.index({ status: 1, comparisonClicksCount: -1, clicksCount: -1, createdAt: -1 });
 ToolSchema.index({ featured: 1, featuredUntil: 1, featureSource: 1 });
 ToolSchema.index({
   name: "text",

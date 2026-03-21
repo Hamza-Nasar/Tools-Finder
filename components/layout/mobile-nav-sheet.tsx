@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import type { NavItem } from "@/types";
 
 export function MobileNavSheet({
@@ -15,7 +16,7 @@ export function MobileNavSheet({
   isAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
 
   const secondaryLinks = [
     { href: isAuthenticated ? "/submit" : "/auth/sign-in?callbackUrl=%2Fsubmit", label: "Submit Tool" },

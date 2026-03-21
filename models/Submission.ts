@@ -35,6 +35,12 @@ const SubmissionSchema = new Schema(
       type: String,
       default: null
     },
+    launchYear: {
+      type: Number,
+      default: null,
+      min: 1990,
+      max: new Date().getFullYear()
+    },
     description: {
       type: String,
       required: true,

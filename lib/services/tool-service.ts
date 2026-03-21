@@ -38,6 +38,7 @@ interface ToolWriteInput {
   tagline: string;
   website: string;
   affiliateUrl?: string | null;
+  launchYear?: number | null;
   description: string;
   categorySlug: string;
   tags: string[];
@@ -67,7 +68,22 @@ interface CollectionToolsOptions {
   limit?: number;
 }
 
+interface SeoComparisonPair {
+  slugA: string;
+  slugB: string;
+  categorySlug: string;
+}
+
 const NEW_TOOL_WINDOW_DAYS = 30;
+const PREFERRED_COMPARISON_SLUG_PAIRS = [
+  ["chatgpt", "claude"],
+  ["chatgpt", "gemini"],
+  ["midjourney", "dall-e"],
+  ["github-copilot", "cursor"],
+  ["jasper", "copy-ai"],
+  ["runway", "synthesia"],
+  ["perplexity", "consensus"]
+] as const;
 const TOOL_LIST_PROJECTION = {
   name: 1,
   slug: 1,
@@ -81,6 +97,7 @@ const TOOL_LIST_PROJECTION = {
   pricing: 1,
   featured: 1,
   affiliateUrl: 1,
+  launchYear: 1,
   featuredUntil: 1,
   featureSource: 1,
   status: 1,
@@ -93,6 +110,7 @@ const TOOL_LIST_PROJECTION = {
   favoritesCount: 1,
   viewsCount: 1,
   clicksCount: 1,
+  comparisonClicksCount: 1,
   latestFavoriteAt: 1,
   latestViewAt: 1,
   latestClickAt: 1,
@@ -144,6 +162,21 @@ function getRecentCutoffDate(days = NEW_TOOL_WINDOW_DAYS) {
   return cutoff;
 }
 
+function sanitizeLaunchYear(value: number | null | undefined) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const currentYear = new Date().getFullYear();
+  const normalized = Math.floor(Number(value));
+
+  if (!Number.isFinite(normalized) || normalized < 1990 || normalized > currentYear) {
+    return null;
+  }
+
+  return normalized;
+}
+
 function getStartOfToday() {
   const date = new Date();
   date.setHours(0, 0, 0, 0);
@@ -165,6 +198,15 @@ function scoreRelatedTool(
   const viewsBoost = Number(record.viewsCount ?? 0) / 400;
 
   return (sameCategory ? 6 : 0) + sharedTagCount * 3.5 + featuredBoost + trendingBoost + favoritesBoost + viewsBoost;
+}
+
+function scoreComparisonPair(toolA: Tool, toolB: Tool) {
+  const sharedTags = toolA.tags.filter((tag) => toolB.tags.includes(tag)).length;
+  const favoritesScore = toolA.favoritesCount + toolB.favoritesCount;
+  const trendingScore = toolA.trendingScore + toolB.trendingScore;
+  const featuredScore = (toolA.featured ? 2 : 0) + (toolB.featured ? 2 : 0);
+
+  return sharedTags * 4 + favoritesScore / 80 + trendingScore / 12 + featuredScore;
 }
 
 function buildSort(sort: ToolSort, hasTextSearch: boolean) {
@@ -526,10 +568,14 @@ export class ToolService {
           return null;
         }
 
-        const score =
-          entry.activityScore +
-          ToolActivityService.getRecencyBoost(tool.createdAt) +
-          (tool.featured ? 4 : 0);
+          const score =
+            entry.activityScore +
+            ToolActivityService.getRecencyBoost(tool.createdAt) +
+            (tool.comparisonClicksCount ?? 0) / 24 +
+            tool.viewsCount / 250 +
+            tool.favoritesCount / 60 +
+            tool.clicksCount / 120 +
+            (tool.featured ? 4 : 0);
 
         return { tool, score };
       })
@@ -753,6 +799,112 @@ export class ToolService {
     return records.map((record) => serializeTool(record));
   }
 
+  static async listSeoComparisonPairs(limitPerCategory = 3): Promise<SeoComparisonPair[]> {
+    await connectToDatabase();
+    await FeaturedListingService.expireListingsIfNeeded();
+
+    const categories = await CategoryService.listPublicCategories();
+    const preferredSlugs = Array.from(new Set(PREFERRED_COMPARISON_SLUG_PAIRS.flat()));
+    const preferredRecords = preferredSlugs.length
+      ? await ToolModel.find(
+          {
+            status: "approved",
+            slug: { $in: preferredSlugs }
+          },
+          TOOL_LIST_PROJECTION
+        ).lean()
+      : [];
+    const preferredToolsBySlug = new Map(
+      preferredRecords.map((record) => {
+        const tool = serializeTool(record);
+        return [tool.slug, tool] as const;
+      })
+    );
+    const categoryTools = await Promise.all(
+      categories.map(async (category) => ({
+        slug: category.slug,
+        tools: (
+          await ToolModel.find(
+            {
+              status: "approved",
+              categorySlug: category.slug
+            },
+            TOOL_LIST_PROJECTION
+          )
+            .sort({ featured: -1, favoritesCount: -1, trendingScore: -1, reviewCount: -1, createdAt: -1 })
+            .limit(5)
+            .lean()
+        ).map((record) => serializeTool(record))
+      }))
+    );
+
+    const pairs: Array<SeoComparisonPair & { score: number }> = [];
+    const seen = new Set<string>();
+
+    for (const [leftSlug, rightSlug] of PREFERRED_COMPARISON_SLUG_PAIRS) {
+      const toolA = preferredToolsBySlug.get(leftSlug);
+      const toolB = preferredToolsBySlug.get(rightSlug);
+
+      if (!toolA || !toolB) {
+        continue;
+      }
+
+      const key = [toolA.slug, toolB.slug].sort().join("::");
+
+      if (seen.has(key)) {
+        continue;
+      }
+
+      seen.add(key);
+      pairs.push({
+        slugA: toolA.slug,
+        slugB: toolB.slug,
+        categorySlug: toolA.categorySlug,
+        score: scoreComparisonPair(toolA, toolB) + 100
+      });
+    }
+
+    for (const category of categoryTools) {
+      for (let leftIndex = 0; leftIndex < category.tools.length; leftIndex += 1) {
+        for (let rightIndex = leftIndex + 1; rightIndex < category.tools.length; rightIndex += 1) {
+          const toolA = category.tools[leftIndex];
+          const toolB = category.tools[rightIndex];
+          const orderedSlugs = [toolA.slug, toolB.slug].sort();
+          const key = orderedSlugs.join("::");
+
+          if (seen.has(key)) {
+            continue;
+          }
+
+          seen.add(key);
+          pairs.push({
+            slugA: toolA.slug,
+            slugB: toolB.slug,
+            categorySlug: category.slug,
+            score: scoreComparisonPair(toolA, toolB)
+          });
+        }
+      }
+    }
+
+    return pairs
+      .sort((left, right) => right.score - left.score)
+      .reduce<SeoComparisonPair[]>((accumulator, pair) => {
+        const existingInCategory = accumulator.filter((entry) => entry.categorySlug === pair.categorySlug).length;
+
+        if (existingInCategory >= limitPerCategory) {
+          return accumulator;
+        }
+
+        accumulator.push({
+          slugA: pair.slugA,
+          slugB: pair.slugB,
+          categorySlug: pair.categorySlug
+        });
+        return accumulator;
+      }, []);
+  }
+
   static async recordViewBySlug(slug: string) {
     await connectToDatabase();
     await FeaturedListingService.expireListingsIfNeeded();
@@ -794,6 +946,29 @@ export class ToolService {
     await ToolActivityService.recordClick(tool._id as ObjectId);
   }
 
+  static async recordComparisonClickBySlug(slug: string) {
+    await connectToDatabase();
+    await FeaturedListingService.expireListingsIfNeeded();
+
+    const tool = await ToolModel.findOne({
+      slug,
+      status: "approved"
+    })
+      .select({ _id: 1 })
+      .lean();
+
+    if (!tool || Array.isArray(tool)) {
+      throw new AppError(404, "Tool not found.", "TOOL_NOT_FOUND");
+    }
+
+    await ToolActivityService.recordComparisonClick(tool._id as ObjectId);
+
+    return {
+      id: String(tool._id),
+      slug
+    };
+  }
+
   static async createTool(input: ToolWriteInput) {
     await connectToDatabase();
 
@@ -819,6 +994,7 @@ export class ToolService {
       websiteDomain,
       affiliateUrl: sanitizeOptionalUrl(input.affiliateUrl ?? null),
       description: sanitizeText(input.description),
+      launchYear: sanitizeLaunchYear(input.launchYear),
       category: new Types.ObjectId(category.id),
       categoryName: category.name,
       categorySlug: category.slug,
@@ -835,6 +1011,7 @@ export class ToolService {
       favoritesCount: 0,
       viewsCount: 0,
       clicksCount: 0,
+      comparisonClicksCount: 0,
       status: input.status ?? "approved",
       createdBy: input.createdBy ? toObjectId(input.createdBy, "createdBy") : undefined,
       sourceSubmission: input.sourceSubmission ? toObjectId(input.sourceSubmission, "sourceSubmission") : null
@@ -885,6 +1062,7 @@ export class ToolService {
     }
     if (input.affiliateUrl !== undefined) tool.affiliateUrl = sanitizeOptionalUrl(input.affiliateUrl ?? null);
     if (input.description !== undefined) tool.description = sanitizeText(input.description);
+    if (input.launchYear !== undefined) tool.launchYear = sanitizeLaunchYear(input.launchYear);
     if (input.tags !== undefined) tool.tags = sanitizeTagList(input.tags);
     if (input.pricing !== undefined) tool.pricing = input.pricing;
     if (input.logo !== undefined) tool.logo = sanitizeOptionalUrl(input.logo ?? null);

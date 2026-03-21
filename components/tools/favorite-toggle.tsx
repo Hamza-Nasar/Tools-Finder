@@ -2,9 +2,10 @@
 
 import { startTransition, useOptimistic, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { toggleFavoriteAction } from "@/lib/actions/favorite-actions";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { Button } from "@/components/ui/button";
 
 interface FavoriteToggleProps {
@@ -20,7 +21,7 @@ export function FavoriteToggle({
 }: FavoriteToggleProps) {
   const { data: session } = useSession();
   const [isPending, setIsPending] = useState(false);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
   const [isFavorited, updateOptimisticFavorite] = useOptimistic(
     initialIsFavorited,
     (_, nextState: boolean) => nextState

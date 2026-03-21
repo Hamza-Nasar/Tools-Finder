@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/constants";
+import { env } from "@/lib/env";
 
 interface BuildMetadataInput {
   title: string;
@@ -30,12 +31,38 @@ export function buildMetadata({
 }: BuildMetadataInput): Metadata {
   const url = absoluteUrl(path);
   const image = getSocialImageUrl(imagePath);
+  const robots = noIndex
+    ? {
+        index: false,
+        follow: false,
+        nocache: true,
+        googleBot: {
+          index: false,
+          follow: false,
+          noimageindex: true
+        }
+      }
+    : {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large" as const,
+          "max-snippet": -1,
+          "max-video-preview": -1
+        }
+      };
 
   return {
     title,
     description,
     keywords,
     metadataBase: new URL(siteConfig.url),
+    applicationName: siteConfig.name,
+    creator: siteConfig.name,
+    publisher: siteConfig.name,
+    category: "technology",
     icons: {
       icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
       shortcut: [{ url: "/icon.svg", type: "image/svg+xml" }],
@@ -44,7 +71,12 @@ export function buildMetadata({
     alternates: {
       canonical: url
     },
-    robots: noIndex ? { index: false, follow: false } : undefined,
+    verification: env.GOOGLE_SITE_VERIFICATION
+      ? {
+          google: env.GOOGLE_SITE_VERIFICATION
+        }
+      : undefined,
+    robots,
     openGraph: {
       title,
       description,
@@ -65,7 +97,8 @@ export function buildMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [image]
+      images: [image],
+      site: "@aitoolsfinder"
     }
   };
 }

@@ -2,11 +2,12 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { motion, useMotionValueEvent, useScroll, useReducedMotion } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 
 export function HeaderChrome({ children }: { children: ReactNode }) {
   const { scrollY } = useScroll();
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
   const [isElevated, setIsElevated] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (value) => {

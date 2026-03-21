@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { PromptEntry } from "@/types";
+import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { MotionReveal } from "@/components/shared/motion-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export function PromptCard({ prompt }: { prompt: PromptEntry }) {
   const [copied, setCopied] = useState(false);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useSsrSafeReducedMotion();
 
   async function handleCopy() {
     await navigator.clipboard.writeText(prompt.prompt);

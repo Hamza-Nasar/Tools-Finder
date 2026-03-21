@@ -9,7 +9,9 @@
     "lint": "next lint",
     "typecheck": "node --max-old-space-size=8192 ./node_modules/typescript/bin/tsc --noEmit --incremental false -p tsconfig.typecheck.json",
     "import-tools": "node --experimental-strip-types --import ./scripts/register-ts-alias.mjs ./scripts/import-real-tools.ts",
-    "migrate-atlas": "node --experimental-strip-types --import ./scripts/register-ts-alias.mjs ./scripts/migrate-atlas.ts"
+    "migrate-atlas": "node --experimental-strip-types --import ./scripts/register-ts-alias.mjs ./scripts/migrate-atlas.ts",
+    "export-tool-dataset": "node --experimental-strip-types --import ./scripts/register-ts-alias.mjs ./scripts/export-real-tool-dataset.ts",
+    "sync-tool-dataset": "node --experimental-strip-types --import ./scripts/register-ts-alias.mjs ./scripts/sync-real-tool-dataset.ts"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.7.0",

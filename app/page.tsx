@@ -10,6 +10,7 @@ import { CategoryGrid } from "@/components/marketing/category-grid";
 import { HeroSection } from "@/components/marketing/hero-section";
 import { ToolSection } from "@/components/marketing/tool-section";
 import { PromptCard } from "@/components/prompts/prompt-card";
+import { NewsletterForm } from "@/components/shared/newsletter-form";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { FeaturedStackGrid } from "@/components/tools/featured-stack-grid";
 import { ToolCard } from "@/components/tools/tool-card";
@@ -242,6 +243,15 @@ export default async function HomePage() {
             <PromptCard key={prompt.id} prompt={prompt} />
           ))}
         </div>
+      </section>
+
+      <section className="page-frame py-10 md:py-14">
+        <NewsletterForm
+          source="homepage"
+          title="Get the weekly AI tools brief before the market catches up."
+          description="One high-signal email with trending tools, new launches, prompt packs, workflow breakdowns, and comparison pages worth reading."
+          buttonLabel="Subscribe free"
+        />
       </section>
     </>
   );
