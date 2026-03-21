@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 
-const isDevelopment = process.env.NODE_ENV === "development";
-
 const securityHeaders = [
   {
     key: "Referrer-Policy",
@@ -26,7 +24,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  distDir: isDevelopment ? ".next-dev" : ".next",
   compress: true,
   poweredByHeader: false,
   eslint: {

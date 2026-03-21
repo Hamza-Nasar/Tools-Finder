@@ -10,6 +10,8 @@ export async function SiteHeader() {
   const session = await getServerSession(authOptions);
   const isAuthenticated = Boolean(session?.user);
   const isAdmin = session?.user?.role === "admin";
+  const userName = session?.user?.name ?? null;
+  const userEmail = session?.user?.email ?? null;
 
   return (
     <HeaderChrome>
@@ -46,10 +48,13 @@ export async function SiteHeader() {
               <div className="hidden md:block">
                 <HeaderAuthControls />
               </div>
-              <MobileNavSheet navItems={mainNav} isAuthenticated={isAuthenticated} isAdmin={isAdmin} />
-              <div className="md:hidden">
-                <HeaderAuthControls />
-              </div>
+              <MobileNavSheet
+                navItems={mainNav}
+                isAuthenticated={isAuthenticated}
+                isAdmin={isAdmin}
+                userName={userName}
+                userEmail={userEmail}
+              />
             </div>
           </div>
         </div>
