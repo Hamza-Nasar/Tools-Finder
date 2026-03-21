@@ -27,7 +27,7 @@ export function SiteFooter() {
             <Link href="/submit" className="transition hover:text-foreground">Submit</Link>
             <Link href="/favorites" className="transition hover:text-foreground">Favorites</Link>
             <Link href="/admin" className="transition hover:text-foreground">Admin</Link>
-            <Link href="/auth/sign-in" className="transition hover:text-foreground">Sign in</Link>
+            <Link href="/auth/login" className="transition hover:text-foreground">Login</Link>
           </div>
         </div>
       </div>

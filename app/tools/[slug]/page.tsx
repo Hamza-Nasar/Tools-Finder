@@ -156,7 +156,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
               <FavoriteToggle toolId={tool.id} toolSlug={tool.slug} initialIsFavorited={isFavorited} />
             ) : (
               <Button asChild variant="outline" className="w-full">
-                <Link href={`/auth/sign-in?callbackUrl=${encodeURIComponent(`/tools/${tool.slug}`)}`}>
+                <Link href={`/auth/login?callbackUrl=${encodeURIComponent(`/tools/${tool.slug}`)}`}>
                   Sign in to save
                 </Link>
               </Button>

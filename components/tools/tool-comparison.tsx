@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Tool } from "@/types";
+import { SmoothImage } from "@/components/shared/smooth-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -141,7 +141,13 @@ function ToolSummaryCard({ tool }: { tool: Tool }) {
         <div className="flex items-start gap-4">
           {tool.logo ? (
             <div className="overflow-hidden rounded-[1.2rem] border border-white/80 bg-white/90 p-2 shadow-sm">
-              <Image src={tool.logo} alt={`${tool.name} logo`} width={56} height={56} className="h-14 w-14 rounded-xl object-cover" />
+              <SmoothImage
+                src={tool.logo}
+                alt={`${tool.name} logo`}
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-xl object-contain"
+              />
             </div>
           ) : (
             <div

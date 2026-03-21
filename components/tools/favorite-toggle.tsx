@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { toggleFavoriteAction } from "@/lib/actions/favorite-actions";
@@ -20,6 +21,7 @@ export function FavoriteToggle({
   initialIsFavorited
 }: FavoriteToggleProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const reduceMotion = useSsrSafeReducedMotion();
   const [isFavorited, updateOptimisticFavorite] = useOptimistic(
@@ -29,7 +31,7 @@ export function FavoriteToggle({
 
   function handleToggle() {
     if (!session?.user) {
-      void signIn("google", { callbackUrl: `/tools/${toolSlug}` });
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(`/tools/${toolSlug}`)}`);
       return;
     }
 

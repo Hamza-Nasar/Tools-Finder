@@ -29,7 +29,7 @@ export default async function AuthErrorPage({
         <CardContent className="space-y-4">
           {error ? <p className="text-sm text-muted-foreground">Error code: {error}</p> : null}
           <Button asChild>
-            <Link href="/auth/sign-in">Try again</Link>
+            <Link href="/auth/login">Try again</Link>
           </Button>
         </CardContent>
       </Card>

@@ -1,4 +1,5 @@
 import type { Session } from "next-auth";
+import { compare, hash } from "bcryptjs";
 import { Types } from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import { AppError } from "@/lib/errors";
@@ -26,6 +27,7 @@ interface AppUserRecord {
   email: string;
   image?: string | null;
   role: "user" | "admin";
+  passwordHash?: string | null;
   createdAt?: Date;
 }
 
@@ -51,6 +53,14 @@ export class UserService {
     }
 
     return "user" as const;
+  }
+
+  private static normalizeEmail(email?: string | null) {
+    return email?.toLowerCase().trim() ?? "";
+  }
+
+  private static buildDefaultName(email: string) {
+    return email.split("@")[0];
   }
 
   static async ensureAuthUserCompatibility() {
@@ -89,7 +99,7 @@ export class UserService {
   static async syncUser(input: SyncUserInput) {
     await connectToDatabase();
 
-    const normalizedEmail = input.email?.toLowerCase().trim();
+    const normalizedEmail = this.normalizeEmail(input.email);
 
     if (!normalizedEmail) {
       throw new AppError(401, "Authenticated user is missing an email address.", "INVALID_SESSION");
@@ -183,6 +193,114 @@ export class UserService {
         (setUpdates.createdAt as Date | undefined)?.toISOString?.() ??
         existing.createdAt?.toISOString?.() ??
         existing._id.getTimestamp().toISOString()
+    };
+  }
+
+  static async registerWithPassword(input: { name?: string | null; email: string; password: string }) {
+    await connectToDatabase();
+
+    const normalizedEmail = this.normalizeEmail(input.email);
+
+    if (!normalizedEmail) {
+      throw new AppError(400, "A valid email address is required.", "INVALID_EMAIL");
+    }
+
+    const adminEmail = env.ADMIN_EMAIL?.toLowerCase();
+
+    if (adminEmail && normalizedEmail === adminEmail) {
+      throw new AppError(
+        409,
+        "This email is reserved for the admin bootstrap login. Use the login page instead.",
+        "ADMIN_EMAIL_RESERVED"
+      );
+    }
+
+    const existing = await UserModel.findOne({ email: normalizedEmail })
+      .select("+passwordHash")
+      .lean<AppUserRecord | null>();
+
+    if (existing?.passwordHash) {
+      throw new AppError(409, "An account with this email already exists. Log in instead.", "EMAIL_IN_USE");
+    }
+
+    if (existing && !existing.passwordHash) {
+      throw new AppError(
+        409,
+        "This email is already associated with a Google account. Continue with Google instead.",
+        "OAUTH_ACCOUNT_EXISTS"
+      );
+    }
+
+    const createdUserId = `usr_${new Types.ObjectId().toString()}`;
+    const passwordHash = await hash(input.password, 12);
+    const normalizedName = input.name?.trim() || this.buildDefaultName(normalizedEmail);
+    const role = this.normalizeRole({ email: normalizedEmail, name: normalizedName }, undefined);
+    const created = await UserModel.create({
+      appUserId: createdUserId,
+      name: normalizedName,
+      email: normalizedEmail,
+      image: null,
+      role,
+      passwordHash
+    });
+
+    return {
+      id: created._id.toString(),
+      userId: created.appUserId ?? createdUserId,
+      name: created.name,
+      email: created.email,
+      image: created.image ?? null,
+      role: created.role,
+      createdAt: created.createdAt?.toISOString?.() ?? new Date().toISOString()
+    };
+  }
+
+  static async authenticateWithPassword(input: { email: string; password: string }) {
+    await connectToDatabase();
+
+    const normalizedEmail = this.normalizeEmail(input.email);
+
+    if (!normalizedEmail || !input.password) {
+      throw new AppError(401, "Invalid email or password.", "INVALID_CREDENTIALS");
+    }
+
+    const adminEmail = env.ADMIN_EMAIL?.toLowerCase();
+
+    if (adminEmail && env.ADMIN_PASSWORD_HASH && normalizedEmail === adminEmail) {
+      const isAdminPasswordValid = await compare(input.password, env.ADMIN_PASSWORD_HASH);
+
+      if (isAdminPasswordValid) {
+        return this.syncUser({
+          name: this.buildDefaultName(normalizedEmail),
+          email: normalizedEmail,
+          image: null,
+          role: "admin"
+        });
+      }
+    }
+
+    const user = await UserModel.findOne({ email: normalizedEmail })
+      .select("+passwordHash")
+      .lean<AppUserRecord | null>();
+
+    if (!user?.passwordHash) {
+      throw new AppError(401, "Invalid email or password.", "INVALID_CREDENTIALS");
+    }
+
+    const isPasswordValid = await compare(input.password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new AppError(401, "Invalid email or password.", "INVALID_CREDENTIALS");
+    }
+
+    return {
+      id: user._id.toString(),
+      userId: this.getStableAppUserId(user),
+      name: user.name,
+      email: user.email,
+      image: user.image ?? null,
+      role: user.role,
+      createdAt: user.createdAt?.toISOString?.() ?? user._id.getTimestamp().toISOString()
     };
   }
 

@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Tool } from "@/types";
+import { SmoothImage } from "@/components/shared/smooth-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,12 +33,12 @@ export function ToolDetail({
                 <div className="flex gap-4">
                   {tool.logo ? (
                     <div className="overflow-hidden rounded-[1.6rem] border border-white/80 bg-white/90 p-2 shadow-sm">
-                      <Image
+                      <SmoothImage
                         src={tool.logo}
                         alt={`${tool.name} logo`}
                         width={72}
                         height={72}
-                        className="h-16 w-16 rounded-2xl object-cover"
+                        className="h-16 w-16 rounded-2xl object-contain"
                       />
                     </div>
                   ) : (
@@ -132,11 +132,13 @@ export function ToolDetail({
                         className="overflow-hidden rounded-[1.5rem] border border-border bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-floating"
                       >
                         <div className="relative aspect-[16/10] w-full bg-muted">
-                          <Image
+                          <SmoothImage
                             src={shot}
                             alt={`${tool.name} screenshot`}
                             fill
-                            className="object-cover"
+                            fadeDurationMs={560}
+                            sizes="(min-width: 1280px) 26rem, (min-width: 768px) calc(50vw - 3rem), 100vw"
+                            className="object-contain bg-white"
                           />
                         </div>
                         <div className="px-4 py-3 text-sm text-muted-foreground">{getHostnameLabel(tool.website)}</div>

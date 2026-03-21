@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { env } from "@/lib/env";
 import { getMongoClient } from "@/lib/mongo-client";
@@ -10,14 +11,32 @@ export const authOptions: NextAuthOptions = {
     databaseName: env.MONGODB_DB_NAME ?? "aitoolsfinder"
   }),
   session: {
-    strategy: "database"
+    strategy: "jwt"
   },
   pages: {
-    signIn: "/auth/sign-in",
+    signIn: "/auth/login",
     error: "/auth/error"
   },
-  providers:
-    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+  providers: [
+    CredentialsProvider({
+      id: "credentials",
+      name: "Email and password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) {
+          return null;
+        }
+
+        return UserService.authenticateWithPassword({
+          email: credentials.email,
+          password: credentials.password
+        });
+      }
+    }),
+    ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
       ? [
           GoogleProvider({
             clientId: env.GOOGLE_CLIENT_ID,
@@ -28,28 +47,42 @@ export const authOptions: NextAuthOptions = {
             }
           })
         ]
-      : [],
+      : [])
+  ],
   callbacks: {
     async signIn({ account }) {
-      if (account?.provider !== "google") {
+      if (!account?.provider || !["google", "credentials"].includes(account.provider)) {
         return false;
       }
 
       return true;
     },
-    async session({ session, user }) {
-      if (session.user) {
+    async jwt({ token, user }) {
+      if (user?.email) {
         const syncedUser = await UserService.syncUser({
-          id: user?.id ?? session.user.id ?? null,
-          name: session.user.name ?? user?.name ?? null,
-          email: session.user.email ?? user?.email ?? null,
-          image: session.user.image ?? user?.image ?? null,
-          role: null
+          id: user.id ?? token.sub ?? null,
+          name: user.name ?? null,
+          email: user.email ?? null,
+          image: user.image ?? null,
+          role: user.role ?? null
         });
 
-        session.user.id = syncedUser.id;
-        session.user.role = syncedUser.role;
-        session.user.image = syncedUser.image ?? session.user.image ?? null;
+        token.sub = syncedUser.id;
+        token.name = syncedUser.name;
+        token.email = syncedUser.email;
+        token.picture = syncedUser.image ?? null;
+        token.role = syncedUser.role;
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+        session.user.role = token.role === "admin" ? "admin" : "user";
+        session.user.name = token.name ?? session.user.name;
+        session.user.email = token.email ?? session.user.email;
+        session.user.image = typeof token.picture === "string" ? token.picture : null;
       }
 
       return session;

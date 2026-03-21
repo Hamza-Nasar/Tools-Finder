@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowUpRight, Eye, Heart, Star } from "lucide-react";
 import type { Tool } from "@/types";
 import { MotionReveal } from "@/components/shared/motion-reveal";
+import { SmoothImage } from "@/components/shared/smooth-image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,24 +17,31 @@ export function ToolCard({
   action?: ReactNode;
 }) {
   return (
-    <MotionReveal className="h-full" y={18} whileHover={{ y: -6 }} whileTap={{ scale: 0.995 }}>
+    <MotionReveal
+      className="h-full"
+      y={18}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.995 }}
+    >
       <Card className="group surface-card-hover flex h-full flex-col overflow-hidden border-white/75 bg-white/88">
         <CardHeader className="relative flex flex-row items-start justify-between gap-4 border-b border-border/70 bg-gradient-to-br from-white via-white to-background/70">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary via-primary/70 to-accent" />
           <div className="flex min-w-0 gap-4">
             {tool.logo ? (
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[1.15rem] border border-white/80 bg-white/90 shadow-sm transition duration-300 group-hover:scale-[1.03] group-hover:shadow-premium">
-                <Image
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-[1.15rem] border border-white/80 bg-white/92 shadow-sm transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:shadow-premium">
+                <SmoothImage
                   src={tool.logo}
                   alt={`${tool.name} logo`}
                   fill
+                  fadeDurationMs={420}
                   sizes="56px"
-                  className="object-cover"
+                  className="object-contain p-2.5"
                 />
               </div>
             ) : (
               <div
-                className={`grid h-14 w-14 shrink-0 place-items-center rounded-[1.15rem] bg-gradient-to-br ${tool.logoBackground} font-[family-name:var(--font-heading)] text-lg font-bold text-white shadow-sm transition duration-300 group-hover:scale-[1.03]`}
+                className={`grid h-14 w-14 shrink-0 place-items-center rounded-[1.15rem] bg-gradient-to-br ${tool.logoBackground} font-[family-name:var(--font-heading)] text-lg font-bold text-white shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]`}
               >
                 {tool.logoText}
               </div>

@@ -32,6 +32,11 @@ const UserSchema = new Schema(
       type: String,
       default: null
     },
+    passwordHash: {
+      type: String,
+      default: null,
+      select: false
+    },
     emailVerified: {
       type: Date,
       default: null

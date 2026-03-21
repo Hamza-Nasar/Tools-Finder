@@ -28,7 +28,7 @@ export function MobileNavSheet({
   const pathname = usePathname();
 
   const secondaryLinks = [
-    { href: isAuthenticated ? "/submit" : "/auth/sign-in?callbackUrl=%2Fsubmit", label: "Submit Tool" },
+    { href: isAuthenticated ? "/submit" : "/auth/login?callbackUrl=%2Fsubmit", label: "Submit Tool" },
     ...(isAuthenticated
       ? [
           { href: "/my-stack", label: "My Stack" },
@@ -37,7 +37,10 @@ export function MobileNavSheet({
           { href: "/dashboard#submitted-tools", label: "My Submissions" },
           ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : [])
         ]
-      : [{ href: "/auth/sign-in?callbackUrl=%2Fdashboard", label: "Sign in with Google" }])
+      : [
+          { href: "/auth/login?callbackUrl=%2Fdashboard", label: "Login" },
+          { href: "/auth/signup?callbackUrl=%2Fdashboard", label: "Create account" }
+        ])
   ];
 
   useEffect(() => {

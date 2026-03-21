@@ -11,7 +11,7 @@ function hasSessionCookie(request: NextRequest) {
 }
 
 export async function middleware(request: NextRequest) {
-  const signInUrl = new URL("/auth/sign-in", request.url);
+  const signInUrl = new URL("/auth/login", request.url);
   signInUrl.searchParams.set("callbackUrl", `${request.nextUrl.pathname}${request.nextUrl.search}`);
   const authenticated = hasSessionCookie(request);
 

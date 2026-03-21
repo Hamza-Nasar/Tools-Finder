@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
@@ -50,7 +50,7 @@ export function HeaderAuthControls() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useSsrSafeReducedMotion();
-  const callbackUrl = pathname && pathname !== "/auth/sign-in" ? pathname : "/dashboard";
+  const callbackUrl = pathname && !pathname.startsWith("/auth/") ? pathname : "/dashboard";
 
   useEffect(() => {
     setMenuOpen(false);
@@ -96,13 +96,15 @@ export function HeaderAuthControls() {
       <div className="flex items-center gap-2">
         <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
           <Button asChild size="sm" className="hidden md:inline-flex">
-            <Link href={`/auth/sign-in?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
           </Button>
         </motion.div>
         <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
-          <Button type="button" size="sm" onClick={() => signIn("google", { callbackUrl })}>
-            <span className="md:hidden">Sign in</span>
-            <span className="hidden md:inline">Sign in with Google</span>
+          <Button asChild size="sm">
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
+              <span className="md:hidden">Sign in</span>
+              <span className="hidden md:inline">Login</span>
+            </Link>
           </Button>
         </motion.div>
       </div>
