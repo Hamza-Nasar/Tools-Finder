@@ -144,7 +144,7 @@ export default async function HomePage() {
                 <Link
                   key={query}
                   href={`/find-ai-tool?q=${encodeURIComponent(query)}`}
-                  className="block rounded-[1.2rem] border border-border/70 bg-white/75 px-4 py-4 text-sm font-medium text-foreground transition hover:-translate-y-0.5 hover:bg-white"
+                  className="interactive-panel block rounded-[1.2rem] border border-border/70 bg-white/75 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
                 >
                   {query}
                 </Link>
@@ -155,7 +155,7 @@ export default async function HomePage() {
       </section>
 
       <ToolSection
-        eyebrow="🔥 Trending"
+        eyebrow="Trending now"
         title="Trending AI Tools"
         description="The fastest-rising tools based on recent views, favorites, and live discovery activity."
         tools={homepageTools.trending}
@@ -256,3 +256,4 @@ export default async function HomePage() {
     </>
   );
 }
+

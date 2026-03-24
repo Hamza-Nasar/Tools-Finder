@@ -69,7 +69,7 @@ export function MobileNavSheet({
       <motion.button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-white/80 text-muted-foreground shadow-sm transition hover:bg-white"
+        className="interactive-control flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-white/80 text-muted-foreground shadow-sm hover:bg-white"
         aria-label="Toggle navigation"
         aria-expanded={open}
         aria-controls="mobile-navigation-sheet"
@@ -136,7 +136,7 @@ export function MobileNavSheet({
                           <button
                             type="button"
                             onClick={() => setOpen(false)}
-                            className="shrink-0 rounded-full border border-border/70 bg-white/85 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm transition hover:bg-white"
+                            className="interactive-control shrink-0 rounded-full border border-border/70 bg-white/85 px-3 py-1.5 text-sm font-medium text-foreground shadow-sm hover:bg-white"
                           >
                             Close
                           </button>
@@ -151,7 +151,7 @@ export function MobileNavSheet({
                             key={item.href}
                             href={item.href}
                             onClick={() => setOpen(false)}
-                            className="rounded-2xl px-4 py-3 text-sm font-medium text-foreground transition hover:bg-white"
+                            className="interactive-control rounded-2xl px-4 py-3 text-sm font-medium text-foreground hover:bg-white"
                           >
                             {item.label}
                           </Link>
@@ -165,7 +165,7 @@ export function MobileNavSheet({
                             key={item.href}
                             href={item.href}
                             onClick={() => setOpen(false)}
-                            className="rounded-2xl px-4 py-3 text-sm font-medium text-foreground transition hover:bg-white"
+                            className="interactive-control rounded-2xl px-4 py-3 text-sm font-medium text-foreground hover:bg-white"
                           >
                             {item.label}
                           </Link>
@@ -178,7 +178,7 @@ export function MobileNavSheet({
                             setOpen(false);
                             void signOut({ callbackUrl: "/" });
                           }}
-                          className="mt-auto rounded-2xl border border-border/70 bg-white/85 px-4 py-3 text-left text-sm font-medium text-foreground shadow-sm transition hover:bg-white"
+                          className="interactive-control mt-auto rounded-2xl border border-border/70 bg-white/85 px-4 py-3 text-left text-sm font-medium text-foreground shadow-sm hover:bg-white"
                         >
                           Logout
                         </button>

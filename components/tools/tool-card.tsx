@@ -21,7 +21,6 @@ export function ToolCard({
       className="h-full"
       y={18}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.995 }}
     >
       <Card className="group surface-card-hover flex h-full flex-col overflow-hidden border-white/75 bg-white/88">
@@ -51,7 +50,7 @@ export function ToolCard({
                 <Link href={`/categories/${tool.categorySlug}`} className="inline-flex">
                   <Badge
                     variant="muted"
-                    className="border border-border/70 bg-white/82 transition duration-200 hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                    className="interactive-chip border border-border/70 bg-white/82 hover:bg-primary hover:text-primary-foreground"
                   >
                     {tool.category}
                   </Badge>
@@ -74,7 +73,7 @@ export function ToolCard({
               <Link key={tag} href={`/tools?tag=${encodeURIComponent(tag)}`} className="inline-flex">
                 <Badge
                   variant="muted"
-                  className="border border-border/70 bg-white/80 transition duration-200 hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
+                  className="interactive-chip border border-border/70 bg-white/80 hover:bg-primary hover:text-primary-foreground"
                 >
                   {tag}
                 </Badge>
@@ -119,7 +118,7 @@ export function ToolCard({
             <Button asChild variant="outline" size="sm" className="group/button">
               <Link href={`/tools/${tool.slug}`}>
                 View details
-                <ArrowUpRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover/button:translate-x-0.5 group-hover/button:-translate-y-0.5" />
+                <ArrowUpRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover/button:translate-x-0.5 group-hover/button:-translate-y-0.5" />
               </Link>
             </Button>
           </div>

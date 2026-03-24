@@ -54,7 +54,7 @@ export function HeroSection({
                 <Link
                   key={toolName}
                   href={`/tools?q=${encodeURIComponent(toolName)}`}
-                  className="rounded-full border border-border bg-white/78 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:-translate-y-0.5 hover:border-primary/40 hover:text-foreground"
+                  className="interactive-chip rounded-full border border-border bg-white/78 px-4 py-2 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 >
                   {toolName}
                 </Link>
@@ -63,21 +63,21 @@ export function HeroSection({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-            <div className="rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm">
+            <div className="interactive-panel rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm">
               <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary">Catalog</p>
               <p className="mt-3 font-[family-name:var(--font-heading)] text-4xl font-bold">
                 {compactNumber(totalTools)}
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">approved tools ready to browse</p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm">
+            <div className="interactive-panel rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm">
               <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary">Categories</p>
               <p className="mt-3 font-[family-name:var(--font-heading)] text-4xl font-bold">
                 {compactNumber(totalCategories)}
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">entry points for focused discovery</p>
             </div>
-            <div className="rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm">
+            <div className="interactive-panel rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm">
               <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary">Spotlight</p>
               <p className="mt-3 font-[family-name:var(--font-heading)] text-4xl font-bold">
                 {compactNumber(featuredCount)}

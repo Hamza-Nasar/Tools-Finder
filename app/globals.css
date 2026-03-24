@@ -38,7 +38,7 @@
       radial-gradient(circle at 92% 8%, rgba(0, 126, 143, 0.15), transparent 30rem),
       radial-gradient(circle at 50% 100%, rgba(255, 232, 206, 0.7), transparent 26rem),
       linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 244, 239, 0.98));
-    background-attachment: fixed;
+    background-attachment: scroll;
   }
 
   h1,
@@ -59,14 +59,14 @@
   }
 
   .surface-card {
-    @apply rounded-[1.75rem] border shadow-premium backdrop-blur-xl;
+    @apply rounded-[1.75rem] border shadow-premium backdrop-blur-lg;
     border-color: rgba(255, 255, 255, 0.72);
     background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.8));
     background-color: rgba(255, 255, 255, 0.82);
   }
 
   .surface-card-hover {
-    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform hover:-translate-y-1.5 hover:shadow-floating;
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
   }
 
   .surface-subtle {
@@ -79,6 +79,18 @@
     @apply flex h-12 w-full rounded-[1rem] border px-4 py-2 text-sm shadow-sm outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20;
     border-color: hsl(var(--border) / 0.7);
     background-color: rgba(255, 255, 255, 0.9);
+  }
+
+  .interactive-control {
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
+  }
+
+  .interactive-chip {
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color,color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
+  }
+
+  .interactive-panel {
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
   }
 
   .page-frame {
@@ -106,6 +118,36 @@
 
   100% {
     background-position: -200% 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    background-attachment: fixed;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .surface-card-hover:hover {
+    transform: translate3d(0, -8px, 0);
+    border-color: rgba(0, 126, 143, 0.16);
+    box-shadow: 0 24px 58px rgba(20, 28, 44, 0.14);
+  }
+
+  .interactive-control:hover {
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .interactive-chip:hover {
+    transform: translate3d(0, -2px, 0);
+    border-color: rgba(0, 126, 143, 0.2);
+    box-shadow: 0 14px 30px rgba(20, 28, 44, 0.08);
+  }
+
+  .interactive-panel:hover {
+    transform: translate3d(0, -4px, 0);
+    border-color: rgba(0, 126, 143, 0.14);
+    box-shadow: 0 20px 46px rgba(20, 28, 44, 0.1);
   }
 }
 

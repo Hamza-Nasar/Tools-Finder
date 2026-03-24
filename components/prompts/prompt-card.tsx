@@ -21,8 +21,8 @@ export function PromptCard({ prompt }: { prompt: PromptEntry }) {
   }
 
   return (
-    <MotionReveal className="h-full" y={16} whileHover={{ y: -6 }}>
-      <Card className="surface-card-hover h-full">
+    <MotionReveal className="h-full" y={16}>
+      <Card className="surface-card-hover h-full overflow-hidden">
         <CardHeader className="border-b border-border/70">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="muted">{prompt.toolName}</Badge>
@@ -36,21 +36,19 @@ export function PromptCard({ prompt }: { prompt: PromptEntry }) {
             {prompt.prompt}
           </pre>
           <div className="flex flex-wrap gap-3">
-            <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
-              <Button type="button" onClick={() => void handleCopy()}>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={copied ? "copied" : "copy"}
-                    initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-                    transition={{ duration: 0.16 }}
-                  >
-                    {copied ? "Copied" : "Copy prompt"}
-                  </motion.span>
-                </AnimatePresence>
-              </Button>
-            </motion.div>
+            <Button type="button" onClick={() => void handleCopy()}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={copied ? "copied" : "copy"}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                  transition={{ duration: 0.16 }}
+                >
+                  {copied ? "Copied" : "Copy prompt"}
+                </motion.span>
+              </AnimatePresence>
+            </Button>
             <Button asChild variant="outline" type="button">
               <Link href={`/prompts/${prompt.toolSlug}`}>More {prompt.toolName} prompts</Link>
             </Button>

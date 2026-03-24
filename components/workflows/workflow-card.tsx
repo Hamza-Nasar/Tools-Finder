@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export function WorkflowCard({ workflow }: { workflow: Workflow }) {
   return (
-    <MotionReveal className="h-full" y={16} whileHover={{ y: -6 }}>
+    <MotionReveal className="h-full" y={16}>
       <Link href={`/workflows/${workflow.slug}`} className="block h-full">
         <Card className="group surface-card-hover h-full overflow-hidden">
           <CardHeader className="border-b border-border/60 bg-gradient-to-br from-white via-white to-background/70">

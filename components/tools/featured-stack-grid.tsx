@@ -8,7 +8,7 @@ export function FeaturedStackGrid({ stacks }: { stacks: FeaturedStackPreview[] }
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       {stacks.map((stack) => (
-        <Card key={stack.slug} className="surface-card-hover h-full">
+        <Card key={stack.slug} className="surface-card-hover h-full overflow-hidden">
           <CardHeader className="border-b border-border/70">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{stack.audience}</p>
             <CardTitle className="mt-3">{stack.title}</CardTitle>
@@ -18,12 +18,12 @@ export function FeaturedStackGrid({ stacks }: { stacks: FeaturedStackPreview[] }
             <div className="flex flex-wrap gap-2">
               {stack.tools.length
                 ? stack.tools.map((tool) => (
-                    <Badge key={tool.id} variant="muted">
+                    <Badge key={tool.id} variant="muted" className="interactive-chip">
                       {tool.name}
                     </Badge>
                   ))
                 : stack.toolSlugs.map((slug) => (
-                    <Badge key={slug} variant="muted">
+                    <Badge key={slug} variant="muted" className="interactive-chip">
                       {slug}
                     </Badge>
                   ))}

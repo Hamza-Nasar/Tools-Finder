@@ -6,7 +6,7 @@ export function CollectionGrid({ collections }: { collections: ToolCollectionDef
   return (
     <div className="grid gap-5 lg:grid-cols-3">
       {collections.map((collection) => (
-        <Link key={collection.slug} href={`/collections/${collection.slug}`}>
+        <Link key={collection.slug} href={`/collections/${collection.slug}`} className="block h-full">
           <Card className="group surface-card-hover h-full overflow-hidden">
             <CardHeader className="border-b border-border/60 bg-gradient-to-br from-white via-white to-background/70">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{collection.eyebrow}</p>

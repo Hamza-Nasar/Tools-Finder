@@ -94,44 +94,36 @@ export function HeaderAuthControls() {
   if (!session?.user) {
     return (
       <div className="flex items-center gap-2">
-        <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
-          <Button asChild size="sm" className="hidden md:inline-flex">
-            <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
-          </Button>
-        </motion.div>
-        <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
-          <Button asChild size="sm">
-            <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
-              <span className="md:hidden">Sign in</span>
-              <span className="hidden md:inline">Login</span>
-            </Link>
-          </Button>
-        </motion.div>
+        <Button asChild size="sm" className="hidden md:inline-flex">
+          <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
+            <span className="md:hidden">Sign in</span>
+            <span className="hidden md:inline">Login</span>
+          </Link>
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="flex items-center gap-2 md:gap-3">
-      <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
-        <Button asChild size="sm" className="hidden md:inline-flex">
-          <Link href="/submit">Submit Tool</Link>
-        </Button>
-      </motion.div>
-      <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
-        <Button asChild variant="ghost" size="sm" className="hidden items-center gap-2 md:inline-flex">
-          <Link href="/favorites">
-            <HeartIcon />
-            <span>Favorites</span>
-          </Link>
-        </Button>
-      </motion.div>
+      <Button asChild size="sm" className="hidden md:inline-flex">
+        <Link href="/submit">Submit Tool</Link>
+      </Button>
+      <Button asChild variant="ghost" size="sm" className="hidden items-center gap-2 md:inline-flex">
+        <Link href="/favorites">
+          <HeartIcon />
+          <span>Favorites</span>
+        </Link>
+      </Button>
 
       <div ref={menuRef} className="relative">
         <motion.button
           type="button"
           onClick={() => setMenuOpen((current) => !current)}
-          className="flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm transition hover:border-border hover:bg-white"
+          className="interactive-control flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm hover:border-border hover:bg-white"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           aria-label="Open account menu"
@@ -187,7 +179,7 @@ export function HeaderAuthControls() {
                     <Link
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
-                      className="block rounded-2xl px-3 py-2 text-sm font-medium text-foreground transition hover:bg-white"
+                      className="interactive-control block rounded-2xl px-3 py-2 text-sm font-medium text-foreground hover:bg-white"
                     >
                       {item.label}
                     </Link>
@@ -201,7 +193,7 @@ export function HeaderAuthControls() {
                     setMenuOpen(false);
                     void signOut({ callbackUrl: "/" });
                   }}
-                  className="flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium text-foreground transition hover:bg-white"
+                  className="interactive-control flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium text-foreground hover:bg-white"
                   whileTap={reduceMotion ? undefined : { scale: 0.98 }}
                 >
                   Logout

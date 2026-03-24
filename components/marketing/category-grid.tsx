@@ -21,7 +21,7 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
   return (
     <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
       {categories.map((category) => (
-        <Link key={category.slug} href={`/categories/${category.slug}`}>
+        <Link key={category.slug} href={`/categories/${category.slug}`} className="block h-full">
           <Card className="group surface-card-hover h-full overflow-hidden">
             <CardHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-white to-background/60">
               <div

@@ -25,7 +25,7 @@ function parseTags(value: string) {
 }
 
 const chipClasses =
-  "rounded-full px-4 py-2 text-sm font-medium transition duration-200 hover:-translate-y-0.5 motion-safe:active:scale-[0.97]";
+  "interactive-chip rounded-full px-4 py-2 text-sm font-medium motion-safe:active:scale-[0.97]";
 
 export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersProps) {
   const router = useRouter();
@@ -177,7 +177,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                           key={suggestion.id}
                           type="button"
                           onMouseDown={() => router.push(`/tools/${suggestion.slug}`)}
-                          className="flex w-full items-center justify-between rounded-[1rem] px-3 py-3 text-left transition duration-200 hover:bg-background/70"
+                          className="interactive-control flex w-full items-center justify-between rounded-[1rem] px-3 py-3 text-left hover:bg-background/70"
                         >
                           <div>
                             <p className="font-medium text-foreground">{suggestion.name}</p>
@@ -197,7 +197,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                       ))}
                       <Link
                         href={query ? `/tools?q=${encodeURIComponent(query)}` : "/tools"}
-                        className="flex items-center gap-2 rounded-[1rem] px-3 py-3 text-sm font-medium text-primary transition duration-200 hover:bg-background/70"
+                        className="interactive-control flex items-center gap-2 rounded-[1rem] px-3 py-3 text-sm font-medium text-primary hover:bg-background/70"
                       >
                         <Sparkles className="h-4 w-4" />
                         Search the full directory for &quot;{query.trim()}&quot;
@@ -369,7 +369,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             <button
               type="button"
               onClick={() => updateFilters({ category: undefined, page: undefined })}
-              className="rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Category: {categories.find((category) => category.slug === activeCategory)?.name ?? activeCategory} x
             </button>
@@ -378,7 +378,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             <button
               type="button"
               onClick={() => updateFilters({ pricing: undefined, page: undefined })}
-              className="rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Pricing: {activePricing} x
             </button>
@@ -387,7 +387,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             <button
               type="button"
               onClick={() => updateFilters({ featured: undefined, page: undefined })}
-              className="rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Featured x
             </button>
@@ -396,7 +396,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             <button
               type="button"
               onClick={() => updateFilters({ recent: undefined, page: undefined })}
-              className="rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Recent x
             </button>
@@ -406,7 +406,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
               key={tag}
               type="button"
               onClick={() => commitTags(activeTags.filter((value) => value !== tag))}
-              className="rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Tag: {tag} x
             </button>
@@ -418,7 +418,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                 setQuery("");
                 updateFilters({ q: undefined, page: undefined });
               }}
-              className="rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
             >
               Search: {query} x
             </button>
