@@ -15,10 +15,13 @@ function getIpAddress(request: Request) {
 export async function POST(request: Request) {
   try {
     const payload = await parseRequestBody(request, compareClickSchema);
-    const rateLimit = takeRateLimit(`compare-click:${getIpAddress(request)}:${payload.sourceSlug}:${payload.targetSlug ?? ""}`, {
-      limit: 40,
-      windowMs: 60_000
-    });
+    const rateLimit = await takeRateLimit(
+      `compare-click:${getIpAddress(request)}:${payload.sourceSlug}:${payload.targetSlug ?? ""}`,
+      {
+        limit: 40,
+        windowMs: 60_000
+      }
+    );
 
     if (!rateLimit.allowed) {
       return created({ tracked: false, limited: true });

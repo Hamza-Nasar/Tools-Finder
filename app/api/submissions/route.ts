@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       request.headers.get("x-real-ip") ??
       "anonymous";
-    const rateLimit = takeRateLimit(`submission:${ipAddress}`, {
+    const rateLimit = await takeRateLimit(`submission:${ipAddress}`, {
       limit: 8,
       windowMs: 60_000
     });

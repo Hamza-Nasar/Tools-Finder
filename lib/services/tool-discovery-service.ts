@@ -6,7 +6,7 @@ import { sanitizeTagList, sanitizeText } from "@/lib/sanitize";
 import { CategoryService } from "@/lib/services/category-service";
 import { SubmissionService } from "@/lib/services/submission-service";
 import { ToolService } from "@/lib/services/tool-service";
-import { extractWebsiteDomain, normalizeWebsiteUrl } from "@/lib/url";
+import { assertPublicHttpUrl, extractWebsiteDomain, normalizeWebsiteUrl } from "@/lib/url";
 import type { ExternalSearchCacheDocument } from "@/models/ExternalSearchCache";
 import { ExternalSearchCacheModel } from "@/models/ExternalSearchCache";
 import { SubmissionModel } from "@/models/Submission";
@@ -1043,7 +1043,7 @@ export class ToolDiscoveryService {
   }) {
     await connectToDatabase();
 
-    const normalizedWebsite = stripTrackingParams(input.website);
+    const normalizedWebsite = await assertPublicHttpUrl(stripTrackingParams(input.website));
     const websiteDomain = extractWebsiteDomain(normalizedWebsite);
     const requestedSlug = slugify(input.name);
     const duplicateFilter = {

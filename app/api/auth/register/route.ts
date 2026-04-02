@@ -22,7 +22,7 @@ function getIpAddress(request: Request) {
 export async function POST(request: Request) {
   try {
     const payload = await parseRequestBody(request, registerSchema);
-    const rateLimit = takeRateLimit(`auth-register:${getIpAddress(request)}`, {
+    const rateLimit = await takeRateLimit(`auth-register:${getIpAddress(request)}`, {
       limit: 5,
       windowMs: 60_000
     });

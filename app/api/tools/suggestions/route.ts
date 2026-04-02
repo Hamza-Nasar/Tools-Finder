@@ -7,7 +7,7 @@ import { toolSuggestionQuerySchema } from "@/lib/validators/tool";
 export async function GET(request: NextRequest) {
   try {
     const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anonymous";
-    const rateLimit = takeRateLimit(`tool-suggestions:${ipAddress}`, {
+    const rateLimit = await takeRateLimit(`tool-suggestions:${ipAddress}`, {
       limit: 40,
       windowMs: 60_000
     });

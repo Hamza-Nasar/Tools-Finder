@@ -18,7 +18,7 @@ function getIpAddress(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const rateLimit = takeRateLimit(`stripe-checkout:${getIpAddress(request)}`, {
+    const rateLimit = await takeRateLimit(`stripe-checkout:${getIpAddress(request)}`, {
       limit: 10,
       windowMs: 60_000
     });

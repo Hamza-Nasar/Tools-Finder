@@ -10,7 +10,7 @@ function getIpAddress(request: NextRequest) {
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const tool = await ToolService.getToolBySlug(slug);
-  const rateLimit = takeRateLimit(`tool-click:${getIpAddress(request)}:${slug}`, {
+  const rateLimit = await takeRateLimit(`tool-click:${getIpAddress(request)}:${slug}`, {
     limit: 30,
     windowMs: 60_000
   });

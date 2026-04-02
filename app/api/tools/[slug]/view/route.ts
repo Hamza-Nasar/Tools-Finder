@@ -14,7 +14,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const { slug } = await params;
     const ipAddress = getIpAddress(request);
-    const rateLimit = takeRateLimit(`tool-view:${ipAddress}:${slug}`, {
+    const rateLimit = await takeRateLimit(`tool-view:${ipAddress}:${slug}`, {
       limit: 20,
       windowMs: 60_000
     });

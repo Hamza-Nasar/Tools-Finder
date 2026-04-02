@@ -56,7 +56,7 @@ export async function submitToolAction(_: ActionState, formData: FormData): Prom
     requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     requestHeaders.get("x-real-ip") ??
     "anonymous";
-  const rateLimit = takeRateLimit(`submission-action:${ipAddress}`, {
+  const rateLimit = await takeRateLimit(`submission-action:${ipAddress}`, {
     limit: 8,
     windowMs: 60_000
   });

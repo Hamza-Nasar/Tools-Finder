@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { created, handleApiError, parseRequestBody } from "@/lib/api";
 import { takeRateLimit } from "@/lib/rate-limit/memory-store";
+import { requireAdminSession } from "@/lib/server-guards";
 import { ToolDiscoveryService } from "@/lib/services/tool-discovery-service";
 import { discoveredToolImportSchema } from "@/lib/validators/tool";
 
@@ -11,8 +12,9 @@ function getIpAddress(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdminSession();
     const ipAddress = getIpAddress(request);
-    const rateLimit = takeRateLimit(`tool-search-import:${ipAddress}`, {
+    const rateLimit = await takeRateLimit(`tool-search-import:${ipAddress}`, {
       limit: 12,
       windowMs: 10 * 60_000
     });

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,8 @@ const isWindows = process.platform === "win32";
 const baseDelayMs = Number.parseInt(process.env.DEV_SERVER_RESTART_DELAY_MS ?? "1500", 10);
 const maxDelayMs = Number.parseInt(process.env.DEV_SERVER_MAX_RESTART_DELAY_MS ?? "10000", 10);
 const usePolling = (process.env.DEV_SERVER_USE_POLLING ?? (isWindows ? "1" : "0")) !== "0";
+const cacheDirs = [".next", ".next-dev"];
+const cacheRootMarkerPath = path.join(rootDir, ".next", "cache", "workspace-root.txt");
 
 let activeChild = null;
 let restartCount = 0;
@@ -36,6 +39,46 @@ function clearRestartTimer() {
   }
 }
 
+async function pathExists(targetPath) {
+  try {
+    await access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function removeCacheDirs(reason) {
+  for (const cacheDir of cacheDirs) {
+    await rm(path.join(rootDir, cacheDir), { force: true, recursive: true });
+  }
+
+  console.log(`[dev-supervisor] cleared Next.js cache (${reason}).`);
+}
+
+async function ensureCompatibleNextCache() {
+  const markerExists = await pathExists(cacheRootMarkerPath);
+
+  if (markerExists) {
+    const previousRoot = (await readFile(cacheRootMarkerPath, "utf8")).trim();
+
+    if (previousRoot && previousRoot !== rootDir) {
+      await removeCacheDirs(`workspace moved from ${previousRoot}`);
+    }
+  } else {
+    const hasExistingCache = (await Promise.all(cacheDirs.map((cacheDir) => pathExists(path.join(rootDir, cacheDir))))).some(
+      Boolean
+    );
+
+    if (hasExistingCache) {
+      await removeCacheDirs("workspace marker missing");
+    }
+  }
+
+  await mkdir(path.dirname(cacheRootMarkerPath), { recursive: true });
+  await writeFile(cacheRootMarkerPath, `${rootDir}\n`, "utf8");
+}
+
 function stopChild(signal) {
   if (!activeChild || activeChild.exitCode !== null || activeChild.killed) {
     return;
@@ -56,12 +99,13 @@ function scheduleRestart(code, signal) {
 
   restartTimer = setTimeout(() => {
     restartTimer = null;
-    startServer();
+    void startServer();
   }, delayMs);
 }
 
-function startServer() {
+async function startServer() {
   clearRestartTimer();
+  await ensureCompatibleNextCache();
 
   const command = isWindows ? process.env.ComSpec ?? "cmd.exe" : "npm";
   const args = isWindows ? ["/d", "/s", "/c", "npm run dev:next"] : ["run", "dev:next"];
@@ -109,4 +153,4 @@ function shutdown(signal) {
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-startServer();
+void startServer();

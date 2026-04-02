@@ -22,7 +22,7 @@ function getIpAddress(request: Request) {
 export async function POST(request: Request) {
   try {
     const payload = await parseRequestBody(request, newsletterPayloadSchema);
-    const rateLimit = takeRateLimit(`newsletter:${getIpAddress(request)}`, {
+    const rateLimit = await takeRateLimit(`newsletter:${getIpAddress(request)}`, {
       limit: 6,
       windowMs: 60_000
     });

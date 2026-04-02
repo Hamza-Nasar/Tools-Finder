@@ -24,7 +24,7 @@ function serializeEvent(event: string, data: unknown) {
 export async function GET(request: NextRequest) {
   try {
     const ipAddress = getIpAddress(request);
-    const rateLimit = takeRateLimit(`tool-hybrid-search:${ipAddress}`, {
+    const rateLimit = await takeRateLimit(`tool-hybrid-search:${ipAddress}`, {
       limit: 24,
       windowMs: 60_000
     });
