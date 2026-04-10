@@ -4,6 +4,7 @@ import { getPublicCategories } from "@/lib/data/categories";
 import { getSeoComparisonPairsCached } from "@/lib/data/tools";
 import { toolCollections } from "@/lib/collections";
 import { getPromptToolGroups } from "@/lib/prompt-library";
+import { isDatabaseAvailable } from "@/lib/mongodb";
 import { ToolService } from "@/lib/services/tool-service";
 import { seoLandingPages } from "@/lib/seo-landings";
 import { workflows } from "@/lib/workflows";
@@ -30,6 +31,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "daily" as const,
     priority: route === "" ? 1 : 0.8
   }));
+
+  if (!(await isDatabaseAvailable())) {
+    return staticRoutes;
+  }
 
   try {
     const [categories, comparisons, tools] = await Promise.all([

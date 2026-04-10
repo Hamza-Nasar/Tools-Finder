@@ -34,6 +34,7 @@ export function MobileNavSheet({
           { href: "/my-stack", label: "My Stack" },
           { href: "/favorites", label: "Favorites" },
           { href: "/dashboard", label: "Dashboard" },
+          { href: "/dashboard#notifications", label: "Notifications" },
           { href: "/dashboard#submitted-tools", label: "My Submissions" },
           ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : [])
         ]

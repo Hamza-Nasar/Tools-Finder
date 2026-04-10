@@ -1,6 +1,7 @@
 import { getTodayToolsFeedCached } from "@/lib/data/tools";
 import { buildMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/shared/page-hero";
+import { LiveDiscoveryFeed } from "@/components/tools/live-discovery-feed";
 import { TodayToolsFeed } from "@/components/tools/today-tools-feed";
 
 export const metadata = buildMetadata({
@@ -28,6 +29,10 @@ export default async function TodayAiToolsPage() {
 
       <div className="mt-10">
         <TodayToolsFeed feed={feed} />
+      </div>
+
+      <div className="mt-14">
+        <LiveDiscoveryFeed />
       </div>
     </div>
   );

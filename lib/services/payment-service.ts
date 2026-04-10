@@ -4,13 +4,15 @@ import { requireStripe } from "@/lib/stripe";
 import { connectToDatabase } from "@/lib/mongodb";
 import { env } from "@/lib/env";
 import { AppError } from "@/lib/errors";
+import { getDefaultPaidListingPlan, getListingPlanById } from "@/lib/listing-plans";
 import { PaymentRecordModel } from "@/models/PaymentRecord";
 import { ToolModel } from "@/models/Tool";
 import { FeaturedListingService } from "@/lib/services/featured-listing-service";
 import { EmailService } from "@/lib/services/email-service";
+import { NotificationService } from "@/lib/services/notification-service";
 
 function getFeaturedListingPriceCents() {
-  return env.STRIPE_FEATURED_LISTING_PRICE_CENTS ?? 9900;
+  return env.STRIPE_FEATURED_LISTING_PRICE_CENTS ?? getDefaultPaidListingPlan().priceCents;
 }
 
 function getSuccessUrl(slug: string) {
@@ -22,11 +24,21 @@ function getCancelUrl(slug: string) {
 }
 
 export class PaymentService {
-  static async createFeaturedCheckoutSession(input: { toolSlug: string; customerEmail?: string | null }) {
+  static async createFeaturedCheckoutSession(input: {
+    toolSlug: string;
+    planId?: "free" | "monthly" | "quarterly" | "annual";
+    customerEmail?: string | null;
+  }) {
     await connectToDatabase();
     await FeaturedListingService.expireListingsIfNeeded();
 
     const stripe = requireStripe();
+    const plan = getListingPlanById(input.planId ?? "monthly");
+
+    if (!plan.featuredPlacement || !plan.durationDays || plan.priceCents <= 0) {
+      throw new AppError(400, "Select a paid featured plan before checkout.", "INVALID_LISTING_PLAN");
+    }
+
     const tool = await ToolModel.findOne(
       {
         slug: input.toolSlug,
@@ -56,6 +68,9 @@ export class PaymentService {
       metadata: {
         toolId: tool._id.toString(),
         toolSlug: tool.slug,
+        planId: plan.id,
+        planName: plan.name,
+        durationDays: String(plan.durationDays),
         purpose: "featured-listing"
       },
       line_items: [
@@ -63,10 +78,10 @@ export class PaymentService {
           quantity: 1,
           price_data: {
             currency: "usd",
-            unit_amount: getFeaturedListingPriceCents(),
+            unit_amount: plan.priceCents || getFeaturedListingPriceCents(),
             product_data: {
-              name: `Featured listing for ${tool.name}`,
-              description: `Premium homepage and category placement for ${tool.name}`
+              name: `${plan.name} for ${tool.name}`,
+              description: `${plan.durationLabel} of premium homepage and category placement for ${tool.name}`
             }
           }
         }
@@ -79,7 +94,10 @@ export class PaymentService {
         $set: {
           toolId: tool._id,
           purchaserEmail: input.customerEmail ?? null,
-          amountTotal: session.amount_total ?? getFeaturedListingPriceCents(),
+          planId: plan.id,
+          planName: plan.name,
+          durationDays: plan.durationDays,
+          amountTotal: session.amount_total ?? plan.priceCents,
           currency: session.currency ?? "usd",
           status: "pending"
         },
@@ -112,6 +130,7 @@ export class PaymentService {
       status: "pending" | "paid" | "expired" | "canceled";
       featuredUntil?: Date | null;
       purchaserEmail?: string | null;
+      planName?: string | null;
     } | null>();
 
     if (session.payment_status !== "paid") {
@@ -131,7 +150,8 @@ export class PaymentService {
         tagline: 1,
         slug: 1,
         categorySlug: 1,
-        featuredUntil: 1
+        featuredUntil: 1,
+        createdBy: 1
       }
     ).lean<{
       _id: { toString(): string };
@@ -140,6 +160,7 @@ export class PaymentService {
       slug: string;
       categorySlug: string;
       featuredUntil?: Date | null;
+      createdBy?: { toString(): string } | null;
     } | null>();
 
     if (!tool || Array.isArray(tool)) {
@@ -162,7 +183,18 @@ export class PaymentService {
           to: purchaserEmail,
           toolName: tool.name,
           featuredUntil,
+          planName: existingRecord?.planName ?? session.metadata?.planName ?? undefined,
           manageUrl: absoluteUrl(`/tools/${tool.slug}`)
+        });
+      }
+
+      if (tool.createdBy) {
+        await NotificationService.createNotification({
+          userId: tool.createdBy.toString(),
+          kind: "featured_listing_activated",
+          title: `${tool.name} is now featured`,
+          message: `${existingRecord?.planName ?? session.metadata?.planName ?? "Your paid plan"} is active and the listing now has premium placement until ${new Date(featuredUntil).toLocaleDateString()}.`,
+          href: `/tools/${tool.slug}`
         });
       }
     }
@@ -175,6 +207,7 @@ export class PaymentService {
     revalidatePath(`/categories/${tool.categorySlug}`);
     revalidatePath("/admin");
     revalidatePath("/admin/tools");
+    revalidatePath("/dashboard");
 
     return {
       session,

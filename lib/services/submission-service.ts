@@ -10,8 +10,10 @@ import { extractWebsiteDomain } from "@/lib/url";
 import { SubmissionModel } from "@/models/Submission";
 import { ToolModel } from "@/models/Tool";
 import { UserModel } from "@/models/User";
+import { AIAssistantService } from "@/lib/services/ai-assistant-service";
 import { CategoryService } from "@/lib/services/category-service";
 import { EmailService } from "@/lib/services/email-service";
+import { NotificationService } from "@/lib/services/notification-service";
 import { ToolService } from "@/lib/services/tool-service";
 import { UserActivityService } from "@/lib/services/user-activity-service";
 
@@ -240,6 +242,7 @@ export class SubmissionService {
     input: SubmissionWriteInput,
     options?: {
       disableNotifications?: boolean;
+      skipAIAnalysis?: boolean;
     }
   ) {
     await connectToDatabase();
@@ -249,6 +252,7 @@ export class SubmissionService {
     const sanitizedWebsite = sanitizeUrl(input.website);
     const websiteDomain = extractWebsiteDomain(sanitizedWebsite);
     const requestedSlug = slugify(sanitizedName);
+    const normalizedTagList = sanitizeTagList(input.tags);
 
     assertNoDuplicateSubmission(
       await findDuplicateSubmissionOrTool({
@@ -258,6 +262,19 @@ export class SubmissionService {
     );
 
     const slug = await resolveSubmissionSlug(sanitizedName);
+    const aiReview =
+      options?.skipAIAnalysis || !AIAssistantService.isEnabled()
+        ? null
+        : await AIAssistantService.reviewSubmission({
+            name: sanitizedName,
+            tagline: sanitizeText(input.tagline),
+            website: sanitizedWebsite,
+            description: sanitizeText(input.description),
+            categorySlug: category.slug,
+            tags: normalizedTagList,
+            pricing: input.pricing,
+            categories: await CategoryService.listPublicCategories()
+          });
 
     const submission = await SubmissionModel.create({
       slug,
@@ -271,17 +288,40 @@ export class SubmissionService {
       category: toObjectId(category.id, "category"),
       categoryName: category.name,
       categorySlug: category.slug,
-      tags: sanitizeTagList(input.tags),
+      tags: normalizedTagList,
       pricing: input.pricing,
       logo: sanitizeOptionalUrl(input.logo ?? null),
       screenshots: (input.screenshots ?? []).map((shot) => sanitizeUrl(shot)),
       contactEmail: sanitizeOptionalText(input.contactEmail ?? null)?.toLowerCase() ?? null,
       status: "pending",
-      submittedBy: input.submittedBy ? toObjectId(input.submittedBy, "submittedBy") : null
+      submittedBy: input.submittedBy ? toObjectId(input.submittedBy, "submittedBy") : null,
+      aiReview: aiReview
+        ? {
+            summary: aiReview.summary,
+            qualityScore: aiReview.qualityScore,
+            confidence: aiReview.confidence,
+            suggestedCategorySlug: aiReview.suggestedCategorySlug,
+            suggestedTags: aiReview.suggestedTags,
+            recommendedAction: aiReview.recommendedAction,
+            riskFlags: aiReview.riskFlags,
+            isLikelyAiTool: aiReview.isLikelyAiTool,
+            analyzedAt: aiReview.analyzedAt ? new Date(aiReview.analyzedAt) : new Date()
+          }
+        : undefined
     });
 
     if (input.submittedBy) {
       await UserActivityService.recordToolSubmitted(input.submittedBy, submission._id.toString());
+
+      if (!options?.disableNotifications) {
+        await NotificationService.createNotification({
+          userId: input.submittedBy,
+          kind: "submission_received",
+          title: `${submission.name} entered review`,
+          message: "Your listing is now in the moderation queue. You will get another update when it is approved or rejected.",
+          href: "/dashboard#submitted-tools"
+        });
+      }
     }
 
     if (!options?.disableNotifications) {
@@ -319,6 +359,7 @@ export class SubmissionService {
     moderatedBy?: string | null,
     options?: {
       disableNotifications?: boolean;
+      skipAIAnalysis?: boolean;
     }
   ) {
     await connectToDatabase();
@@ -372,6 +413,47 @@ export class SubmissionService {
       submission.contactEmail = sanitizeOptionalText(input.contactEmail ?? null)?.toLowerCase() ?? null;
     }
     if (input.moderationNote !== undefined) submission.moderationNote = sanitizeOptionalText(input.moderationNote ?? null);
+    const shouldReanalyze =
+      !options?.skipAIAnalysis &&
+      AIAssistantService.isEnabled() &&
+      (
+        input.name !== undefined ||
+        input.tagline !== undefined ||
+        input.website !== undefined ||
+        input.description !== undefined ||
+        input.categorySlug !== undefined ||
+        input.tags !== undefined ||
+        input.pricing !== undefined ||
+        !submission.aiReview?.analyzedAt
+      );
+
+    if (shouldReanalyze) {
+      const categories = await CategoryService.listPublicCategories();
+      const aiReview = await AIAssistantService.reviewSubmission({
+        name: submission.name,
+        tagline: submission.tagline,
+        website: submission.website,
+        description: submission.description,
+        categorySlug: submission.categorySlug,
+        tags: submission.tags,
+        pricing: submission.pricing,
+        categories
+      });
+
+      submission.aiReview = aiReview
+        ? {
+            summary: aiReview.summary,
+            qualityScore: aiReview.qualityScore,
+            confidence: aiReview.confidence,
+            suggestedCategorySlug: aiReview.suggestedCategorySlug,
+            suggestedTags: aiReview.suggestedTags,
+            recommendedAction: aiReview.recommendedAction,
+            riskFlags: aiReview.riskFlags,
+            isLikelyAiTool: aiReview.isLikelyAiTool,
+            analyzedAt: aiReview.analyzedAt ? new Date(aiReview.analyzedAt) : new Date()
+          }
+        : submission.aiReview;
+    }
 
     const previousStatus = submission.status as "pending" | "approved" | "rejected";
 
@@ -440,12 +522,52 @@ export class SubmissionService {
           });
         }
       }
+
+      if (previousStatus !== "approved" && submission.submittedBy && !options?.disableNotifications) {
+        await NotificationService.createNotification({
+          userId: submission.submittedBy.toString(),
+          kind: "submission_approved",
+          title: `${submission.name} was approved`,
+          message: "Your tool is now live in the public directory and eligible for featured placement.",
+          href: `/tools/${submission.slug}`
+        });
+      }
     } else if (
       previousStatus === "approved" &&
       input.status !== undefined &&
       submission.approvedTool
     ) {
       await ToolModel.findByIdAndUpdate(submission.approvedTool, { $set: { status: input.status } });
+    }
+
+    if (input.status === "rejected" && previousStatus !== "rejected") {
+      const recipientEmail = !options?.disableNotifications
+        ? await resolveRecipientEmail({
+            contactEmail: submission.contactEmail,
+            submittedBy: submission.submittedBy
+          })
+        : null;
+
+      if (recipientEmail) {
+        await EmailService.sendSubmissionRejectedEmail({
+          to: recipientEmail,
+          toolName: submission.name,
+          moderationNote: submission.moderationNote ?? null,
+          dashboardUrl: absoluteUrl("/dashboard#submitted-tools")
+        });
+      }
+
+      if (submission.submittedBy && !options?.disableNotifications) {
+        await NotificationService.createNotification({
+          userId: submission.submittedBy.toString(),
+          kind: "submission_rejected",
+          title: `${submission.name} needs changes`,
+          message:
+            submission.moderationNote?.trim() ||
+            "The admin team reviewed your listing and asked for revisions before it can go live.",
+          href: "/dashboard#submitted-tools"
+        });
+      }
     }
 
     return serializeSubmission(submission.toObject());

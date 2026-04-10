@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { getRelatedToolsCached, getSeoComparisonPairsCached, getToolBySlugCached } from "@/lib/data/tools";
+import { hasOpenAIConfig } from "@/lib/openai";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import { AiComparisonInsight } from "@/components/tools/ai-comparison-insight";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
 import { ToolComparison } from "@/components/tools/tool-comparison";
@@ -81,6 +83,7 @@ export default async function ToolComparisonPage({
       getToolBySlugCached(resolved.toolASlug),
       getToolBySlugCached(resolved.toolBSlug)
     ]);
+    const aiComparisonEnabled = hasOpenAIConfig();
     const year = new Date().getFullYear();
     const alternatives = await getRelatedToolsCached({
       slug: toolA.slug,
@@ -120,6 +123,10 @@ export default async function ToolComparisonPage({
 
         <div className="mt-10">
           <ToolComparison toolA={toolA} toolB={toolB} />
+        </div>
+
+        <div className="mt-10">
+          <AiComparisonInsight toolA={toolA} toolB={toolB} enabled={aiComparisonEnabled} />
         </div>
 
         <div className="mt-10">

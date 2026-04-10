@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { isDatabaseUnavailableError } from "@/lib/errors";
 import { env } from "@/lib/env";
 
 declare global {
@@ -10,6 +11,11 @@ declare global {
       }
     | undefined;
   var mongooseEventsBound: boolean | undefined;
+  var databaseAvailabilityState:
+    | {
+        unavailableUntil: number;
+      }
+    | undefined;
 }
 
 const mongooseCache = global.mongooseCache ?? {
@@ -17,14 +23,29 @@ const mongooseCache = global.mongooseCache ?? {
   promise: null,
   uri: null
 };
+const databaseAvailabilityState = global.databaseAvailabilityState ?? {
+  unavailableUntil: 0
+};
+const DATABASE_UNAVAILABLE_RETRY_MS = 30_000;
 
 mongoose.set("bufferCommands", false);
+global.databaseAvailabilityState = databaseAvailabilityState;
 
 function resetMongooseCache() {
   mongooseCache.connection = null;
   mongooseCache.promise = null;
   mongooseCache.uri = null;
   global.mongooseCache = mongooseCache;
+}
+
+function markDatabaseUnavailable() {
+  databaseAvailabilityState.unavailableUntil = Date.now() + DATABASE_UNAVAILABLE_RETRY_MS;
+  global.databaseAvailabilityState = databaseAvailabilityState;
+}
+
+function clearDatabaseUnavailable() {
+  databaseAvailabilityState.unavailableUntil = 0;
+  global.databaseAvailabilityState = databaseAvailabilityState;
 }
 
 if (!global.mongooseEventsBound) {
@@ -67,16 +88,47 @@ export async function connectToDatabase() {
       serverSelectionTimeoutMS: 3_000
     })
     .then((connection) => {
+      clearDatabaseUnavailable();
       mongooseCache.connection = connection;
       return connection;
     })
     .catch((error) => {
+      if (isDatabaseUnavailableError(error)) {
+        markDatabaseUnavailable();
+      }
+
       resetMongooseCache();
       throw error;
     });
 
   mongooseCache.connection = await mongooseCache.promise;
   global.mongooseCache = mongooseCache;
+  clearDatabaseUnavailable();
 
   return mongooseCache.connection;
+}
+
+export async function isDatabaseAvailable() {
+  if (!env.MONGODB_URI) {
+    return false;
+  }
+
+  if (mongooseCache.connection && mongoose.connection.readyState === 1) {
+    return true;
+  }
+
+  if (databaseAvailabilityState.unavailableUntil > Date.now()) {
+    return false;
+  }
+
+  try {
+    await connectToDatabase();
+    return true;
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return false;
+    }
+
+    throw error;
+  }
 }

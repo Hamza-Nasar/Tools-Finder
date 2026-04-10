@@ -1,5 +1,4 @@
-import { connectToDatabase } from "@/lib/mongodb";
-import { NewsletterSubscriptionModel } from "@/models/newsletter-model";
+import { NewsletterStore } from "@/lib/newsletter-store";
 
 export interface NewsletterSubscribeInput {
   email: string;
@@ -28,49 +27,19 @@ function normalizeToolSlug(toolSlug?: string | null) {
 
 export class NewsletterService {
   static async subscribe(input: NewsletterSubscribeInput) {
-    await connectToDatabase();
-
     const email = normalizeEmail(input.email);
     const source = input.source;
     const pagePath = normalizePath(input.pagePath);
     const toolSlug = normalizeToolSlug(input.toolSlug);
-    const now = new Date();
-    const addToSet: Record<string, string> = {
-      sources: source
-    };
-
-    if (pagePath) {
-      addToSet.pagePaths = pagePath;
-    }
-
-    if (toolSlug) {
-      addToSet.toolSlugs = toolSlug;
-    }
-
-    const subscription = await NewsletterSubscriptionModel.findOneAndUpdate(
-      { email },
-      {
-        $set: {
-          email,
-          status: "active",
-          lastSubscribedAt: now
-        },
-        $inc: {
-          signupCount: 1
-        },
-        $addToSet: addToSet
-      },
-      {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true
-      }
-    )
-      .select({ _id: 1 })
-      .lean<{ _id: { toString(): string } } | null>();
+    const subscription = await NewsletterStore.subscribe({
+      email,
+      source,
+      pagePath,
+      toolSlug
+    });
 
     return {
-      id: subscription?._id?.toString() ?? email,
+      id: subscription.id,
       email,
       source
     };

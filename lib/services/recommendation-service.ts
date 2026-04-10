@@ -1,4 +1,5 @@
-import type { Tool, ToolRecommendation } from "@/types";
+import type { FinderAssistantInsight, Tool, ToolRecommendation } from "@/types";
+import { AIAssistantService } from "@/lib/services/ai-assistant-service";
 import { CategoryService } from "@/lib/services/category-service";
 import { ToolService } from "@/lib/services/tool-service";
 
@@ -75,29 +76,54 @@ function tokenize(input: string) {
     .slice(0, 12);
 }
 
+function getPricingBoost(
+  pricing: Tool["pricing"],
+  query: string,
+  budgetPreference: FinderAssistantInsight["budgetPreference"] | null
+) {
+  const wantsBudget = query.includes("free") || query.includes("cheap") || query.includes("budget") || budgetPreference === "free";
+
+  if (wantsBudget) {
+    if (pricing === "Free") {
+      return 4;
+    }
+
+    if (pricing === "Freemium") {
+      return 2;
+    }
+
+    return 0;
+  }
+
+  if (budgetPreference === "freemium") {
+    return pricing === "Freemium" ? 3 : pricing === "Free" ? 2 : 0;
+  }
+
+  if (budgetPreference === "paid") {
+    return pricing === "Paid" ? 2 : 0;
+  }
+
+  return 0;
+}
+
 function scoreTool(
   tool: Tool,
   query: string,
   tokens: string[],
   inferredCategories: string[],
-  inferredTags: string[]
+  inferredTags: string[],
+  budgetPreference: FinderAssistantInsight["budgetPreference"] | null
 ) {
   const lowerQuery = query.toLowerCase();
   const haystack = [tool.name, tool.tagline, tool.description, tool.category, ...tool.tags].join(" ").toLowerCase();
+  const lowerToolTags = tool.tags.map((value) => value.toLowerCase());
   const matchedCategories = inferredCategories.filter((slug) => slug === tool.categorySlug);
-  const matchedTags = inferredTags.filter((tag) => tool.tags.map((value) => value.toLowerCase()).includes(tag));
+  const matchedTags = inferredTags.filter((tag) => lowerToolTags.includes(tag));
   const phraseBoost = haystack.includes(lowerQuery) ? 12 : 0;
   const tokenBoost = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 1.8 : 0), 0);
   const categoryBoost = matchedCategories.length * 6;
   const tagBoost = matchedTags.length * 4;
-  const pricingBoost =
-    lowerQuery.includes("free") || lowerQuery.includes("cheap") || lowerQuery.includes("budget")
-      ? tool.pricing === "Free"
-        ? 4
-        : tool.pricing === "Freemium"
-          ? 2
-          : 0
-      : 0;
+  const pricingBoost = getPricingBoost(tool.pricing, lowerQuery, budgetPreference);
   const popularityBoost =
     tool.trendingScore / 20 +
     tool.favoritesCount / 250 +
@@ -123,7 +149,7 @@ function scoreTool(
     score,
     matchedCategories,
     matchedTags,
-    reason: reasonParts.join(" • ")
+    reason: reasonParts.join("; ")
   };
 }
 
@@ -132,6 +158,7 @@ export class RecommendationService {
     query: string;
     inferredCategories: string[];
     inferredTags: string[];
+    aiInsight: FinderAssistantInsight | null;
     tools: ToolRecommendation[];
   }> {
     const query = problem.trim();
@@ -141,12 +168,19 @@ export class RecommendationService {
         query,
         inferredCategories: [],
         inferredTags: [],
+        aiInsight: null,
         tools: []
       };
     }
 
     const tokens = tokenize(query);
     const categories = await CategoryService.listPublicCategories();
+    const aiInsight = AIAssistantService.isEnabled()
+      ? await AIAssistantService.enhanceFinderQuery({
+          query,
+          categories
+        })
+      : null;
     const inferredCategorySet = new Set<string>();
     const inferredTagSet = new Set<string>();
 
@@ -164,6 +198,9 @@ export class RecommendationService {
         hint.tags.forEach((tag) => inferredTagSet.add(tag));
       }
     }
+
+    aiInsight?.inferredCategories.forEach((slug) => inferredCategorySet.add(slug));
+    aiInsight?.inferredTags.forEach((tag) => inferredTagSet.add(tag));
 
     const inferredCategories = Array.from(inferredCategorySet).slice(0, 4);
     const inferredTags = Array.from(inferredTagSet).slice(0, 6);
@@ -214,7 +251,14 @@ export class RecommendationService {
 
     const ranked = Array.from(candidateMap.values())
       .map((tool) => {
-        const scored = scoreTool(tool, query, tokens, inferredCategories, inferredTags);
+        const scored = scoreTool(
+          tool,
+          query,
+          tokens,
+          inferredCategories,
+          inferredTags,
+          aiInsight?.budgetPreference ?? null
+        );
 
         return {
           tool,
@@ -231,6 +275,7 @@ export class RecommendationService {
       query,
       inferredCategories,
       inferredTags,
+      aiInsight,
       tools: ranked
     };
   }

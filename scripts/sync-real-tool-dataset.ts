@@ -156,14 +156,14 @@ async function main() {
             submittedBy: importerUserId,
             launchYear: entry.launchYear
           },
-          { disableNotifications: true }
+          { disableNotifications: true, skipAIAnalysis: true }
         );
 
         await SubmissionService.updateSubmission(
           submission.id,
           { status: "approved", launchYear: entry.launchYear },
           importerUserId,
-          { disableNotifications: true }
+          { disableNotifications: true, skipAIAnalysis: true }
         );
         inserted += 1;
       } catch (error) {

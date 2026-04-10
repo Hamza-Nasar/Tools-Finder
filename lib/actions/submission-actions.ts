@@ -78,6 +78,7 @@ export async function submitToolAction(_: ActionState, formData: FormData): Prom
 
   revalidateTag("submissions");
   revalidatePath("/submit");
+  revalidatePath("/dashboard");
   revalidatePath("/admin/submissions");
 
   return {

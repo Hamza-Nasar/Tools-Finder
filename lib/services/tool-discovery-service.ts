@@ -50,6 +50,7 @@ interface WebsiteMetadata {
 }
 
 const DISCOVERY_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const LIVE_DISCOVERY_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
 const DEFAULT_FETCH_TIMEOUT_MS = 12_000;
 const GITHUB_RESULTS_LIMIT = 6;
 const DIRECTORY_RESULTS_LIMIT = 8;
@@ -765,7 +766,7 @@ async function getFreshCache(query: string) {
   };
 }
 
-async function writeCache(query: string, results: WebDiscoveredTool[]) {
+async function writeCache(query: string, results: WebDiscoveredTool[], ttlMs = DISCOVERY_CACHE_TTL_MS) {
   try {
     await connectToDatabase();
   } catch (error) {
@@ -778,7 +779,7 @@ async function writeCache(query: string, results: WebDiscoveredTool[]) {
 
   const cacheKey = query.trim().toLowerCase();
   const fetchedAt = new Date();
-  const expiresAt = new Date(fetchedAt.getTime() + DISCOVERY_CACHE_TTL_MS);
+  const expiresAt = new Date(fetchedAt.getTime() + ttlMs);
 
   await ExternalSearchCacheModel.findOneAndUpdate(
     { cacheKey },
@@ -872,12 +873,12 @@ async function fetchWebsiteMetadata(url: string): Promise<WebsiteMetadata> {
 
     const normalizedUrl = new URL(url);
     const faviconFallback = `${normalizedUrl.origin}/favicon.ico`;
-    const primaryImage = ogImage ?? iconHref ?? faviconFallback;
+    const primaryImage = ogImage ?? iconHref ?? null;
 
     return {
       title: title ? cleanText(title) : null,
       description: description ? cleanText(description) : null,
-      logo: primaryImage ?? faviconFallback,
+      logo: primaryImage,
       screenshots: ogImage && ogImage !== primaryImage ? [ogImage] : ogImage ? [ogImage] : []
     };
   } catch {
@@ -1029,6 +1030,67 @@ export class ToolDiscoveryService {
     };
   }
 
+  static async getLiveDiscoveryFeed(limit = 6): Promise<HybridSearchWebPayload> {
+    const discoveryQuery = "__live-ai-discovery__";
+    const cached = await getFreshCache(discoveryQuery);
+
+    if (cached) {
+      return {
+        results: cached.results.slice(0, limit),
+        cached: true,
+        providers: ["futurepedia", "theresanaiforthat", "github", "producthunt"].map((provider) => ({
+          provider: provider as ExternalDiscoveryProvider,
+          count: cached.results.filter((result) => result.provider === provider).length,
+          cached: true
+        }))
+      };
+    }
+
+    const connectorRuns = await Promise.allSettled([
+      searchFuturepedia("ai", DIRECTORY_RESULTS_LIMIT),
+      searchTaaft("ai", DIRECTORY_RESULTS_LIMIT),
+      searchGitHub("ai", GITHUB_RESULTS_LIMIT),
+      searchProductHunt("ai", PRODUCT_HUNT_RESULTS_LIMIT)
+    ]);
+
+    const statuses: SearchConnectorStatus[] = connectorRuns.map((result, index) => {
+      const providers: ExternalDiscoveryProvider[] = ["futurepedia", "theresanaiforthat", "github", "producthunt"];
+      const provider = providers[index];
+
+      if (result.status === "fulfilled") {
+        return {
+          provider,
+          count: result.value.results.length,
+          results: result.value.results
+        };
+      }
+
+      return {
+        provider,
+        count: 0,
+        error: result.reason instanceof Error ? result.reason.message : "Connector failed.",
+        results: []
+      };
+    });
+
+    const merged = dedupeDiscoveredTools(statuses.flatMap((entry) => entry.results));
+    const filtered = (await removeDomainsAlreadyInDatabase(merged))
+      .sort((left, right) => rankDiscoveredTool(right, "ai", "newest") - rankDiscoveredTool(left, "ai", "newest"))
+      .slice(0, limit);
+
+    await writeCache(discoveryQuery, merged, LIVE_DISCOVERY_CACHE_TTL_MS);
+
+    return {
+      results: filtered,
+      cached: false,
+      providers: statuses.map(({ provider, count, error }) => ({
+        provider,
+        count,
+        error
+      }))
+    };
+  }
+
   static async importDiscoveredTool(input: {
     provider: ExternalDiscoveryProvider;
     name: string;
@@ -1071,7 +1133,7 @@ export class ToolDiscoveryService {
         existingSubmission._id.toString(),
         { status: "approved" },
         null,
-        { disableNotifications: true }
+        { disableNotifications: true, skipAIAnalysis: true }
       );
 
       const linkedTool = await ToolModel.findOne({
@@ -1122,7 +1184,8 @@ export class ToolDiscoveryService {
         contactEmail: null
       },
       {
-        disableNotifications: true
+        disableNotifications: true,
+        skipAIAnalysis: true
       }
     );
 
@@ -1130,7 +1193,7 @@ export class ToolDiscoveryService {
       submission.id,
       { status: "approved" },
       null,
-      { disableNotifications: true }
+      { disableNotifications: true, skipAIAnalysis: true }
     );
 
     return ToolService.getToolBySlug(submission.slug);

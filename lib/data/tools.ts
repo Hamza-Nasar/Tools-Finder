@@ -1,6 +1,19 @@
 import { unstable_cache } from "next/cache";
 import { isDatabaseUnavailableError } from "@/lib/errors";
+import { isDatabaseAvailable } from "@/lib/mongodb";
 import { ToolService } from "@/lib/services/tool-service";
+
+const emptyHomepageTools = {
+  featured: [],
+  trending: [],
+  latest: []
+};
+
+const emptyTodayToolsFeed = {
+  todayNew: [],
+  trendingToday: [],
+  editorPicks: []
+};
 
 const getHomepageToolsCached = unstable_cache(
   async () => {
@@ -115,11 +128,15 @@ const getSeoComparisonPairsCachedInternal = unstable_cache(
 );
 
 export async function getHomepageTools() {
+  if (!(await isDatabaseAvailable())) {
+    return emptyHomepageTools;
+  }
+
   try {
     return await getHomepageToolsCached();
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
-      return { featured: [], trending: [], latest: [] };
+      return emptyHomepageTools;
     }
 
     throw error;
@@ -127,15 +144,15 @@ export async function getHomepageTools() {
 }
 
 export async function getTodayToolsFeedCached() {
+  if (!(await isDatabaseAvailable())) {
+    return emptyTodayToolsFeed;
+  }
+
   try {
     return await getTodayToolsFeedCachedInternal();
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
-      return {
-        todayNew: [],
-        trendingToday: [],
-        editorPicks: []
-      };
+      return emptyTodayToolsFeed;
     }
 
     throw error;
@@ -153,6 +170,16 @@ export async function getPublicToolList(query: {
   page: number;
   limit: number;
 }) {
+  if (!(await isDatabaseAvailable())) {
+    return {
+      data: [],
+      total: 0,
+      page: query.page,
+      limit: query.limit,
+      totalPages: 1
+    };
+  }
+
   try {
     return await getPublicToolListCached(query);
   } catch (error) {
@@ -171,6 +198,10 @@ export async function getPublicToolList(query: {
 }
 
 export async function getToolDirectoryFacets() {
+  if (!(await isDatabaseAvailable())) {
+    return { topTags: [] };
+  }
+
   try {
     return await getToolDirectoryFacetsCached();
   } catch (error) {
@@ -192,6 +223,10 @@ export async function getRelatedToolsCached(input: {
   tags: string[];
   limit?: number;
 }) {
+  if (!(await isDatabaseAvailable())) {
+    return [];
+  }
+
   try {
     return await getRelatedToolsCachedInternal(
       input.slug,
@@ -209,6 +244,10 @@ export async function getRelatedToolsCached(input: {
 }
 
 export async function getTrendingToolsCached(limit = 6) {
+  if (!(await isDatabaseAvailable())) {
+    return [];
+  }
+
   try {
     return await getTrendingToolsCachedInternal(limit);
   } catch (error) {
@@ -226,6 +265,10 @@ export async function getCollectionToolsCached(input: {
   pricing?: "Free" | "Freemium" | "Paid";
   limit?: number;
 }) {
+  if (!(await isDatabaseAvailable())) {
+    return [];
+  }
+
   try {
     return await getCollectionToolsCachedInternal(
       (input.categorySlugs ?? []).join(","),
@@ -243,6 +286,10 @@ export async function getCollectionToolsCached(input: {
 }
 
 export async function getSeoComparisonPairsCached() {
+  if (!(await isDatabaseAvailable())) {
+    return [];
+  }
+
   try {
     return await getSeoComparisonPairsCachedInternal();
   } catch (error) {

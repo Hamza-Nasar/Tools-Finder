@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRelatedToolsCached, getToolBySlugCached } from "@/lib/data/tools";
+  import { getRelatedToolsCached, getToolBySlugCached } from "@/lib/data/tools";
 import { isAppError, isDatabaseUnavailableError } from "@/lib/errors";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import { getPaidListingPlans } from "@/lib/listing-plans";
 import { getOptionalSession } from "@/lib/server-guards";
 import { FavoriteService } from "@/lib/services/favorite-service";
 import { UserService } from "@/lib/services/user-service";
@@ -70,6 +71,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { tool, unavailable } = await loadTool(slug);
+  const paidListingPlans = getPaidListingPlans();
 
   if (unavailable) {
     return (
@@ -165,6 +167,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
               toolSlug={tool.slug}
               isFeatured={tool.featured}
               featuredUntil={tool.featuredUntil ?? null}
+              plans={paidListingPlans}
             />
           </div>
         }

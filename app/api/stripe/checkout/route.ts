@@ -7,8 +7,11 @@ import { PaymentService } from "@/lib/services/payment-service";
 import { UserService } from "@/lib/services/user-service";
 import { slugSchema } from "@/lib/validators/common";
 
+const paidPlanIds = ["monthly", "quarterly", "annual"] as const;
+
 const featuredCheckoutSchema = z.object({
   toolSlug: slugSchema,
+  planId: z.enum(paidPlanIds).default("monthly"),
   customerEmail: z.string().email().optional().nullable()
 });
 
@@ -43,6 +46,7 @@ export async function POST(request: NextRequest) {
     const user = session?.user ? await UserService.syncSessionUser(session) : null;
     const checkout = await PaymentService.createFeaturedCheckoutSession({
       toolSlug: payload.toolSlug,
+      planId: payload.planId,
       customerEmail: payload.customerEmail ?? user?.email ?? session?.user?.email ?? null
     });
 

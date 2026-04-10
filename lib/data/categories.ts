@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { isDatabaseUnavailableError } from "@/lib/errors";
+import { isDatabaseAvailable } from "@/lib/mongodb";
 import { CategoryService } from "@/lib/services/category-service";
 
 const getPublicCategoriesCached = unstable_cache(
@@ -21,6 +22,10 @@ const getCategoryBySlugCachedInternal = unstable_cache(
 );
 
 export async function getPublicCategories() {
+  if (!(await isDatabaseAvailable())) {
+    return [];
+  }
+
   try {
     return await getPublicCategoriesCached();
   } catch (error) {

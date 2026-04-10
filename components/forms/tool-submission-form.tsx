@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import type { Category } from "@/types";
 import { initialActionState } from "@/lib/actions/action-types";
@@ -22,15 +22,112 @@ function SubmitButton() {
   );
 }
 
-export function ToolSubmissionForm({ categories }: { categories: Category[] }) {
+export function ToolSubmissionForm({
+  categories,
+  aiAssistantEnabled
+}: {
+  categories: Category[];
+  aiAssistantEnabled?: boolean;
+}) {
   const [state, formAction] = useActionState(submitToolAction, initialActionState);
   const formRef = useRef<HTMLFormElement>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [assistantState, setAssistantState] = useState<{
+    status: "idle" | "success" | "error";
+    message?: string;
+  }>({ status: "idle" });
 
   useEffect(() => {
     if (state.status === "success") {
       formRef.current?.reset();
+      setAssistantState({ status: "idle" });
     }
   }, [state.status]);
+
+  function setFieldValue(name: string, value: string) {
+    const element = formRef.current?.elements.namedItem(name);
+
+    if (
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement ||
+      element instanceof HTMLSelectElement
+    ) {
+      element.value = value;
+    }
+  }
+
+  async function handleGenerateDraft() {
+    if (!aiAssistantEnabled) {
+      setAssistantState({
+        status: "error",
+        message: "Add OPENAI_API_KEY in your environment to enable AI listing drafts."
+      });
+      return;
+    }
+
+    if (!formRef.current) {
+      return;
+    }
+
+    setIsGenerating(true);
+    setAssistantState({ status: "idle" });
+
+    try {
+      const formData = new FormData(formRef.current);
+      const draftInput = {
+        name: String(formData.get("name") ?? "").trim(),
+        website: String(formData.get("website") ?? "").trim(),
+        tagline: String(formData.get("tagline") ?? "").trim(),
+        description: String(formData.get("description") ?? "").trim()
+      };
+
+      if (!draftInput.name && !draftInput.website && !draftInput.tagline && !draftInput.description) {
+        throw new Error("Enter at least a tool name, website, tagline, or description before using AI draft.");
+      }
+
+      const response = await fetch("/api/ai/submission-draft", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(draftInput)
+      });
+      const payload = (await response.json()) as {
+        data?: {
+          tagline: string;
+          description: string;
+          categorySlug: string;
+          tags: string[];
+          pricing: "Free" | "Freemium" | "Paid";
+        };
+        error?: string;
+        details?: {
+          formErrors?: string[];
+        };
+      };
+
+      if (!response.ok || !payload.data) {
+        throw new Error(payload.details?.formErrors?.[0] ?? payload.error ?? "Unable to generate the listing draft.");
+      }
+
+      setFieldValue("tagline", payload.data.tagline);
+      setFieldValue("description", payload.data.description);
+      setFieldValue("category", payload.data.categorySlug);
+      setFieldValue("tags", payload.data.tags.join(", "));
+      setFieldValue("pricing", payload.data.pricing);
+      setAssistantState({
+        status: "success",
+        message: "AI draft applied. Review the copy, tags, category, and pricing before you submit."
+      });
+    } catch (error) {
+      setAssistantState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Unable to generate the listing draft."
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  }
 
   return (
     <Card className="shadow-glow">
@@ -42,6 +139,29 @@ export function ToolSubmissionForm({ categories }: { categories: Category[] }) {
       </CardHeader>
       <CardContent className="pt-6">
         <form ref={formRef} className="space-y-6" action={formAction}>
+          <div className="surface-subtle flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">AI submission assistant</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Generate sharper listing copy, tags, category, and pricing from the details you already entered.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGenerateDraft}
+              disabled={!aiAssistantEnabled || isGenerating}
+            >
+              {isGenerating ? "Generating..." : aiAssistantEnabled ? "Generate with AI" : "AI unavailable"}
+            </Button>
+          </div>
+
+          {assistantState.message ? (
+            <p className={`text-sm ${assistantState.status === "error" ? "text-destructive" : "text-primary"}`}>
+              {assistantState.message}
+            </p>
+          ) : null}
+
           <div className="surface-subtle p-5">
             <div className="mb-5">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Core listing</p>

@@ -170,6 +170,7 @@ export function HeaderAuthControls() {
               <motion.div layout className="grid gap-1 px-1 py-2">
                 {[
                   { href: "/dashboard", label: "Dashboard" },
+                  { href: "/dashboard#notifications", label: "Notifications" },
                   { href: "/dashboard#submitted-tools", label: "My Submissions" },
                   { href: "/my-stack", label: "My Stack" },
                   { href: "/favorites", label: "Favorites" },

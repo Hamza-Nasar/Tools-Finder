@@ -143,15 +143,15 @@ export default async function HomePage() {
     },
     {
       eyebrow: "For founders",
-      title: "Get discovered in context, not buried in noise.",
+      title: "Turn directory traffic into paid founder demand.",
       description:
-        "Submission, featured placement, SEO pages, and comparison routes create more qualified discovery than a plain paid listing.",
-      href: "/submit",
-      cta: "Submit your tool",
+        "Submission, featured placement, SEO pages, and comparison routes create a cleaner monetization offer than a generic ad slot or random sponsor block.",
+      href: "/feature-your-tool",
+      cta: "See founder options",
       bullets: [
-        "Reach buyers inside category and workflow pages",
-        "Feature products without breaking trust",
-        "Show up in comparison and daily signal surfaces"
+        "Start with a moderated submission and upgrade after approval",
+        "Reach buyers inside category, workflow, and comparison pages",
+        "Sell premium placement without breaking trust"
       ],
       icon: Sparkles
     }

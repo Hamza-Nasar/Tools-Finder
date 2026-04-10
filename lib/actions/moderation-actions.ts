@@ -48,6 +48,7 @@ export async function updateSubmissionAction(id: string, input: unknown) {
   revalidateTag("tools");
   revalidateTag("categories");
   revalidatePath("/submit");
+  revalidatePath("/dashboard");
   revalidatePath("/admin/submissions");
   revalidatePath("/admin/tools");
   revalidatePath("/tools");

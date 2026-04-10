@@ -86,6 +86,28 @@ export class EmailService {
     });
   }
 
+  static async sendSubmissionRejectedEmail(input: {
+    to: string;
+    toolName: string;
+    moderationNote?: string | null;
+    dashboardUrl?: string;
+  }) {
+    return sendEmail({
+      to: input.to,
+      subject: `${input.toolName} needs changes before it can go live`,
+      html: `
+        <h1>Your submission needs changes</h1>
+        <p><strong>${input.toolName}</strong> was reviewed but not approved yet.</p>
+        ${
+          input.moderationNote
+            ? `<p><strong>Review note:</strong> ${input.moderationNote}</p>`
+            : "<p>The admin team flagged the listing for further edits or clarification.</p>"
+        }
+        ${input.dashboardUrl ? `<p><a href="${input.dashboardUrl}">Open your dashboard</a></p>` : ""}
+      `
+    });
+  }
+
   static async sendSubmissionConfirmationEmail(input: {
     to: string;
     toolName: string;
@@ -107,6 +129,7 @@ export class EmailService {
     to: string;
     toolName: string;
     featuredUntil: string;
+    planName?: string;
     manageUrl?: string;
   }) {
     return sendEmail({
@@ -115,6 +138,7 @@ export class EmailService {
       html: `
         <h1>Your featured listing is active</h1>
         <p><strong>${input.toolName}</strong> has been upgraded to a featured listing.</p>
+        ${input.planName ? `<p><strong>Plan:</strong> ${input.planName}</p>` : ""}
         <p>The placement is active until <strong>${input.featuredUntil}</strong>.</p>
         ${
           input.manageUrl

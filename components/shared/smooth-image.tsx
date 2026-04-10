@@ -32,6 +32,7 @@ export function SmoothImage({
   ...props
 }: SmoothImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const isRemoteImage = typeof props.src === "string" && /^https?:\/\//i.test(props.src);
 
   const handleLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
     setIsLoaded(true);
@@ -51,6 +52,7 @@ export function SmoothImage({
       onLoad={handleLoad}
       placeholder={placeholder ?? "blur"}
       quality={quality}
+      unoptimized={isRemoteImage}
       style={{ ...style, transitionDuration: `${fadeDurationMs}ms` }}
     />
   );

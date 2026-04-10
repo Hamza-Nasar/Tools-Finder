@@ -1,4 +1,4 @@
-import type { Submission } from "@/types";
+import type { Submission, SubmissionAIReview } from "@/types";
 
 type SerializableRecord = Record<string, unknown> & {
   _id: unknown;
@@ -57,6 +57,40 @@ export function serializeSubmission(record: SerializableRecord): Submission {
     moderationNote: record.moderationNote ? String(record.moderationNote) : null,
     contactEmail: record.contactEmail ? String(record.contactEmail) : null,
     approvedToolId: record.approvedTool ? toObjectIdString(record.approvedTool) : null,
+    aiReview:
+      record.aiReview && typeof record.aiReview === "object"
+        ? {
+            summary:
+              "summary" in record.aiReview && record.aiReview.summary
+                ? String(record.aiReview.summary)
+                : "",
+            qualityScore:
+              "qualityScore" in record.aiReview && typeof record.aiReview.qualityScore === "number"
+                ? record.aiReview.qualityScore
+                : null,
+            confidence:
+              "confidence" in record.aiReview && typeof record.aiReview.confidence === "number"
+                ? record.aiReview.confidence
+                : null,
+            suggestedCategorySlug:
+              "suggestedCategorySlug" in record.aiReview && record.aiReview.suggestedCategorySlug
+                ? String(record.aiReview.suggestedCategorySlug)
+                : null,
+            suggestedTags:
+              "suggestedTags" in record.aiReview ? toStringArray(record.aiReview.suggestedTags) : [],
+            recommendedAction:
+              "recommendedAction" in record.aiReview && record.aiReview.recommendedAction
+                ? (String(record.aiReview.recommendedAction) as SubmissionAIReview["recommendedAction"])
+                : null,
+            riskFlags: "riskFlags" in record.aiReview ? toStringArray(record.aiReview.riskFlags) : [],
+            isLikelyAiTool:
+              "isLikelyAiTool" in record.aiReview && typeof record.aiReview.isLikelyAiTool === "boolean"
+                ? record.aiReview.isLikelyAiTool
+                : null,
+            analyzedAt:
+              "analyzedAt" in record.aiReview ? toIsoString(record.aiReview.analyzedAt) ?? null : null
+          }
+        : null,
     createdAt: toIsoString(record.createdAt) ?? new Date().toISOString(),
     updatedAt: toIsoString(record.updatedAt)
   };

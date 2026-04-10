@@ -23,11 +23,11 @@ export default async function DashboardPage() {
       <PageHero
         eyebrow="Dashboard"
         title={`Welcome back, ${user.name.split(" ")[0] ?? "there"}.`}
-        description="Manage your saved tools, monitor submissions in review, and keep an eye on the AI products you are actively exploring."
+        description="Manage your saved tools, monitor submissions in review, and come back for daily picks based on the AI products you are actively exploring."
         stats={[
           { label: "Saved tools", value: String(dashboard.favorites.total), detail: "bookmarked to your account" },
           { label: "Submitted tools", value: String(dashboard.submissions.total), detail: "currently linked to you" },
-          { label: "Recent activity", value: String(dashboard.activity.length), detail: "latest saved, viewed, and submitted events" }
+          { label: "Notifications", value: String(dashboard.notifications.unreadCount), detail: "new platform updates for you" }
         ]}
       />
       <div className="mt-8">

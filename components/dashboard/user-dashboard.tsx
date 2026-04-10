@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { UserActivity, Submission } from "@/types";
+import type { Tool, UserActivity, Submission, UserNotification } from "@/types";
+import { markNotificationsReadAction } from "@/lib/actions/notification-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +35,16 @@ interface UserDashboardProps {
       total: number;
     };
     activity: UserActivity[];
+    notifications: {
+      data: UserNotification[];
+      unreadCount: number;
+    };
+    dailyPicks: {
+      personalized: boolean;
+      tools: Tool[];
+      categorySlugs: string[];
+      tags: string[];
+    };
   };
 }
 
@@ -76,6 +87,10 @@ function getActivityCopy(activity: UserActivity) {
   }
 }
 
+function getNotificationLink(notification: UserNotification) {
+  return notification.href ?? "/dashboard";
+}
+
 function SubmissionStatusBadge({ status }: { status: Submission["status"] }) {
   if (status === "approved") {
     return <Badge variant="accent">Approved</Badge>;
@@ -88,9 +103,123 @@ function SubmissionStatusBadge({ status }: { status: Submission["status"] }) {
   return <Badge variant="muted">Pending review</Badge>;
 }
 
+function formatTopicLabel(value: string) {
+  return value
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export function UserDashboard({ user, dashboard }: UserDashboardProps) {
   return (
     <div className="space-y-8">
+      <section id="notifications" className="space-y-5 scroll-mt-28">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Notifications</p>
+            <h2 className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-semibold">
+              Account updates
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Approval decisions, review queue updates, and featured placement purchases appear here.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant={dashboard.notifications.unreadCount ? "accent" : "muted"}>
+              {dashboard.notifications.unreadCount} unread
+            </Badge>
+            {dashboard.notifications.unreadCount ? (
+              <form action={markNotificationsReadAction}>
+                <Button type="submit" variant="outline" size="sm">
+                  Mark all read
+                </Button>
+              </form>
+            ) : null}
+          </div>
+        </div>
+
+        {dashboard.notifications.data.length ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {dashboard.notifications.data.map((notification) => (
+              <Card key={notification.id} className="surface-card-hover">
+                <CardHeader className="border-b border-border/70">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <CardTitle className="text-xl">{notification.title}</CardTitle>
+                      <CardDescription className="mt-2">{notification.message}</CardDescription>
+                    </div>
+                    {notification.readAt ? <Badge variant="muted">Read</Badge> : <Badge variant="accent">New</Badge>}
+                  </div>
+                </CardHeader>
+                <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-6">
+                  <p className="text-sm text-muted-foreground">{formatRelativeDate(notification.createdAt)}</p>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={getNotificationLink(notification)}>Open</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            label="Notifications"
+            title="No notifications yet"
+            description="When your submissions are reviewed or your paid placement goes live, updates will show up here."
+            ctaHref="/submit"
+            ctaLabel="Submit a tool"
+          />
+        )}
+      </section>
+
+      <section id="daily-picks" className="space-y-5 scroll-mt-28">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Daily picks</p>
+            <h2 className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-semibold">
+              {dashboard.dailyPicks.personalized ? "Picked for your workflow" : "What is worth checking today"}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {dashboard.dailyPicks.personalized
+                ? `Based on what you saved in ${dashboard.dailyPicks.categorySlugs.map(formatTopicLabel).join(", ") || "the directory"}.`
+                : "Save tools you like and the dashboard will start tailoring this section to your interests."}
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link href="/today-ai-tools">View daily feed</Link>
+          </Button>
+        </div>
+
+        {dashboard.dailyPicks.tags.length ? (
+          <div className="flex flex-wrap gap-2">
+            {dashboard.dailyPicks.tags.map((tag) => (
+              <Badge key={tag} variant="muted">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
+
+        {dashboard.dailyPicks.tools.length ? (
+          <div className="grid gap-5 lg:grid-cols-3">
+            {dashboard.dailyPicks.tools.map((tool) => (
+              <ToolCard
+                key={tool.id}
+                tool={tool}
+                action={<FavoriteToggle toolId={tool.id} toolSlug={tool.slug} initialIsFavorited={false} />}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            label="Daily"
+            title="No daily picks yet"
+            description="Browse and save a few tools first. The dashboard will use that behavior to surface more relevant picks each day."
+            ctaHref="/tools"
+            ctaLabel="Explore tools"
+          />
+        )}
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <CardHeader className="border-b border-border/70">

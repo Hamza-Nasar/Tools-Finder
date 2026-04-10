@@ -111,6 +111,50 @@ const SubmissionSchema = new Schema(
     reviewedAt: {
       type: Date,
       default: null
+    },
+    aiReview: {
+      summary: {
+        type: String,
+        default: null
+      },
+      qualityScore: {
+        type: Number,
+        default: null,
+        min: 0,
+        max: 100
+      },
+      confidence: {
+        type: Number,
+        default: null,
+        min: 0,
+        max: 1
+      },
+      suggestedCategorySlug: {
+        type: String,
+        default: null,
+        trim: true
+      },
+      suggestedTags: {
+        type: [String],
+        default: []
+      },
+      recommendedAction: {
+        type: String,
+        enum: ["approve", "review", "reject", null],
+        default: null
+      },
+      riskFlags: {
+        type: [String],
+        default: []
+      },
+      isLikelyAiTool: {
+        type: Boolean,
+        default: null
+      },
+      analyzedAt: {
+        type: Date,
+        default: null
+      }
     }
   },
   {

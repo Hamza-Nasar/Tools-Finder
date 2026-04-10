@@ -15,6 +15,8 @@
   MongoDB Atlas or local connection string.
 - `MONGODB_DB_NAME`
   Database name used by the app.
+- `NEWSLETTER_MONGODB_DB_NAME`
+  Optional separate database name for newsletter leads. Defaults to `<MONGODB_DB_NAME>_newsletter`.
 
 ## Admin bootstrap
 
@@ -44,6 +46,13 @@ These are optional. Leave blank if you only want credentials auth for the admin 
   Featured listing price in cents.
 - `STRIPE_FEATURED_LISTING_DURATION_DAYS`
   Number of days a paid featured listing stays active.
+
+## OpenAI
+
+- `OPENAI_API_KEY`
+  API key used for AI-assisted finder, submission drafting, moderation scoring, and comparison summaries.
+- `OPENAI_MODEL`
+  Optional model override for the shared AI service. Defaults to `gpt-5-mini`.
 
 ## Email
 

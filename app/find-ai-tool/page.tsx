@@ -28,6 +28,7 @@ export default async function FindAiToolPage({
           query,
           inferredCategories: [],
           inferredTags: [],
+          aiInsight: null,
           tools: []
         };
 
@@ -49,6 +50,7 @@ export default async function FindAiToolPage({
           recommendations={recommendations.tools}
           inferredCategories={recommendations.inferredCategories}
           inferredTags={recommendations.inferredTags}
+          aiInsight={recommendations.aiInsight}
         />
       </div>
     </div>

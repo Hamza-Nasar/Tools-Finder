@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import type { FeaturedStackPreset, Tool } from "@/types";
 import { isDatabaseUnavailableError } from "@/lib/errors";
+import { isDatabaseAvailable } from "@/lib/mongodb";
 import { featuredStackPresets } from "@/lib/stack-presets";
 import { ToolService } from "@/lib/services/tool-service";
 
@@ -27,6 +28,13 @@ const getFeaturedStackPreviewsCachedInternal = unstable_cache(
 );
 
 export async function getFeaturedStackPreviews() {
+  if (!(await isDatabaseAvailable())) {
+    return featuredStackPresets.map((preset) => ({
+      ...preset,
+      tools: []
+    }));
+  }
+
   try {
     return await getFeaturedStackPreviewsCachedInternal();
   } catch (error) {

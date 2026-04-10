@@ -1402,7 +1402,8 @@ async function main() {
             submittedBy: importerUserId
           },
           {
-            disableNotifications: true
+            disableNotifications: true,
+            skipAIAnalysis: true
           }
         );
 
@@ -1413,7 +1414,8 @@ async function main() {
           },
           importerUserId,
           {
-            disableNotifications: true
+            disableNotifications: true,
+            skipAIAnalysis: true
           }
         );
 

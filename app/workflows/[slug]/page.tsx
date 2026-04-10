@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { isDatabaseAvailable } from "@/lib/mongodb";
 import { ToolService } from "@/lib/services/tool-service";
 import { buildMetadata } from "@/lib/seo";
 import { getWorkflowBySlug } from "@/lib/workflows";
@@ -34,7 +35,7 @@ export default async function WorkflowDetailPage({
     notFound();
   }
 
-  const tools = await ToolService.listToolsBySlugs(workflow.toolsUsed);
+  const tools = (await isDatabaseAvailable()) ? await ToolService.listToolsBySlugs(workflow.toolsUsed) : [];
 
   return (
     <div className="page-frame py-12">

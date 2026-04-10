@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ToolRecommendation } from "@/types";
+import type { FinderAssistantInsight, ToolRecommendation } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +11,14 @@ export function AiToolFinder({
   query,
   recommendations,
   inferredCategories,
-  inferredTags
+  inferredTags,
+  aiInsight
 }: {
   query: string;
   recommendations: ToolRecommendation[];
   inferredCategories: string[];
   inferredTags: string[];
+  aiInsight: FinderAssistantInsight | null;
 }) {
   const exampleQueries = [
     "I need an AI tool for YouTube thumbnails",
@@ -65,6 +67,50 @@ export function AiToolFinder({
 
       {query.trim().length >= 3 ? (
         <>
+          {aiInsight ? (
+            <Card className="overflow-hidden">
+              <CardHeader className="hero-mesh border-b border-border/70">
+                <CardTitle>AI search read</CardTitle>
+                <CardDescription>{aiInsight.summary}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5 pt-6">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="rounded-[1.1rem] border border-border/70 bg-white/75 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-primary">Ideal user</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{aiInsight.idealUser}</p>
+                  </div>
+                  <div className="rounded-[1.1rem] border border-border/70 bg-white/75 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-primary">Budget read</p>
+                    <p className="mt-2 text-sm font-medium capitalize text-foreground">{aiInsight.budgetPreference}</p>
+                  </div>
+                  <div className="rounded-[1.1rem] border border-border/70 bg-white/75 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.16em] text-primary">Evaluation criteria</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {aiInsight.evaluationCriteria.slice(0, 2).join(", ")}
+                    </p>
+                  </div>
+                </div>
+
+                {aiInsight.followUpQueries.length ? (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Try these next queries</p>
+                    <div className="flex flex-wrap gap-2">
+                      {aiInsight.followUpQueries.map((item) => (
+                        <Link
+                          key={item}
+                          href={`/find-ai-tool?q=${encodeURIComponent(item)}`}
+                          className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white hover:text-foreground"
+                        >
+                          {item}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+          ) : null}
+
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-sm text-muted-foreground">Inference signals:</p>
             {inferredCategories.map((category) => (

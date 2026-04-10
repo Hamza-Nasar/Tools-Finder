@@ -26,6 +26,20 @@ const PaymentRecordSchema = new Schema(
       lowercase: true,
       trim: true
     },
+    planId: {
+      type: String,
+      default: "monthly",
+      trim: true
+    },
+    planName: {
+      type: String,
+      default: "Monthly Boost",
+      trim: true
+    },
+    durationDays: {
+      type: Number,
+      default: 30
+    },
     amountTotal: {
       type: Number,
       required: true

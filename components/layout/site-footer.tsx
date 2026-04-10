@@ -27,8 +27,8 @@ export function SiteFooter() {
       title: "Growth",
       links: [
         { href: "/submit", label: "Submit Tool" },
+        { href: "/feature-your-tool", label: "Feature Your Tool" },
         { href: "/best-free-ai-tools", label: "Best Free AI Tools" },
-        { href: "/favorites", label: "Favorites" },
         { href: "/auth/login", label: "Login" }
       ]
     }
@@ -73,7 +73,7 @@ export function SiteFooter() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
-                  <Link href="/submit">Feature your tool</Link>
+                  <Link href="/feature-your-tool">Feature your tool</Link>
                 </Button>
               </div>
 
@@ -169,7 +169,7 @@ export function SiteFooter() {
             <p>Built to turn AI discovery into cleaner buyer decisions and higher-intent founder visibility.</p>
             <div className="flex flex-wrap gap-4">
               <Link href="/admin" className="transition hover:text-white">Admin</Link>
-              <Link href="/submit" className="transition hover:text-white">Submit your product</Link>
+              <Link href="/feature-your-tool" className="transition hover:text-white">Founder pricing</Link>
             </div>
           </div>
         </div>

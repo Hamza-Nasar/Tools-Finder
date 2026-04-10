@@ -63,9 +63,9 @@ export default async function FeatureSuccessPage({
               detail: "homepage and directory highlight treatment enabled"
             },
             {
-              label: "Category",
-              value: result.tool.categorySlug,
-              detail: "category page visibility has been refreshed"
+              label: "Plan",
+              value: result.session.metadata?.planName ?? "Paid plan",
+              detail: "selected paid listing plan was activated"
             },
             {
               label: "Checkout",
@@ -91,6 +91,11 @@ export default async function FeatureSuccessPage({
               Stripe checkout completed and the listing was immediately refreshed across the homepage,
               category page, tools directory, and admin revenue analytics.
             </p>
+            {result.session.metadata?.durationDays ? (
+              <p className="text-sm leading-7 text-muted-foreground">
+                Featured placement duration: <strong>{result.session.metadata.durationDays} days</strong>.
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </div>

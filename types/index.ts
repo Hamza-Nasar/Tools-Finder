@@ -5,6 +5,11 @@ export type SubmissionStatus = "pending" | "approved" | "rejected";
 export type ToolSort = "newest" | "popular" | "favorited" | "featured";
 export type FeatureSource = "manual" | "stripe";
 export type UserActivityKind = "tool_saved" | "tool_submitted" | "tool_viewed";
+export type UserNotificationKind =
+  | "submission_received"
+  | "submission_approved"
+  | "submission_rejected"
+  | "featured_listing_activated";
 export type SearchResultSource = "local" | "web";
 export type ExternalDiscoveryProvider = "futurepedia" | "theresanaiforthat" | "github" | "producthunt";
 export type PromptCategory =
@@ -114,8 +119,40 @@ export interface Submission {
   moderationNote?: string | null;
   contactEmail?: string | null;
   approvedToolId?: string | null;
+  aiReview?: SubmissionAIReview | null;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface SubmissionAIReview {
+  summary: string;
+  qualityScore: number | null;
+  confidence: number | null;
+  suggestedCategorySlug: string | null;
+  suggestedTags: string[];
+  recommendedAction: "approve" | "review" | "reject" | null;
+  riskFlags: string[];
+  isLikelyAiTool: boolean | null;
+  analyzedAt?: string | null;
+}
+
+export interface FinderAssistantInsight {
+  summary: string;
+  idealUser: string;
+  budgetPreference: "free" | "freemium" | "paid" | "unknown";
+  evaluationCriteria: string[];
+  followUpQueries: string[];
+}
+
+export interface ComparisonAssistantInsight {
+  headline: string;
+  verdict: string;
+  toolAPros: string[];
+  toolACons: string[];
+  toolBPros: string[];
+  toolBCons: string[];
+  chooseToolAFor: string[];
+  chooseToolBFor: string[];
 }
 
 export interface Favorite {
@@ -135,6 +172,17 @@ export interface UserActivity {
   toolSlug?: string | null;
   submissionName?: string | null;
   submissionSlug?: string | null;
+  createdAt: string;
+}
+
+export interface UserNotification {
+  id: string;
+  userId: string;
+  kind: UserNotificationKind;
+  title: string;
+  message: string;
+  href?: string | null;
+  readAt?: string | null;
   createdAt: string;
 }
 
@@ -290,4 +338,17 @@ export interface FeaturedStackPreset {
   description: string;
   audience: string;
   toolSlugs: string[];
+}
+
+export interface ListingPlan {
+  id: "free" | "monthly" | "quarterly" | "annual";
+  name: string;
+  priceCents: number;
+  priceLabel: string;
+  durationDays: number | null;
+  durationLabel: string;
+  summaryLabel: string;
+  description: string;
+  featuredPlacement: boolean;
+  highlights: string[];
 }

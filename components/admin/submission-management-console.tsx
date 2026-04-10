@@ -84,6 +84,72 @@ function SubmissionReviewCard({
       </CardHeader>
       <CardContent className="pt-6">
         <form className="space-y-5" action={formAction}>
+          {submission.aiReview ? (
+            <div className="surface-subtle space-y-4 p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="accent">AI review</Badge>
+                {submission.aiReview.recommendedAction ? (
+                  <Badge variant={submission.aiReview.recommendedAction === "approve" ? "accent" : "muted"}>
+                    {submission.aiReview.recommendedAction}
+                  </Badge>
+                ) : null}
+                {submission.aiReview.qualityScore !== null ? (
+                  <Badge variant="muted">Quality {submission.aiReview.qualityScore}/100</Badge>
+                ) : null}
+                {submission.aiReview.confidence !== null ? (
+                  <Badge variant="muted">Confidence {Math.round(submission.aiReview.confidence * 100)}%</Badge>
+                ) : null}
+              </div>
+
+              <p className="text-sm leading-7 text-muted-foreground">{submission.aiReview.summary}</p>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-[1.1rem] border border-border/70 bg-white/80 p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary">Suggested category</p>
+                  <p className="mt-2 text-sm font-medium text-foreground">
+                    {submission.aiReview.suggestedCategorySlug ?? "No suggestion"}
+                  </p>
+                </div>
+                <div className="rounded-[1.1rem] border border-border/70 bg-white/80 p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary">AI classification</p>
+                  <p className="mt-2 text-sm font-medium text-foreground">
+                    {submission.aiReview.isLikelyAiTool === null
+                      ? "Unknown"
+                      : submission.aiReview.isLikelyAiTool
+                        ? "Likely an AI tool"
+                        : "Needs manual validation"}
+                  </p>
+                </div>
+              </div>
+
+              {submission.aiReview.suggestedTags.length ? (
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary">Suggested tags</p>
+                  <div className="flex flex-wrap gap-2">
+                    {submission.aiReview.suggestedTags.map((tag) => (
+                      <Badge key={tag} variant="muted">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {submission.aiReview.riskFlags.length ? (
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary">Risk flags</p>
+                  <div className="flex flex-wrap gap-2">
+                    {submission.aiReview.riskFlags.map((flag) => (
+                      <Badge key={flag} variant="muted">
+                        {flag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="surface-subtle grid gap-5 p-5 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor={`submission-name-${submission.id}`}>Tool name</Label>

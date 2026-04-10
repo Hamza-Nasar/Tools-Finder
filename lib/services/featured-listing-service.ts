@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { connectToDatabase } from "@/lib/mongodb";
 import { env } from "@/lib/env";
 import { AppError } from "@/lib/errors";
+import { getDefaultPaidListingPlan, getListingPlanById } from "@/lib/listing-plans";
 import { toObjectId } from "@/lib/object-id";
 import { PaymentRecordModel } from "@/models/PaymentRecord";
 import { ToolModel } from "@/models/Tool";
@@ -13,7 +14,7 @@ declare global {
 const SWEEP_WINDOW_MS = 60_000;
 
 export function getFeaturedListingDurationDays() {
-  return env.STRIPE_FEATURED_LISTING_DURATION_DAYS ?? 30;
+  return env.STRIPE_FEATURED_LISTING_DURATION_DAYS ?? getDefaultPaidListingPlan().durationDays ?? 30;
 }
 
 export function getActiveFeaturedFilter(now = new Date()) {
@@ -98,9 +99,16 @@ export class FeaturedListingService {
     await connectToDatabase();
 
     const objectId = toObjectId(toolId, "toolId");
-    const featuredFrom = new Date();
+    const planId = (stripeSession?.metadata?.planId as "free" | "monthly" | "quarterly" | "annual" | undefined) ?? "monthly";
+    const plan = getListingPlanById(planId);
+    const durationDays = plan.durationDays ?? getFeaturedListingDurationDays();
+    const currentTool = await ToolModel.findById(objectId)
+      .select({ featuredUntil: 1 })
+      .lean<{ featuredUntil?: Date | null } | null>();
+    const featuredFrom =
+      currentTool?.featuredUntil && currentTool.featuredUntil > new Date() ? new Date(currentTool.featuredUntil) : new Date();
     const featuredUntil = new Date(featuredFrom);
-    featuredUntil.setUTCDate(featuredUntil.getUTCDate() + getFeaturedListingDurationDays());
+    featuredUntil.setUTCDate(featuredUntil.getUTCDate() + durationDays);
 
     const sessionId = stripeSession?.id ?? sessionIdOverride;
 
@@ -116,6 +124,9 @@ export class FeaturedListingService {
           stripePaymentIntentId:
             typeof stripeSession?.payment_intent === "string" ? stripeSession.payment_intent : null,
           purchaserEmail: stripeSession?.customer_details?.email ?? stripeSession?.customer_email ?? null,
+          planId: plan.id,
+          planName: plan.name,
+          durationDays,
           amountTotal: stripeSession?.amount_total ?? 0,
           currency: stripeSession?.currency ?? "usd",
           status: "paid",
@@ -133,6 +144,9 @@ export class FeaturedListingService {
     ).lean<{
       featuredUntil?: Date | null;
       purchaserEmail?: string | null;
+      planId?: string | null;
+      planName?: string | null;
+      durationDays?: number | null;
       status: "pending" | "paid" | "expired" | "canceled";
     } | null>();
 

@@ -14,6 +14,7 @@ export default async function AdminPage() {
     { label: "Indexed tools", value: compactNumber(overview.metrics.tools), hint: "Live catalog records" },
     { label: "Pending submissions", value: compactNumber(overview.metrics.submissions), hint: "Awaiting review" },
     { label: "Registered users", value: compactNumber(overview.metrics.users), hint: "Known platform accounts" },
+    { label: "Newsletter leads", value: compactNumber(overview.metrics.newsletter), hint: "Stored in the newsletter database" },
     { label: "Categories", value: compactNumber(overview.metrics.categories), hint: "Taxonomy branches" }
   ];
 
@@ -27,6 +28,9 @@ export default async function AdminPage() {
           <>
             <Button asChild>
               <Link href="/admin/submissions">Review submissions</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/admin/newsletter">View newsletter leads</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/admin/tools">Manage tools</Link>
@@ -43,7 +47,7 @@ export default async function AdminPage() {
         }))}
       />
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
         {metrics.map((metric) => (
           <Card key={metric.label} className="surface-card-hover">
             <CardHeader>
@@ -119,6 +123,44 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b border-border/70 bg-gradient-to-br from-white via-white to-background/60">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <CardTitle>Latest newsletter leads</CardTitle>
+              <CardDescription>Subscriptions captured from homepage, tool pages, and the exit-intent popup.</CardDescription>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/admin/newsletter">Open newsletter admin</Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {overview.latestNewsletterSubscriptions.length ? (
+            overview.latestNewsletterSubscriptions.map((subscription) => (
+              <div key={subscription.id} className="surface-subtle px-4 py-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{subscription.email}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Sources: {subscription.sources.join(", ") || "unknown"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground">{formatDate(subscription.lastSubscribedAt)}</span>
+                    <Badge variant={subscription.status === "active" ? "accent" : "muted"}>
+                      {subscription.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">No newsletter leads captured yet.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
