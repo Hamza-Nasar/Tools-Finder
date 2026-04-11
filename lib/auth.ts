@@ -50,21 +50,31 @@ export const authOptions: NextAuthOptions = {
       : [])
   ],
   callbacks: {
-    async signIn({ account }) {
+    async signIn({ account, profile }) {
       if (!account?.provider || !["google", "credentials"].includes(account.provider)) {
+        return false;
+      }
+
+      if (
+        account.provider === "google" &&
+        profile &&
+        "email_verified" in profile &&
+        profile.email_verified === false
+      ) {
         return false;
       }
 
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user?.email) {
         const syncedUser = await UserService.syncUser({
           id: user.id ?? token.sub ?? null,
           name: user.name ?? null,
           email: user.email ?? null,
           image: user.image ?? null,
-          role: user.role ?? null
+          role: user.role ?? null,
+          loginProvider: account?.provider === "google" || account?.provider === "credentials" ? account.provider : null
         });
 
         token.sub = syncedUser.id;
@@ -72,6 +82,19 @@ export const authOptions: NextAuthOptions = {
         token.email = syncedUser.email;
         token.picture = syncedUser.image ?? null;
         token.role = syncedUser.role;
+      } else if (token.sub || token.email) {
+        const refreshedUser = await UserService.refreshSessionUser({
+          id: token.sub ?? null,
+          email: typeof token.email === "string" ? token.email : null
+        });
+
+        if (refreshedUser) {
+          token.sub = refreshedUser.id;
+          token.name = refreshedUser.name;
+          token.email = refreshedUser.email;
+          token.picture = refreshedUser.image ?? null;
+          token.role = refreshedUser.role;
+        }
       }
 
       return token;

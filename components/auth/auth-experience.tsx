@@ -373,7 +373,7 @@ export function AuthExperience({
             <div className="rounded-[1.2rem] border border-border/70 bg-secondary/30 px-4 py-4 text-sm leading-6 text-muted-foreground">
               {isLogin
                 ? "If you originally used Google, you can still continue with Google from above."
-                : "If this is your admin bootstrap email, use the login flow with the configured admin password instead of creating a new signup."}
+                : "Use the same email method each time so your saved tools, submissions, and workspace stay connected."}
             </div>
 
             <p className="text-sm text-muted-foreground">

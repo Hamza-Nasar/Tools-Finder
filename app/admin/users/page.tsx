@@ -1,10 +1,16 @@
-import { compactNumber, formatDate } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { UserService } from "@/lib/services/user-service";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AdminInviteService } from "@/lib/services/admin-invite-service";
+import { compactNumber } from "@/lib/utils";
+import { requireAdminSession } from "@/lib/server-guards";
+import { UserManagementConsole } from "@/components/admin/user-management-console";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AdminUsersPage() {
-  const users = await UserService.listUsers({ page: 1, limit: 20 });
+  const session = await requireAdminSession();
+  const [users, invites] = await Promise.all([
+    UserService.listUsers({ page: 1, limit: 20 }),
+    AdminInviteService.listPendingInvites()
+  ]);
 
   return (
     <div className="space-y-6">
@@ -43,30 +49,7 @@ export default async function AdminUsersPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>User management</CardTitle>
-          <CardDescription>Role assignments, moderation, and account controls.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {users.data.length ? (
-            users.data.map((user) => (
-              <div key={user.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border px-4 py-4">
-                <div>
-                  <p className="font-semibold">{user.name}</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">Joined {formatDate(user.createdAt)}</span>
-                  <Badge variant={user.role === "admin" ? "accent" : "muted"}>{user.role}</Badge>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground">No user records found.</p>
-          )}
-        </CardContent>
-      </Card>
+      <UserManagementConsole initialUsers={users.data} initialInvites={invites} currentUserId={session.user.id} />
     </div>
   );
 }

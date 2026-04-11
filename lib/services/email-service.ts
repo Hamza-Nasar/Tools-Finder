@@ -39,6 +39,25 @@ async function sendEmail(payload: EmailPayload) {
 }
 
 export class EmailService {
+  static async sendAdminInviteEmail(input: {
+    to: string;
+    invitedByEmail: string;
+    inviteUrl: string;
+    expiresAt: string;
+  }) {
+    return sendEmail({
+      to: input.to,
+      subject: "Your AI Tools Finder admin invite",
+      html: `
+        <h1>Admin invite</h1>
+        <p>${input.invitedByEmail} invited you to join AI Tools Finder as an admin.</p>
+        <p>This invite expires on <strong>${input.expiresAt}</strong>.</p>
+        <p><a href="${input.inviteUrl}">Accept admin invite</a></p>
+        <p>If you did not expect this invite, ignore this email.</p>
+      `
+    });
+  }
+
   static async sendSubmissionReceivedEmail(input: {
     toolName: string;
     categoryName: string;

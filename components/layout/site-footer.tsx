@@ -168,7 +168,6 @@ export function SiteFooter() {
           <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-white/52 sm:flex-row sm:items-center sm:justify-between">
             <p>Built to turn AI discovery into cleaner buyer decisions and higher-intent founder visibility.</p>
             <div className="flex flex-wrap gap-4">
-              <Link href="/admin" className="transition hover:text-white">Admin</Link>
               <Link href="/submit" className="transition hover:text-white">Submit your product</Link>
             </div>
           </div>

@@ -16,7 +16,6 @@ export async function middleware(request: NextRequest) {
   const authenticated = hasSessionCookie(request);
 
   if (
-    request.nextUrl.pathname.startsWith("/admin") ||
     request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/favorites") ||
     request.nextUrl.pathname.startsWith("/my-stack") ||
@@ -25,6 +24,10 @@ export async function middleware(request: NextRequest) {
     if (!authenticated) {
       return NextResponse.redirect(signInUrl);
     }
+  }
+
+  if (request.nextUrl.pathname.startsWith("/admin") && !authenticated) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

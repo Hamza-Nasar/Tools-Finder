@@ -40,6 +40,15 @@ const UserSchema = new Schema(
     emailVerified: {
       type: Date,
       default: null
+    },
+    lastLoginAt: {
+      type: Date,
+      default: null
+    },
+    lastLoginProvider: {
+      type: String,
+      enum: ["credentials", "google", null],
+      default: null
     }
   },
   {

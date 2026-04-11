@@ -2,17 +2,12 @@ import { z } from "zod";
 import { created, handleApiError, parseRequestBody } from "@/lib/api";
 import { takeRateLimit } from "@/lib/rate-limit/memory-store";
 import { UserService } from "@/lib/services/user-service";
+import { passwordSchema } from "@/lib/validators/user";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   email: z.string().trim().email(),
-  password: z
-    .string()
-    .min(8)
-    .max(72)
-    .regex(/[a-z]/, "Password must include a lowercase letter.")
-    .regex(/[A-Z]/, "Password must include an uppercase letter.")
-    .regex(/[0-9]/, "Password must include a number.")
+  password: passwordSchema
 });
 
 function getIpAddress(request: Request) {
