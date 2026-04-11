@@ -29,7 +29,8 @@ export async function POST(request: Request) {
     const user = await UserService.setupFirstAdmin({
       name: payload.name,
       email: payload.email,
-      password: payload.password
+      password: payload.password,
+      allowRecovery: env.ADMIN_SETUP_RECOVERY_ENABLED
     });
 
     return created({

@@ -20,13 +20,15 @@ export default async function FirstAdminSetupPage({
   const params = (await searchParams) ?? {};
   const tokenParam = Array.isArray(params.token) ? params.token[0] : params.token;
   const token = tokenParam?.trim() ?? "";
+  const recoveryEnabled = Boolean(env.ADMIN_SETUP_RECOVERY_ENABLED);
   const hasAdmin = await UserService.hasAdminAccount().catch(() => true);
 
   return (
     <FirstAdminSetupExperience
       token={token}
       setupConfigured={Boolean(env.ADMIN_SETUP_TOKEN)}
-      setupOpen={!hasAdmin}
+      setupOpen={!hasAdmin || recoveryEnabled}
+      recoveryEnabled={recoveryEnabled && hasAdmin}
     />
   );
 }

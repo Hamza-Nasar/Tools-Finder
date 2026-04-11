@@ -445,12 +445,12 @@ export class UserService {
     return (await UserModel.countDocuments({ role: "admin" })) > 0;
   }
 
-  static async setupFirstAdmin(input: { name: string; email: string; password: string }) {
+  static async setupFirstAdmin(input: { name: string; email: string; password: string; allowRecovery?: boolean }) {
     await connectToDatabase();
 
     const hasAdmin = await this.hasAdminAccount();
 
-    if (hasAdmin) {
+    if (hasAdmin && !input.allowRecovery) {
       throw new AppError(409, "First admin setup is already complete.", "ADMIN_SETUP_CLOSED");
     }
 

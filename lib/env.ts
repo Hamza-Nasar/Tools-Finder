@@ -11,6 +11,15 @@ function normalizeEnvValue(value: unknown) {
 
 const optionalString = z.preprocess(normalizeEnvValue, z.string().min(1).optional());
 const optionalUrl = z.preprocess(normalizeEnvValue, z.string().url().optional());
+const optionalBoolean = z.preprocess((value) => {
+  const normalizedValue = normalizeEnvValue(value);
+
+  if (typeof normalizedValue !== "string") {
+    return normalizedValue;
+  }
+
+  return ["1", "true", "yes", "on"].includes(normalizedValue.toLowerCase());
+}, z.boolean().optional());
 
 const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: optionalUrl,
@@ -22,6 +31,7 @@ const envSchema = z.object({
   ADMIN_EMAILS: optionalString,
   ADMIN_PASSWORD_HASH: optionalString,
   ADMIN_SETUP_TOKEN: optionalString,
+  ADMIN_SETUP_RECOVERY_ENABLED: optionalBoolean,
   GITHUB_ID: optionalString,
   GITHUB_SECRET: optionalString,
   GITHUB_DISCOVERY_TOKEN: optionalString,
@@ -50,6 +60,7 @@ export const env = envSchema.parse({
   ADMIN_EMAILS: process.env.ADMIN_EMAILS,
   ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
   ADMIN_SETUP_TOKEN: process.env.ADMIN_SETUP_TOKEN,
+  ADMIN_SETUP_RECOVERY_ENABLED: process.env.ADMIN_SETUP_RECOVERY_ENABLED,
   GITHUB_ID: process.env.GITHUB_ID,
   GITHUB_SECRET: process.env.GITHUB_SECRET,
   GITHUB_DISCOVERY_TOKEN: process.env.GITHUB_DISCOVERY_TOKEN,

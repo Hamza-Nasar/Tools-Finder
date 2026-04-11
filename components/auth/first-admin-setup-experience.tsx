@@ -44,11 +44,13 @@ function validatePassword(password: string) {
 export function FirstAdminSetupExperience({
   token,
   setupOpen,
-  setupConfigured
+  setupConfigured,
+  recoveryEnabled
 }: {
   token: string;
   setupOpen: boolean;
   setupConfigured: boolean;
+  recoveryEnabled: boolean;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -127,7 +129,7 @@ export function FirstAdminSetupExperience({
             </div>
             <CardTitle className="mt-4">First admin setup is closed.</CardTitle>
             <CardDescription>
-              Use an admin invite link from an existing admin.
+              An admin already exists. Temporarily enable recovery mode in your hosting env if you cannot access it.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -141,11 +143,15 @@ export function FirstAdminSetupExperience({
         <CardHeader className="border-b border-border/70 bg-white/80">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/70 bg-secondary/45 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">
             <ShieldCheck className="h-3.5 w-3.5" />
-            First admin
+            {recoveryEnabled ? "Admin recovery" : "First admin"}
           </div>
-          <CardTitle className="mt-4 text-4xl">Create the first admin account</CardTitle>
+          <CardTitle className="mt-4 text-4xl">
+            {recoveryEnabled ? "Recover admin access" : "Create the first admin account"}
+          </CardTitle>
           <CardDescription>
-            This page works only with your setup token and closes after the first admin is created.
+            {recoveryEnabled
+              ? "This temporary recovery mode sets admin access for the email below. Turn recovery off after login."
+              : "This page works only with your setup token and closes after the first admin is created."}
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
@@ -214,7 +220,7 @@ export function FirstAdminSetupExperience({
             ) : null}
 
             <Button type="submit" size="lg" className="w-full justify-center gap-2" disabled={isPending}>
-              <span>{isPending ? "Creating admin..." : "Create first admin"}</span>
+              <span>{isPending ? "Saving admin..." : recoveryEnabled ? "Recover admin access" : "Create first admin"}</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
