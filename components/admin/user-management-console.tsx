@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useMemo, useState, useTransition } from "react";
-import { Copy, Mail, ShieldCheck, UserRound, X } from "lucide-react";
+import { Copy, ExternalLink, Mail, ShieldCheck, UserRound, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -72,7 +72,12 @@ export function UserManagementConsole({
 
   async function readPayload(response: Response) {
     return (await response.json().catch(() => null)) as ApiErrorPayload | {
-      data?: { user?: ManagedUser };
+      data?: {
+        user?: ManagedUser;
+        invite?: AdminInvite;
+        inviteUrl?: string;
+        delivered?: boolean;
+      };
       invite?: AdminInvite;
       inviteUrl?: string;
       delivered?: boolean;
@@ -114,9 +119,19 @@ export function UserManagementConsole({
         return;
       }
 
-      const invite = (payload as { invite?: AdminInvite } | null)?.invite;
-      const createdInviteUrl = (payload as { inviteUrl?: string } | null)?.inviteUrl ?? null;
-      const delivered = (payload as { delivered?: boolean } | null)?.delivered;
+      const result = (payload as {
+        data?: {
+          invite?: AdminInvite;
+          inviteUrl?: string;
+          delivered?: boolean;
+        };
+        invite?: AdminInvite;
+        inviteUrl?: string;
+        delivered?: boolean;
+      } | null);
+      const invite = result?.data?.invite ?? result?.invite;
+      const createdInviteUrl = result?.data?.inviteUrl ?? result?.inviteUrl ?? null;
+      const delivered = result?.data?.delivered ?? result?.delivered;
 
       if (invite) {
         setInvites((currentInvites) => [invite, ...currentInvites.filter((item) => item.email !== invite.email)]);
@@ -138,7 +153,20 @@ export function UserManagementConsole({
       return;
     }
 
-    await navigator.clipboard.writeText(inviteUrl);
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(inviteUrl);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = inviteUrl;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
     setMessage("Invite link copied.");
   }
 
@@ -257,13 +285,19 @@ export function UserManagementConsole({
               ) : null}
 
               {inviteUrl ? (
-                <div className="space-y-2 rounded-[1.2rem] border border-border/70 bg-secondary/30 p-3">
+                <div className="space-y-3 rounded-[1.2rem] border border-border/70 bg-secondary/30 p-3">
                   <Label htmlFor="invite-url">Invite link</Label>
-                  <div className="flex gap-2">
-                    <Input id="invite-url" value={inviteUrl} readOnly className="min-w-0 text-xs" />
-                    <Button type="button" variant="outline" className="shrink-0" onClick={() => void copyInviteLink()}>
+                  <Input id="invite-url" value={inviteUrl} readOnly className="text-xs" onFocus={(event) => event.currentTarget.select()} />
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Button type="button" variant="outline" className="w-full justify-center" onClick={() => void copyInviteLink()}>
                       <Copy className="mr-2 h-4 w-4" />
-                      Copy
+                      Copy invite link
+                    </Button>
+                    <Button asChild type="button" variant="outline" className="w-full justify-center">
+                      <a href={inviteUrl} target="_blank" rel="noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Open invite
+                      </a>
                     </Button>
                   </div>
                 </div>

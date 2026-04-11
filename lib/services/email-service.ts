@@ -10,6 +10,10 @@ function canSendEmail() {
   return Boolean(env.RESEND_API_KEY && env.EMAIL_FROM);
 }
 
+function canSendAdminInviteWithEmailJs() {
+  return Boolean(env.EMAILJS_SERVICE_ID && env.EMAILJS_ADMIN_INVITE_TEMPLATE_ID && env.EMAILJS_PUBLIC_KEY);
+}
+
 async function sendEmail(payload: EmailPayload) {
   if (!canSendEmail()) {
     return { delivered: false };
@@ -38,6 +42,49 @@ async function sendEmail(payload: EmailPayload) {
   return { delivered: true };
 }
 
+async function sendAdminInviteWithEmailJs(input: {
+  to: string;
+  invitedByEmail: string;
+  inviteUrl: string;
+  expiresAt: string;
+}) {
+  if (!canSendAdminInviteWithEmailJs()) {
+    return { delivered: false };
+  }
+
+  const body: Record<string, unknown> = {
+    service_id: env.EMAILJS_SERVICE_ID,
+    template_id: env.EMAILJS_ADMIN_INVITE_TEMPLATE_ID,
+    user_id: env.EMAILJS_PUBLIC_KEY,
+    template_params: {
+      to_email: input.to,
+      invited_by_email: input.invitedByEmail,
+      invite_url: input.inviteUrl,
+      expires_at: input.expiresAt
+    }
+  };
+
+  if (env.EMAILJS_PRIVATE_KEY) {
+    body.accessToken = env.EMAILJS_PRIVATE_KEY;
+  }
+
+  const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("EmailJS admin invite delivery failed.", errorText);
+    return { delivered: false };
+  }
+
+  return { delivered: true };
+}
+
 export class EmailService {
   static async sendAdminInviteEmail(input: {
     to: string;
@@ -45,6 +92,10 @@ export class EmailService {
     inviteUrl: string;
     expiresAt: string;
   }) {
+    if (!canSendEmail()) {
+      return sendAdminInviteWithEmailJs(input);
+    }
+
     return sendEmail({
       to: input.to,
       subject: "Your AI Tools Finder admin invite",

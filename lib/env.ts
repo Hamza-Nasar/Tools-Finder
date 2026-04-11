@@ -47,6 +47,10 @@ const envSchema = z.object({
   STRIPE_FEATURED_LISTING_DURATION_DAYS: z.coerce.number().int().positive().optional(),
   RESEND_API_KEY: optionalString,
   EMAIL_FROM: optionalString,
+  EMAILJS_SERVICE_ID: optionalString,
+  EMAILJS_ADMIN_INVITE_TEMPLATE_ID: optionalString,
+  EMAILJS_PUBLIC_KEY: optionalString,
+  EMAILJS_PRIVATE_KEY: optionalString,
   ADMIN_NOTIFICATION_EMAIL: z.preprocess(normalizeEnvValue, z.string().email().optional())
 });
 
@@ -76,5 +80,9 @@ export const env = envSchema.parse({
   STRIPE_FEATURED_LISTING_DURATION_DAYS: process.env.STRIPE_FEATURED_LISTING_DURATION_DAYS,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   EMAIL_FROM: process.env.EMAIL_FROM,
+  EMAILJS_SERVICE_ID: process.env.EMAILJS_SERVICE_ID,
+  EMAILJS_ADMIN_INVITE_TEMPLATE_ID: process.env.EMAILJS_ADMIN_INVITE_TEMPLATE_ID,
+  EMAILJS_PUBLIC_KEY: process.env.EMAILJS_PUBLIC_KEY,
+  EMAILJS_PRIVATE_KEY: process.env.EMAILJS_PRIVATE_KEY,
   ADMIN_NOTIFICATION_EMAIL: process.env.ADMIN_NOTIFICATION_EMAIL
 });
