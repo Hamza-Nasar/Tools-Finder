@@ -11,7 +11,9 @@ export function SiteFooter() {
         { href: "/tools", label: "Directory" },
         { href: "/categories", label: "Categories" },
         { href: "/today-ai-tools", label: "Today AI Tools" },
-        { href: "/best-ai-tools", label: "Best AI Tools" }
+        { href: "/best-ai-tools", label: "Best AI Tools" },
+        { href: "/seo-tools", label: "SEO Tools" },
+        { href: "/blog", label: "Blog" }
       ]
     },
     {
@@ -20,7 +22,9 @@ export function SiteFooter() {
         { href: "/find-ai-tool", label: "AI Finder" },
         { href: "/workflows", label: "Workflows" },
         { href: "/prompts", label: "Prompt Library" },
-        { href: "/my-stack", label: "My Stack" }
+        { href: "/my-stack", label: "My Stack" },
+        { href: "/image-tools", label: "Image Tools" },
+        { href: "/image-compressor", label: "Image Compressor" }
       ]
     },
     {
@@ -28,6 +32,8 @@ export function SiteFooter() {
       links: [
         { href: "/submit", label: "Submit Tool" },
         { href: "/best-free-ai-tools", label: "Best Free AI Tools" },
+        { href: "/pdf-tools", label: "PDF Tools" },
+        { href: "/pdf-merger", label: "PDF Merger" },
         { href: "/favorites", label: "Favorites" },
         { href: "/auth/login", label: "Login" }
       ]
@@ -49,7 +55,7 @@ export function SiteFooter() {
                 </div>
                 <div>
                   <p className="font-[family-name:var(--font-heading)] text-xl font-semibold">{siteConfig.name}</p>
-                  <p className="text-sm text-white/60">AI research and discovery for serious buyers, operators, and founders</p>
+                  <p className="text-sm text-white/60">Free online tools, AI discovery, and practical workflow shortcuts</p>
                 </div>
               </div>
 
@@ -58,10 +64,10 @@ export function SiteFooter() {
                   Finish strong
                 </p>
                 <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-heading)] text-3xl font-semibold leading-tight md:text-5xl">
-                  Stop sending people to flat lists. Route them into a sharper AI buying journey.
+                  Find faster SEO, PDF, image, and AI tools without wasting clicks.
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
-                  The strongest discovery products help buyers decide faster and help founders get discovered in the right context. This product is built around both sides of that loop.
+                  The strongest tool directories help visitors solve the immediate task and compare deeper options when needed. Start with a free online tool, then move into a focused workflow.
                 </p>
               </div>
 

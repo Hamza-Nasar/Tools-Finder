@@ -30,22 +30,21 @@ export function HeroSection({
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/82 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               <Sparkles className="h-3.5 w-3.5" />
-              Decision support for AI buyers and founders
+              Best free online tools for 2026
             </span>
             <h1 className="mt-6 font-[family-name:var(--font-heading)] text-[2.9rem] font-bold leading-[0.98] md:text-[5.2rem]">
-              Find the right AI tool without wasting days in
+              Best free online tools for SEO, PDF, image, and
               <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                {" "}
-                noisy directories.
+                {" "}AI workflows.
               </span>
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
-              Search by workflow, compare standout products, track what moved today, and turn scattered AI research into a shortlist your team can actually act on.
+              Find fast, no-signup tools for everyday work: SEO audits, PDF cleanup, image conversion, AI research, content, coding, design, and marketing. Search by workflow and compare the strongest options before you commit.
             </p>
             <div className="mt-5 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
-              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">For buyers: faster shortlists</span>
-              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">For teams: cleaner comparison</span>
-              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">For founders: premium visibility</span>
+              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">Free and fast</span>
+              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">No signup routes</span>
+              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">SEO, PDF, image, and AI tools</span>
             </div>
             <form
               action="/tools"
@@ -55,12 +54,12 @@ export function HeroSection({
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <Input
                   name="q"
-                  placeholder="Search by workflow, category, competitor, or use case"
+                  placeholder="Search SEO tools, PDF tools, image tools, or AI workflows"
                   className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                 />
               </div>
               <Button type="submit" size="lg" className="md:min-w-[180px]">
-                Search directory
+                Find free tools
               </Button>
             </form>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -71,7 +70,7 @@ export function HeroSection({
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/today-ai-tools">See today&apos;s movers</Link>
+                <Link href="/seo-tools">Open free SEO tools</Link>
               </Button>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -105,7 +104,7 @@ export function HeroSection({
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(dailyCount)}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">fresh daily movements across the market</p>
+                <p className="mt-1 text-sm text-muted-foreground">fresh signals across the market</p>
               </div>
             </div>
           </div>
@@ -116,10 +115,10 @@ export function HeroSection({
                 <div>
                   <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-white/72">
                     <Radar className="h-3.5 w-3.5" />
-                    Decision engine
+                    Free tool finder
                   </p>
                   <h2 className="mt-4 font-[family-name:var(--font-heading)] text-2xl font-semibold leading-tight md:text-[2rem]">
-                    Start from intent, move into comparison, then turn winners into a repeatable stack.
+                    Start with the task, compare the best free options, then build a workflow that saves time.
                   </h2>
                 </div>
                 <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">
@@ -150,7 +149,7 @@ export function HeroSection({
                     {compactNumber(featuredCount)}
                   </p>
                   <p className="mt-1 text-sm leading-6 text-white/70">
-                    premium placements already built into discovery without turning the product into an ad wall.
+                    featured placements reviewed inside the same discovery experience.
                   </p>
                 </div>
               </div>

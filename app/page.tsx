@@ -16,7 +16,7 @@ import { getHomepageTools, getTodayToolsFeedCached } from "@/lib/data/tools";
 import { getFeaturedStackPreviews } from "@/lib/data/stacks";
 import { toolCollections } from "@/lib/collections";
 import { getPopularPrompts } from "@/lib/prompt-library";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { workflows } from "@/lib/workflows";
 import { compactNumber } from "@/lib/utils";
 import { CollectionGrid } from "@/components/collections/collection-grid";
@@ -55,7 +55,52 @@ interface AudienceCard {
   icon: LucideIcon;
 }
 
+export const metadata = buildMetadata({
+  title: "Best Free Online Tools 2026: Fast SEO Tools, PDF & Image Tools | No Signup",
+  description:
+    "Find the best free online tools for SEO, PDF, image and AI workflows. Fast, no signup discovery with instant comparisons and trusted picks.",
+  path: "/",
+  keywords: [
+    "free online tools",
+    "SEO tools",
+    "PDF tools",
+    "image tools",
+    "best free online tools 2026",
+    "no signup tools"
+  ]
+});
+
 const landingRoutes = [
+  {
+    href: "/seo-tools",
+    title: "Free SEO tools",
+    description: "Instant SEO audits, keyword research, metadata ideas, and CTR-focused optimization workflows."
+  },
+  {
+    href: "/pdf-tools",
+    title: "Free PDF tools",
+    description: "Fast PDF compression, conversion, merge, split, and document cleanup routes for everyday work."
+  },
+  {
+    href: "/image-tools",
+    title: "Free image tools",
+    description: "Browser-based image compression, resizing, conversion, cleanup, and AI visual discovery."
+  },
+  {
+    href: "/blog/best-free-seo-tools-2026",
+    title: "Best free SEO tools 2026",
+    description: "A practical article linking SEO audits, keyword research, title optimization, and CTR improvements."
+  },
+  {
+    href: "/blog/how-to-compress-images-online",
+    title: "How to compress images online",
+    description: "A step-by-step guide that connects image compression, resizing, conversion, alt text, and page speed."
+  },
+  {
+    href: "/blog/best-pdf-tools-free",
+    title: "Best free PDF tools",
+    description: "A document workflow guide linking PDF merger, compressor, splitter, and converter pages."
+  },
   {
     href: "/best-ai-tools",
     title: "Best AI tools",
@@ -126,6 +171,26 @@ export default async function HomePage() {
   const popularWorkflows = workflows.slice(0, 3);
   const dailyTools = todayFeed.todayNew.length ? todayFeed.todayNew.slice(0, 3) : todayFeed.trendingToday.slice(0, 3);
   const todaySignalCount = todayFeed.todayNew.length + todayFeed.trendingToday.length + todayFeed.editorPicks.length;
+  const freeToolRoutes = [
+    {
+      href: "/seo-tools",
+      title: "SEO tools",
+      description:
+        "Use free SEO tools for keyword research, technical audits, title rewrites, meta descriptions, and CTR improvements before you invest in a larger stack."
+    },
+    {
+      href: "/pdf-tools",
+      title: "PDF tools",
+      description:
+        "Find fast PDF tools to compress, merge, split, convert, and prepare documents for clients, lead magnets, reports, and internal workflows."
+    },
+    {
+      href: "/image-tools",
+      title: "Image tools",
+      description:
+        "Discover free image tools for compression, resizing, format conversion, background cleanup, AI visuals, and web-ready creative assets."
+    }
+  ];
   const audienceCards: AudienceCard[] = [
     {
       eyebrow: "For buyers",
@@ -277,6 +342,67 @@ export default async function HomePage() {
         popularCategories={popularCategories.slice(0, 4).map((category) => category.name)}
         dailyCount={todaySignalCount}
       />
+
+      <section className="page-frame py-4 md:py-8">
+        <div className="section-shell p-7 md:p-9">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Free online tools</p>
+          <div className="mt-4 grid gap-8 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
+            <div>
+              <h2 className="font-[family-name:var(--font-heading)] text-3xl font-semibold leading-tight md:text-5xl">
+                Best free online tools for SEO, PDF, image, and AI workflows in 2026.
+              </h2>
+              <p className="mt-5 text-base leading-8 text-muted-foreground">
+                Tools Finder helps you move from a vague search result to the right browser-based tool faster. Instead of opening five tabs and testing random apps, start with focused routes for free online tools that solve common work problems: SEO tools for better rankings and click-through rates, PDF tools for cleaner documents, image tools for lighter visual assets, and AI tools for research, content, coding, design, and marketing workflows.
+              </p>
+              <p className="mt-4 text-base leading-8 text-muted-foreground">
+                The goal is simple: fast results, clear comparisons, and no unnecessary signup friction when the job should be instant. Use the homepage when you want the best free online tools in one place, then move into a dedicated page when you already know the task. Each route links back into the broader directory so you can compare free, freemium, and premium options without losing context.
+              </p>
+            </div>
+            <div className="grid gap-4">
+              {freeToolRoutes.map((route) => (
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  className="interactive-panel rounded-[1.35rem] border border-border/70 bg-white/78 p-5 shadow-sm"
+                >
+                  <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">{route.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">{route.description}</p>
+                  <span className="mt-4 inline-flex items-center text-sm font-semibold text-foreground">
+                    Open free {route.title.toLowerCase()}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            <div className="rounded-[1.35rem] border border-border/70 bg-background/55 p-5">
+              <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">
+                Why no-signup tools win
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                Many tasks should take seconds: compress an image, check a title tag, merge a PDF, or find a better writing assistant. No-signup tools reduce friction and help visitors finish the job before comparing deeper alternatives.
+              </p>
+            </div>
+            <div className="rounded-[1.35rem] border border-border/70 bg-background/55 p-5">
+              <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">
+                Built for search intent
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                The homepage now makes the main topics explicit: free online tools, SEO tools, PDF tools, image tools, and AI discovery. That structure gives users and search crawlers clearer topical paths.
+              </p>
+            </div>
+            <div className="rounded-[1.35rem] border border-border/70 bg-background/55 p-5">
+              <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">
+                Compare before you commit
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                When a basic tool is not enough, the directory helps you compare alternatives by category, pricing, tags, popularity, and workflow fit, so the next click is still useful.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="page-frame py-4 md:py-8">
         <SectionHeading

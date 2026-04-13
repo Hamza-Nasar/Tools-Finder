@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/constants";
+import { blogPosts } from "@/lib/blog-posts";
 import { getPublicCategories } from "@/lib/data/categories";
 import { getSeoComparisonPairsCached } from "@/lib/data/tools";
 import { toolCollections } from "@/lib/collections";
 import { getPromptToolGroups } from "@/lib/prompt-library";
 import { ToolService } from "@/lib/services/tool-service";
 import { seoLandingPages } from "@/lib/seo-landings";
+import { onlineToolLandingPages } from "@/lib/online-tool-landings";
+import { toolSeoPages } from "@/lib/tool-seo-pages";
 import { workflows } from "@/lib/workflows";
 import { isDatabaseUnavailableError } from "@/lib/errors";
 
@@ -16,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/tools",
     "/categories",
     "/find-ai-tool",
+    "/blog",
     "/prompts",
     "/today-ai-tools",
     "/workflows",
@@ -23,7 +27,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...toolCollections.map((collection) => `/collections/${collection.slug}`),
     ...promptGroups.map((group) => `/prompts/${group.slug}`),
     ...workflows.map((workflow) => `/workflows/${workflow.slug}`),
-    ...seoLandingPages.map((page) => `/${page.slug}`)
+    ...seoLandingPages.map((page) => `/${page.slug}`),
+    ...onlineToolLandingPages.map((page) => page.path),
+    ...toolSeoPages.map((page) => `/${page.slug}`),
+    ...blogPosts.map((post) => `/blog/${post.slug}`)
   ].map((route) => ({
     url: `${siteConfig.url}${route}`,
     lastModified: new Date(),

@@ -3,7 +3,7 @@ import type { NavItem, PricingTier } from "@/types";
 export const siteConfig = {
   name: "AI Tools Finder",
   description:
-    "An AI discovery platform for buyers and founders to compare tools, track market movement, and build better shortlists faster.",
+    "A free online tools directory for SEO tools, PDF tools, image tools, AI workflows, and faster no-signup discovery.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 };
 
@@ -12,7 +12,8 @@ export const mainNav: NavItem[] = [
   { label: "AI Finder", href: "/find-ai-tool" },
   { label: "Workflows", href: "/workflows" },
   { label: "Prompts", href: "/prompts" },
-  { label: "Categories", href: "/categories" }
+  { label: "Categories", href: "/categories" },
+  { label: "Blog", href: "/blog" }
 ];
 
 export const adminNav: NavItem[] = [
