@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { getServerSession } from "next-auth";
+import { Analytics } from "@vercel/analytics/next";
 import "@/app/globals.css";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -79,6 +80,7 @@ export default async function RootLayout({
             <SiteFooter />
           </div>
         </AppProviders>
+        <Analytics />
       </body>
     </html>
   );
