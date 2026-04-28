@@ -26,12 +26,11 @@ export function PageHero({
   className
 }: PageHeroProps) {
   return (
-    <section className={cn("surface-card hero-mesh relative overflow-hidden p-8 md:p-10", className)}>
-      <div className="absolute -left-10 top-12 h-40 w-40 rounded-full bg-secondary/45 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+    <section className={cn("surface-card hero-mesh relative overflow-hidden p-7 md:p-10", className)}>
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/[0.35] to-transparent" />
       <div className="relative grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
         <MotionReveal className="max-w-3xl" y={24}>
-          <p className="inline-flex rounded-full border border-primary/15 bg-primary/8 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          <p className="inline-flex rounded-full border border-primary/[0.15] bg-primary/[0.08] px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             {eyebrow}
           </p>
           <h1 className="mt-5 font-[family-name:var(--font-heading)] text-[2.5rem] font-bold leading-[1.02] md:text-[4.25rem]">
@@ -49,7 +48,7 @@ export function PageHero({
               <MotionReveal
                 key={stat.label}
                 delay={index * 0.06}
-                className="rounded-[1.5rem] border border-white/75 bg-white/82 px-5 py-4 shadow-sm backdrop-blur"
+                className="surface-card-hover rounded-[1.35rem] border border-white/75 bg-white/[0.82] px-5 py-4 shadow-sm backdrop-blur"
               >
                 <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary">
                   {stat.label}

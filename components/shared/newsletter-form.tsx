@@ -103,8 +103,8 @@ export function NewsletterForm({
           <p className="mt-3 text-sm leading-7 text-muted-foreground md:text-base">{description}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <Label htmlFor={`newsletter-email-${source}`}>Email address</Label>
             <Input
               id={`newsletter-email-${source}`}
@@ -121,7 +121,7 @@ export function NewsletterForm({
           <motion.div whileTap={{ scale: 0.985 }}>
             <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
               {isSubmitting ? "Joining..." : buttonLabel}
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight data-icon="inline-end" />
             </Button>
           </motion.div>
           {message ? (
@@ -133,7 +133,7 @@ export function NewsletterForm({
                   : "border-rose-200 bg-rose-50 text-rose-700"
               )}
             >
-              {status === "success" ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> : null}
+              {status === "success" ? <CheckCircle2 className="mt-0.5 size-4 shrink-0" /> : null}
               <span>{message}</span>
             </div>
           ) : null}

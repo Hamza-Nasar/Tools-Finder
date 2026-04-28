@@ -117,6 +117,24 @@ const TOOL_LIST_PROJECTION = {
   createdBy: 1
 } as const;
 let toolIndexSetupPromise: Promise<void> | null = null;
+const SEARCH_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "best",
+  "for",
+  "free",
+  "in",
+  "of",
+  "online",
+  "or",
+  "the",
+  "to",
+  "tool",
+  "tools",
+  "with"
+]);
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -134,6 +152,24 @@ function buildRegexSearchClause(query: string, prefixOnly = false) {
     { tags: pattern },
     { categoryName: pattern }
   ];
+}
+
+function getSearchTokens(query: string) {
+  return Array.from(
+    new Set(
+      query
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .map((token) => token.trim())
+        .filter((token) => token.length > 1 && !SEARCH_STOP_WORDS.has(token))
+    )
+  ).slice(0, 6);
+}
+
+function buildAllTokenSearchClause(tokens: string[]) {
+  return tokens.map((token) => ({
+    $or: buildRegexSearchClause(token)
+  }));
 }
 
 function ensureToolSearchIndexes() {
@@ -337,6 +373,7 @@ export class ToolService {
     const trimmedQuery = options.q?.trim();
     const hasTextSearch = Boolean(trimmedQuery && trimmedQuery.length >= 2);
     const hasRegexSearch = Boolean(trimmedQuery && trimmedQuery.length < 2);
+    const searchTokens = trimmedQuery ? getSearchTokens(trimmedQuery) : [];
 
     if (!options.includeNonApproved) {
       filter.status = "approved";
@@ -370,6 +407,9 @@ export class ToolService {
 
     if (hasTextSearch && trimmedQuery) {
       filter.$text = { $search: trimmedQuery };
+      if (searchTokens.length > 1) {
+        filter.$and = buildAllTokenSearchClause(searchTokens);
+      }
     } else if (hasRegexSearch && trimmedQuery) {
       filter.$or = buildRegexSearchClause(trimmedQuery);
     }
@@ -401,7 +441,11 @@ export class ToolService {
       }
 
       delete filter.$text;
-      filter.$or = buildRegexSearchClause(trimmedQuery);
+      if (searchTokens.length > 1) {
+        filter.$and = buildAllTokenSearchClause(searchTokens);
+      } else {
+        filter.$or = buildRegexSearchClause(trimmedQuery);
+      }
 
       const [records, total] = await Promise.all([
         ToolModel.find(filter, TOOL_LIST_PROJECTION)

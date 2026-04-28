@@ -3,10 +3,12 @@ import { getPublicCategories } from "@/lib/data/categories";
 import { getPublicToolList, getToolDirectoryFacets } from "@/lib/data/tools";
 import { pricingOptions } from "@/lib/constants";
 import { buildMetadata } from "@/lib/seo";
+import { searchSiteContent } from "@/lib/site-search";
 import { compactNumber } from "@/lib/utils";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
 import { PaginationControls } from "@/components/shared/pagination-controls";
+import { SiteSearchResults } from "@/components/tools/site-search-results";
 import { ToolCard } from "@/components/tools/tool-card";
 import { ToolFilters } from "@/components/tools/tool-filters";
 
@@ -30,9 +32,17 @@ const HybridDiscoveryPanel = dynamic(
 );
 
 export const metadata = buildMetadata({
-  title: "AI Tools Directory",
-  description: "Search, filter, and browse the AI tools directory by category, tag, and popularity.",
-  path: "/tools"
+  title: "AI Tools Directory 2026: Compare, Filter, and Discover Better Tools",
+  description:
+    "Browse the AI tools directory with workflow filters, category discovery, tags, pricing, and popularity ranking to find better tools faster.",
+  path: "/tools",
+  keywords: [
+    "ai tools directory",
+    "compare ai tools",
+    "ai software list",
+    "ai tools by category",
+    "best ai tools 2026"
+  ]
 });
 
 function firstValue(value: string | string[] | undefined) {
@@ -111,6 +121,7 @@ export default async function ToolsPage({
     getPublicToolList(query)
   ]);
   const hasHybridSearch = Boolean(query.q?.trim() && query.q.trim().length >= 2);
+  const siteResults = hasHybridSearch ? searchSiteContent(query.q ?? "", 6) : [];
 
   function buildHref(nextPage: number) {
     const params = new URLSearchParams();
@@ -158,12 +169,15 @@ export default async function ToolsPage({
 
       {hasHybridSearch ? (
         <>
+          <div className="mt-8">
+            <SiteSearchResults query={query.q ?? ""} results={siteResults} />
+          </div>
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
-              Local search matched {tools.total} tool(s) in MongoDB. External discovery will stream in below without blocking the page.
+              Overall search checks site pages, the local MongoDB catalog, and external discovery sources.
             </p>
             <p className="text-sm text-muted-foreground">
-              This query also checks live web sources and removes duplicates by domain.
+              MongoDB matched {tools.total} local tool(s); web results stream in without blocking the page.
             </p>
           </div>
           <div className="mt-4">

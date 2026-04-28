@@ -3,6 +3,7 @@ import type { Category } from "@/types";
 import { categoryGradientMap } from "@/lib/constants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { MotionReveal } from "@/components/shared/motion-reveal";
 import { compactNumber } from "@/lib/utils";
 
 export function CategoryGrid({ categories }: { categories: Category[] }) {
@@ -20,26 +21,30 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
 
   return (
     <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-      {categories.map((category) => (
-        <Link key={category.slug} href={`/categories/${category.slug}`} className="block h-full">
-          <Card className="group surface-card-hover h-full overflow-hidden">
-            <CardHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-white to-background/60">
-              <div
-                className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${categoryGradientMap[category.slug] ?? "from-primary to-primary/70"} font-[family-name:var(--font-heading)] text-xl font-semibold text-white shadow-sm`}
-              >
-                {category.name.slice(0, 2).toUpperCase()}
-              </div>
-              <CardTitle>{category.name}</CardTitle>
-              <CardDescription className="mt-2 leading-6">{category.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex items-center justify-between gap-3 pt-6">
-              <span className="text-sm font-medium text-primary">{compactNumber(category.toolCount)} tools indexed</span>
-              <span className="text-sm text-muted-foreground transition group-hover:text-foreground">
-                Explore
-              </span>
-            </CardContent>
-          </Card>
-        </Link>
+      {categories.map((category, index) => (
+        <MotionReveal key={category.slug} className="h-full" delay={index * 0.04} y={16}>
+          <Link href={`/categories/${category.slug}`} className="block h-full">
+            <Card className="group surface-card-hover h-full overflow-hidden">
+              <CardHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-white to-background/60">
+                <div
+                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${categoryGradientMap[category.slug] ?? "from-primary to-primary/70"} font-[family-name:var(--font-heading)] text-xl font-semibold text-white shadow-sm`}
+                >
+                  {category.name.slice(0, 2).toUpperCase()}
+                </div>
+                <CardTitle>{category.name}</CardTitle>
+                <CardDescription className="mt-2 leading-6">{category.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between gap-3 pt-6">
+                <span className="text-sm font-medium text-primary">
+                  {compactNumber(category.toolCount)} tools indexed
+                </span>
+                <span className="text-sm text-muted-foreground transition group-hover:text-foreground">
+                  Explore
+                </span>
+              </CardContent>
+            </Card>
+          </Link>
+        </MotionReveal>
       ))}
     </div>
   );

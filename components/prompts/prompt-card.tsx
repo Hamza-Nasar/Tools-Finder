@@ -31,7 +31,7 @@ export function PromptCard({ prompt }: { prompt: PromptEntry }) {
           <CardTitle className="mt-3">{prompt.title}</CardTitle>
           <CardDescription className="mt-2">{prompt.description}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="flex flex-col gap-4 pt-6">
           <pre className="overflow-hidden whitespace-pre-wrap rounded-[1.4rem] border border-border/70 bg-white/70 p-4 text-sm leading-7 text-muted-foreground">
             {prompt.prompt}
           </pre>
