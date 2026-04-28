@@ -4,7 +4,7 @@ export const siteConfig = {
   name: "AI Tools Finder",
   description:
     "A free online tools directory for SEO tools, PDF tools, image tools, AI workflows, and faster no-signup discovery.",
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+  url: (process.env.NEXT_PUBLIC_APP_URL ?? "https://tools-finder-delta.vercel.app").replace(/\/+$/, "")
 };
 
 export const mainNav: NavItem[] = [
