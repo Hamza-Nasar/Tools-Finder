@@ -82,6 +82,9 @@ export const authOptions: NextAuthOptions = {
         token.email = syncedUser.email;
         token.picture = syncedUser.image ?? null;
         token.role = syncedUser.role;
+        token.plan = syncedUser.plan;
+        token.billingCycle = syncedUser.billingCycle ?? null;
+        token.trialEndsAt = syncedUser.trialEndsAt ?? null;
       } else if (token.sub || token.email) {
         const refreshedUser = await UserService.refreshSessionUser({
           id: token.sub ?? null,
@@ -94,6 +97,9 @@ export const authOptions: NextAuthOptions = {
           token.email = refreshedUser.email;
           token.picture = refreshedUser.image ?? null;
           token.role = refreshedUser.role;
+          token.plan = refreshedUser.plan;
+          token.billingCycle = refreshedUser.billingCycle ?? null;
+          token.trialEndsAt = refreshedUser.trialEndsAt ?? null;
         }
       }
 
@@ -103,6 +109,11 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.sub) {
         session.user.id = token.sub;
         session.user.role = token.role === "admin" ? "admin" : "user";
+        session.user.plan =
+          token.plan === "pro" || token.plan === "vendor" || token.plan === "free" ? token.plan : "free";
+        session.user.billingCycle =
+          token.billingCycle === "monthly" || token.billingCycle === "yearly" ? token.billingCycle : null;
+        session.user.trialEndsAt = typeof token.trialEndsAt === "string" ? token.trialEndsAt : null;
         session.user.name = token.name ?? session.user.name;
         session.user.email = token.email ?? session.user.email;
         session.user.image = typeof token.picture === "string" ? token.picture : null;

@@ -28,6 +28,11 @@ interface AppUserRecord {
   email: string;
   image?: string | null;
   role: "user" | "admin";
+  plan?: "free" | "pro" | "vendor";
+  billingCycle?: "monthly" | "yearly" | null;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  trialEndsAt?: Date | null;
   passwordHash?: string | null;
   lastLoginAt?: Date | null;
   lastLoginProvider?: "credentials" | "google" | null;
@@ -86,6 +91,11 @@ export class UserService {
       email: record.email,
       image: record.image ?? null,
       role: record.role,
+      plan: record.plan ?? "free",
+      billingCycle: record.billingCycle ?? null,
+      stripeCustomerId: record.stripeCustomerId ?? null,
+      stripeSubscriptionId: record.stripeSubscriptionId ?? null,
+      trialEndsAt: record.trialEndsAt?.toISOString?.() ?? null,
       passwordConfigured: Boolean(record.passwordHash),
       lastLoginAt: record.lastLoginAt?.toISOString?.() ?? null,
       lastLoginProvider: record.lastLoginProvider ?? null,
@@ -150,6 +160,7 @@ export class UserService {
         email: normalizedEmail,
         image: normalizedImage,
         role,
+        plan: "free",
         ...(input.loginProvider
           ? {
               lastLoginAt: new Date(),
@@ -165,6 +176,11 @@ export class UserService {
         email: created.email,
         image: created.image ?? null,
         role: created.role,
+        plan: created.plan ?? "free",
+        billingCycle: created.billingCycle ?? null,
+        stripeCustomerId: created.stripeCustomerId ?? null,
+        stripeSubscriptionId: created.stripeSubscriptionId ?? null,
+        trialEndsAt: created.trialEndsAt?.toISOString?.() ?? null,
         createdAt: created.createdAt?.toISOString?.() ?? new Date().toISOString()
       };
     }
@@ -230,6 +246,11 @@ export class UserService {
       email: normalizedEmail,
       image: (setUpdates.image as string | null | undefined) ?? (existing.image ?? null),
       role,
+      plan: existing.plan ?? "free",
+      billingCycle: existing.billingCycle ?? null,
+      stripeCustomerId: existing.stripeCustomerId ?? null,
+      stripeSubscriptionId: existing.stripeSubscriptionId ?? null,
+      trialEndsAt: existing.trialEndsAt?.toISOString?.() ?? null,
       createdAt:
         (setUpdates.createdAt as Date | undefined)?.toISOString?.() ??
         existing.createdAt?.toISOString?.() ??
@@ -280,6 +301,7 @@ export class UserService {
       email: normalizedEmail,
       image: null,
       role,
+      plan: "free",
       passwordHash
     });
 
@@ -290,6 +312,11 @@ export class UserService {
       email: created.email,
       image: created.image ?? null,
       role: created.role,
+      plan: created.plan ?? "free",
+      billingCycle: created.billingCycle ?? null,
+      stripeCustomerId: created.stripeCustomerId ?? null,
+      stripeSubscriptionId: created.stripeSubscriptionId ?? null,
+      trialEndsAt: created.trialEndsAt?.toISOString?.() ?? null,
       createdAt: created.createdAt?.toISOString?.() ?? new Date().toISOString()
     };
   }
@@ -354,6 +381,11 @@ export class UserService {
       email: user.email,
       image: user.image ?? null,
       role,
+      plan: user.plan ?? "free",
+      billingCycle: user.billingCycle ?? null,
+      stripeCustomerId: user.stripeCustomerId ?? null,
+      stripeSubscriptionId: user.stripeSubscriptionId ?? null,
+      trialEndsAt: user.trialEndsAt?.toISOString?.() ?? null,
       createdAt: user.createdAt?.toISOString?.() ?? user._id.getTimestamp().toISOString()
     };
   }
@@ -391,6 +423,11 @@ export class UserService {
       email: existing.email,
       image: existing.image ?? null,
       role,
+      plan: existing.plan ?? "free",
+      billingCycle: existing.billingCycle ?? null,
+      stripeCustomerId: existing.stripeCustomerId ?? null,
+      stripeSubscriptionId: existing.stripeSubscriptionId ?? null,
+      trialEndsAt: existing.trialEndsAt?.toISOString?.() ?? null,
       createdAt: existing.createdAt?.toISOString?.() ?? existing._id.getTimestamp().toISOString()
     };
   }

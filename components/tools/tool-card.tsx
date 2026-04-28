@@ -23,7 +23,7 @@ export function ToolCard({
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       whileTap={{ scale: 0.995 }}
     >
-      <Card className="group surface-card-hover flex h-full flex-col overflow-hidden border-white/75 bg-white/[0.88]">
+      <Card className="group surface-card-hover flex h-full flex-col border-white/75 bg-white/[0.88]">
         <CardHeader className="relative flex flex-row items-start justify-between gap-4 border-b border-border/70 bg-gradient-to-br from-white via-white to-background/70">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary via-primary/70 to-accent" />
           <div className="flex min-w-0 gap-4">
@@ -57,17 +57,17 @@ export function ToolCard({
                 </Link>
                 <Badge variant={tool.featured ? "accent" : "default"}>{tool.pricing}</Badge>
               </div>
-              <p className="mt-3 truncate text-sm text-muted-foreground">{getHostnameLabel(tool.website)}</p>
+              <p className="mt-2 truncate text-xs text-muted-foreground">{getHostnameLabel(tool.website)}</p>
             </div>
           </div>
           {tool.featured ? <Badge variant="accent">Featured</Badge> : null}
         </CardHeader>
         <CardContent className="flex flex-1 flex-col">
-          <CardTitle className="mt-4 transition-colors duration-200 group-hover:text-primary">
+          <CardTitle className="mt-3 line-clamp-2 transition-colors duration-200 group-hover:text-primary">
             <Link href={`/tools/${tool.slug}`}>{tool.name}</Link>
           </CardTitle>
-          <CardDescription className="mt-2 text-base text-foreground/80">{tool.tagline}</CardDescription>
-          <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">{tool.description}</p>
+          <CardDescription className="mt-2 line-clamp-2 text-sm text-foreground/80">{tool.tagline}</CardDescription>
+          <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{tool.description}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             {tool.tags.slice(0, 3).map((tag) => (
               <Link key={tag} href={`/tools?tag=${encodeURIComponent(tag)}`} className="inline-flex">
@@ -82,7 +82,7 @@ export function ToolCard({
           </div>
         </CardContent>
         <CardFooter className="mt-auto flex-col items-stretch gap-4 border-t border-border/70 bg-background/[0.45]">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {[
               {
                 icon: <Star className="size-3.5" />,

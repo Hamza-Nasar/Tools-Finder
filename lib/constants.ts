@@ -12,6 +12,7 @@ export const mainNav: NavItem[] = [
   { label: "AI Finder", href: "/find-ai-tool" },
   { label: "Workflows", href: "/workflows" },
   { label: "Prompts", href: "/prompts" },
+  { label: "Pricing", href: "/pricing" },
   { label: "Categories", href: "/categories" },
   { label: "Blog", href: "/blog" }
 ];
@@ -20,6 +21,9 @@ export const adminNav: NavItem[] = [
   { label: "Dashboard", href: "/admin" },
   { label: "Tools", href: "/admin/tools" },
   { label: "Submissions", href: "/admin/submissions" },
+  { label: "Vendor Claims", href: "/admin/vendor/claims" },
+  { label: "Vendor Leads", href: "/admin/vendor/leads" },
+  { label: "Growth", href: "/admin/growth" },
   { label: "Categories", href: "/admin/categories" },
   { label: "Users", href: "/admin/users" }
 ];

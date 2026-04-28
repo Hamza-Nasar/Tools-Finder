@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 type MotionButtonProps = React.ComponentPropsWithoutRef<typeof motion.button>;
 
 const buttonVariants = cva(
-  "interactive-control inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold motion-safe:active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_[data-icon]]:size-4 [&_[data-icon]]:shrink-0",
+  "interactive-control inline-flex items-center justify-center gap-2 rounded-[var(--radius-control)] text-sm font-semibold motion-safe:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_[data-icon]]:size-4 [&_[data-icon]]:shrink-0",
   {
     variants: {
       variant: {
@@ -20,9 +20,9 @@ const buttonVariants = cva(
         ghost: "bg-transparent hover:bg-white/70"
       },
       size: {
-        default: "h-11 px-5 py-2",
-        sm: "h-9 px-4 text-sm",
-        lg: "h-12 px-6 text-base"
+        default: "h-11 px-4.5 py-2",
+        sm: "h-9 px-3.5 text-sm",
+        lg: "h-12 px-5.5 text-base"
       }
     },
     defaultVariants: {

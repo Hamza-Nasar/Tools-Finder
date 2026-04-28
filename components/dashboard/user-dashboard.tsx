@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { EmptyState } from "@/components/shared/empty-state";
 import { FavoriteToggle } from "@/components/tools/favorite-toggle";
 import { ToolCard } from "@/components/tools/tool-card";
+import { BillingActions } from "@/components/dashboard/billing-actions";
+import { AlertsManager } from "@/components/dashboard/alerts-manager";
+import { VendorClaimForm } from "@/components/dashboard/vendor-claim-form";
 import { formatDate, formatRelativeDate } from "@/lib/utils";
 
 interface DashboardToolFavorite {
@@ -22,6 +25,9 @@ interface UserDashboardProps {
     email: string;
     image?: string | null;
     role: "user" | "admin";
+    plan: "free" | "pro" | "vendor";
+    billingCycle?: "monthly" | "yearly" | null;
+    trialEndsAt?: string | null;
     createdAt: string;
   };
   dashboard: {
@@ -123,8 +129,24 @@ export function UserDashboard({ user, dashboard }: UserDashboardProps) {
                 <p className="mt-3 text-lg font-semibold capitalize">{user.role}</p>
               </div>
               <div className="rounded-[1.35rem] border border-border/70 bg-white/70 p-4">
+                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary">Plan</p>
+                <p className="mt-3 text-lg font-semibold capitalize">
+                  {user.plan}
+                  {user.billingCycle ? ` (${user.billingCycle})` : ""}
+                </p>
+              </div>
+              <div className="rounded-[1.35rem] border border-border/70 bg-white/70 p-4">
                 <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary">Joined</p>
                 <p className="mt-3 text-lg font-semibold">{formatDate(user.createdAt)}</p>
+              </div>
+            </div>
+            <div className="rounded-[1.35rem] border border-border/70 bg-white/70 p-4">
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary">Billing actions</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Upgrade to unlock advanced compare depth, saved stack workflows, alerts, vendor claims, and analytics.
+              </p>
+              <div className="mt-4">
+                <BillingActions currentPlan={user.plan} />
               </div>
             </div>
           </CardContent>
@@ -166,6 +188,28 @@ export function UserDashboard({ user, dashboard }: UserDashboardProps) {
                 ctaLabel="Explore tools"
               />
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card>
+          <CardHeader className="border-b border-border/70">
+            <CardTitle>Workflow alerts</CardTitle>
+            <CardDescription>Track price changes, score drops, and new alternatives from your dashboard.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <AlertsManager enabled={user.plan === "pro" || user.plan === "vendor"} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="border-b border-border/70">
+            <CardTitle>Vendor claim</CardTitle>
+            <CardDescription>Claim your tool profile to unlock vendor analytics and lead workflows.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <VendorClaimForm enabled={user.plan === "vendor"} defaultEmail={user.email} />
           </CardContent>
         </Card>
       </div>

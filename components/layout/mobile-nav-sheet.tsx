@@ -84,7 +84,7 @@ export function MobileNavSheet({
               </SheetTitle>
               <SheetDescription>
                 {isAuthenticated
-                  ? `${userName ?? "Signed in"}${userEmail ? ` · ${userEmail}` : ""}`
+                  ? `${userName ?? "Signed in"}${userEmail ? ` - ${userEmail}` : ""}`
                   : "Browse the directory, compare tools, and sign in from one menu."}
               </SheetDescription>
             </SheetHeader>
@@ -160,3 +160,4 @@ export function MobileNavSheet({
     </div>
   );
 }
+

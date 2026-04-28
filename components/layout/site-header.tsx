@@ -18,7 +18,7 @@ export async function SiteHeader() {
   return (
     <HeaderChrome>
       <div className="page-frame py-2.5 md:py-3">
-        <div className="rounded-[1.35rem] border border-white/[0.72] bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 md:px-4">
+        <div className="rounded-[1.15rem] border border-white/[0.72] bg-white/84 px-2.5 py-2 shadow-sm backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 md:px-3.5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-4">
               <Link href="/" className="group flex min-w-0 items-center gap-3">
@@ -33,12 +33,12 @@ export async function SiteHeader() {
                 </div>
               </Link>
 
-              <nav className="no-scrollbar hidden max-w-[44rem] items-center gap-1 overflow-x-auto rounded-full border border-border/70 bg-background/60 p-1 md:flex">
+              <nav className="no-scrollbar hidden max-w-[48rem] items-center gap-1 overflow-x-auto rounded-[var(--radius-control)] border border-border/70 bg-background/60 p-1 md:flex">
                 {mainNav.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="nav-link-modern interactive-control shrink-0 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-white/[0.86] hover:text-foreground"
+                    className="nav-link-modern interactive-control shrink-0 rounded-[var(--radius-control)] px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-white/[0.9] hover:text-foreground"
                   >
                     {item.label}
                   </Link>

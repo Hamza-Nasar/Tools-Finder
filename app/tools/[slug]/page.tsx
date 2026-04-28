@@ -13,6 +13,7 @@ import { NewsletterForm } from "@/components/shared/newsletter-form";
 import { Button } from "@/components/ui/button";
 import { FavoriteToggle } from "@/components/tools/favorite-toggle";
 import { ToolDetail } from "@/components/tools/tool-detail";
+import { ToolVendorActions } from "@/components/tools/tool-vendor-actions";
 import { ToolViewTracker } from "@/components/tools/tool-view-tracker";
 
 async function loadTool(slug: string) {
@@ -166,6 +167,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
               isFeatured={tool.featured}
               featuredUntil={tool.featuredUntil ?? null}
             />
+            <ToolVendorActions toolSlug={tool.slug} defaultEmail={user?.email} userPlan={user?.plan ?? "free"} />
           </div>
         }
       />

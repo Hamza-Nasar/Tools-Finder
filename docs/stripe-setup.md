@@ -8,13 +8,21 @@ Stripe powers paid featured listings.
 
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-- `STRIPE_FEATURED_LISTING_PRICE_CENTS`
-- `STRIPE_FEATURED_LISTING_DURATION_DAYS`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (optional for future client-side Stripe usage)
+- `STRIPE_FEATURED_LISTING_PRICE_CENTS` (optional, defaults in code)
+- `STRIPE_FEATURED_LISTING_DURATION_DAYS` (optional, defaults in code)
 
 ## Product model
 
-This app creates checkout sessions dynamically from server code instead of relying on a pre-created Stripe Price ID.
+This app creates checkout sessions dynamically from server code.
+
+- Featured listings use server-side dynamic price data.
+- Pro/Vendor subscriptions also work without pre-created Stripe price IDs.
+- Optional plan price IDs can be set if you want Stripe-managed catalog prices:
+  - `STRIPE_PRO_MONTHLY_PRICE_ID`
+  - `STRIPE_PRO_YEARLY_PRICE_ID`
+  - `STRIPE_VENDOR_MONTHLY_PRICE_ID`
+  - `STRIPE_VENDOR_YEARLY_PRICE_ID`
 
 ## Configure webhooks
 
@@ -22,6 +30,9 @@ Listen for:
 
 - `checkout.session.completed`
 - `checkout.session.expired`
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
 
 Webhook endpoint:
 

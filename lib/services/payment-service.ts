@@ -8,6 +8,7 @@ import { PaymentRecordModel } from "@/models/PaymentRecord";
 import { ToolModel } from "@/models/Tool";
 import { FeaturedListingService } from "@/lib/services/featured-listing-service";
 import { EmailService } from "@/lib/services/email-service";
+import { SubscriptionService } from "@/lib/services/subscription-service";
 
 function getFeaturedListingPriceCents() {
   return env.STRIPE_FEATURED_LISTING_PRICE_CENTS ?? 9900;
@@ -207,7 +208,46 @@ export class PaymentService {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        await this.completeFeaturedCheckout(session.id);
+
+        if (session.mode === "payment" && session.metadata?.purpose === "featured-listing") {
+          await this.completeFeaturedCheckout(session.id);
+        }
+
+        if (session.mode === "subscription" && session.subscription) {
+          const stripe = requireStripe();
+          const subscriptionId =
+            typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const fallbackUserId = session.metadata?.userId ?? null;
+          const customerId = typeof session.customer === "string" ? session.customer : null;
+          await SubscriptionService.syncUserSubscriptionFromStripe({
+            customerId,
+            subscription,
+            fallbackUserId
+          });
+        }
+
+        break;
+      }
+      case "customer.subscription.updated":
+      case "customer.subscription.created": {
+        const subscription = event.data.object;
+        const customerId = typeof subscription.customer === "string" ? subscription.customer : null;
+        await SubscriptionService.syncUserSubscriptionFromStripe({
+          customerId,
+          subscription,
+          fallbackUserId: subscription.metadata?.userId ?? null
+        });
+        break;
+      }
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object;
+        const customerId = typeof subscription.customer === "string" ? subscription.customer : null;
+
+        if (customerId) {
+          await SubscriptionService.cancelUserSubscriptionByCustomerId(customerId);
+        }
+
         break;
       }
       case "checkout.session.expired": {

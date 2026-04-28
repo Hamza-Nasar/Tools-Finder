@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
 import { handleApiError, ok, parseSearchParams } from "@/lib/api";
 import { AppError } from "@/lib/errors";
+import { hasPlanFeature, normalizeUserPlan } from "@/lib/plans";
 import { takeRateLimit } from "@/lib/rate-limit/memory-store";
+import { getOptionalSession } from "@/lib/server-guards";
 import { RecommendationService } from "@/lib/services/recommendation-service";
 import { toolRecommendationQuerySchema } from "@/lib/validators/tool";
 
@@ -22,12 +24,28 @@ export async function GET(request: NextRequest) {
     }
 
     const query = parseSearchParams(request.nextUrl.searchParams, toolRecommendationQuerySchema);
-    const recommendations = await RecommendationService.recommendTools(query.q, query.limit);
+    const requestedLimit = Math.max(1, Math.min(query.limit, 10));
+    const session = await getOptionalSession();
+    const userPlan = normalizeUserPlan(session?.user?.plan);
+    const canUseAdvancedDepth = hasPlanFeature(userPlan, "advanced_compare");
+
+    if (requestedLimit > 4 && !canUseAdvancedDepth) {
+      throw new AppError(
+        403,
+        "Advanced recommendation depth requires Pro or Vendor plan.",
+        "PLAN_UPGRADE_REQUIRED",
+        { requiredFeature: "advanced_compare" }
+      );
+    }
+
+    const effectiveLimit = canUseAdvancedDepth ? requestedLimit : Math.min(requestedLimit, 4);
+    const recommendations = await RecommendationService.recommendTools(query.q, effectiveLimit);
 
     return ok(recommendations, {
       headers: {
         "X-RateLimit-Remaining": String(rateLimit.remaining),
-        "X-RateLimit-Reset": String(rateLimit.resetAt)
+        "X-RateLimit-Reset": String(rateLimit.resetAt),
+        "X-Plan": userPlan
       }
     });
   } catch (error) {

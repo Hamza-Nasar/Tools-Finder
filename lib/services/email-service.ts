@@ -86,6 +86,61 @@ async function sendAdminInviteWithEmailJs(input: {
 }
 
 export class EmailService {
+  static async sendPlanUpgradedEmail(input: {
+    to: string;
+    plan: "pro" | "vendor";
+    billingCycle: "monthly" | "yearly";
+  }) {
+    return sendEmail({
+      to: input.to,
+      subject: `Your ${input.plan.toUpperCase()} plan is active`,
+      html: `
+        <h1>Plan upgrade successful</h1>
+        <p>Your <strong>${input.plan}</strong> plan (${input.billingCycle}) is now active.</p>
+        <p>You can now access premium features from your dashboard.</p>
+      `
+    });
+  }
+
+  static async sendVendorLeadNotification(input: {
+    toolSlug: string;
+    contactName: string;
+    contactEmail: string;
+    useCase: string;
+  }) {
+    const to = env.ADMIN_NOTIFICATION_EMAIL ?? env.ADMIN_EMAIL;
+
+    if (!to) {
+      return { delivered: false };
+    }
+
+    return sendEmail({
+      to,
+      subject: `New vendor lead for ${input.toolSlug}`,
+      html: `
+        <h1>New vendor lead captured</h1>
+        <p><strong>Tool:</strong> ${input.toolSlug}</p>
+        <p><strong>Contact:</strong> ${input.contactName} (${input.contactEmail})</p>
+        <p><strong>Use case:</strong> ${input.useCase}</p>
+      `
+    });
+  }
+
+  static async sendVendorClaimReceivedEmail(input: {
+    to: string;
+    toolSlug: string;
+  }) {
+    return sendEmail({
+      to: input.to,
+      subject: `Claim request received for ${input.toolSlug}`,
+      html: `
+        <h1>Claim request received</h1>
+        <p>We received your vendor claim request for <strong>${input.toolSlug}</strong>.</p>
+        <p>Our admin team will review it shortly.</p>
+      `
+    });
+  }
+
   static async sendAdminInviteEmail(input: {
     to: string;
     invitedByEmail: string;

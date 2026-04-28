@@ -13,6 +13,7 @@ import type {
   WorkflowExecutionStep
 } from "@/types";
 import { CategoryService } from "@/lib/services/category-service";
+import { computeToolFitScore } from "@/lib/fit-score";
 import { ToolService } from "@/lib/services/tool-service";
 
 const STOP_WORDS = new Set([
@@ -598,13 +599,21 @@ export class RecommendationService {
     const ranked = Array.from(candidateMap.values())
       .map((tool) => {
         const scored = scoreTool(tool, query, tokens, inferredCategories, inferredTags);
+        const fitScore = computeToolFitScore({
+          tool,
+          query,
+          inferredCategories,
+          inferredTags
+        });
 
         return {
           tool,
-          score: scored.score,
+          score: scored.score + fitScore.score / 5,
           reason: scored.reason,
           matchedCategories: scored.matchedCategories,
-          matchedTags: scored.matchedTags
+          matchedTags: scored.matchedTags,
+          fitScore: fitScore.score,
+          fitBreakdown: fitScore.breakdown
         };
       })
       .sort((left, right) => right.score - left.score)

@@ -1,5 +1,7 @@
 export type PricingTier = "Free" | "Freemium" | "Paid";
 export type UserRole = "user" | "admin";
+export type UserPlan = "free" | "pro" | "vendor";
+export type BillingCycle = "monthly" | "yearly";
 export type ToolStatus = "draft" | "pending" | "approved" | "rejected";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
 export type ToolSort = "newest" | "popular" | "favorited" | "featured";
@@ -231,6 +233,13 @@ export interface ToolRecommendation {
   reason: string;
   matchedCategories: string[];
   matchedTags: string[];
+  fitScore?: number;
+  fitBreakdown?: {
+    taskFit: number;
+    setupFriction: number;
+    stackCompatibility: number;
+    marketMomentum: number;
+  };
 }
 
 export type IntelligenceSkillLevel = "beginner" | "intermediate" | "advanced";
@@ -349,6 +358,14 @@ export interface UserStack {
   tools: Tool[];
   updatedAt: string;
   createdAt: string;
+}
+
+export interface SubscriptionSnapshot {
+  plan: UserPlan;
+  billingCycle?: BillingCycle | null;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  trialEndsAt?: string | null;
 }
 
 export interface FeaturedStackPreset {

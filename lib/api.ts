@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z, type ZodType } from "zod";
-import { AppError, isAppError } from "@/lib/errors";
+import { AppError, isAppError, isDatabaseUnavailableError, isLikelyRuntimeCallError } from "@/lib/errors";
 
 export function parseSearchParams<T>(searchParams: URLSearchParams, schema: ZodType<T, z.ZodTypeDef, unknown>) {
   const raw: Record<string, string> = {};
@@ -20,6 +20,12 @@ export function parseSearchParams<T>(searchParams: URLSearchParams, schema: ZodT
 
 export async function parseRequestBody<T>(request: Request, schema: ZodType<T, z.ZodTypeDef, unknown>) {
   let json: unknown;
+  const contentLength = request.headers.get("content-length");
+  const hasBody = contentLength ? Number(contentLength) > 0 : true;
+
+  if (!hasBody) {
+    throw new AppError(400, "Request body is required.", "EMPTY_BODY");
+  }
 
   try {
     json = await request.json();
@@ -75,6 +81,26 @@ export function handleApiError(error: unknown) {
         details: error.flatten()
       },
       { status: 400 }
+    );
+  }
+
+  if (isDatabaseUnavailableError(error)) {
+    return NextResponse.json(
+      {
+        error: "Service is temporarily unavailable. Please try again shortly.",
+        code: "SERVICE_UNAVAILABLE"
+      },
+      { status: 503 }
+    );
+  }
+
+  if (isLikelyRuntimeCallError(error)) {
+    return NextResponse.json(
+      {
+        error: "A runtime dependency failed while processing this request. Please retry.",
+        code: "RUNTIME_DEPENDENCY_ERROR"
+      },
+      { status: 500 }
     );
   }
 

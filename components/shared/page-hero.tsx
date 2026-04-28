@@ -26,17 +26,17 @@ export function PageHero({
   className
 }: PageHeroProps) {
   return (
-    <section className={cn("surface-card hero-mesh relative overflow-hidden p-7 md:p-10", className)}>
+    <section className={cn("surface-card hero-mesh relative overflow-hidden p-6 md:p-8", className)}>
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/[0.35] to-transparent" />
       <div className="relative grid gap-8 xl:grid-cols-[1.15fr_0.85fr] xl:items-end">
         <MotionReveal className="max-w-3xl" y={24}>
           <p className="inline-flex rounded-full border border-primary/[0.15] bg-primary/[0.08] px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
             {eyebrow}
           </p>
-          <h1 className="mt-5 font-[family-name:var(--font-heading)] text-[2.5rem] font-bold leading-[1.02] md:text-[4.25rem]">
+          <h1 className="mt-4 text-balance font-[family-name:var(--font-heading)] text-[2rem] font-bold leading-[1.06] md:text-[3.25rem]">
             {title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
             {description}
           </p>
           {actions ? <div className="mt-7 flex flex-wrap gap-3">{actions}</div> : null}

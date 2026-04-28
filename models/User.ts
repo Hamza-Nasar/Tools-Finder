@@ -28,6 +28,32 @@ const UserSchema = new Schema(
       enum: ["user", "admin"],
       default: "user"
     },
+    plan: {
+      type: String,
+      enum: ["free", "pro", "vendor"],
+      default: "free"
+    },
+    billingCycle: {
+      type: String,
+      enum: ["monthly", "yearly", null],
+      default: null
+    },
+    stripeCustomerId: {
+      type: String,
+      default: null,
+      trim: true,
+      index: true
+    },
+    stripeSubscriptionId: {
+      type: String,
+      default: null,
+      trim: true,
+      index: true
+    },
+    trialEndsAt: {
+      type: Date,
+      default: null
+    },
     image: {
       type: String,
       default: null
@@ -57,6 +83,7 @@ const UserSchema = new Schema(
 );
 
 UserSchema.index({ role: 1, createdAt: -1 });
+UserSchema.index({ plan: 1, createdAt: -1 });
 
 export type UserDocument = InferSchemaType<typeof UserSchema>;
 

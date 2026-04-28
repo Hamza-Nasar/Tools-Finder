@@ -15,6 +15,10 @@ function looksLikeDatabaseError(message: string) {
   ].some((token) => message.includes(token));
 }
 
+function looksLikeRuntimeDependencyError(message: string) {
+  return message.includes("Cannot read properties of undefined (reading 'call')");
+}
+
 export default function RootError({
   error,
   reset
@@ -27,15 +31,24 @@ export default function RootError({
   }, [error]);
 
   const databaseIssue = looksLikeDatabaseError(error.message);
+  const runtimeDependencyIssue = looksLikeRuntimeDependencyError(error.message);
 
   return (
     <div className="page-frame flex min-h-[70vh] items-center py-12">
       <Card className="w-full max-w-2xl shadow-glow">
         <CardHeader className="hero-mesh border-b border-border/70">
-          <CardTitle>{databaseIssue ? "Database connection issue" : "Something went wrong"}</CardTitle>
+          <CardTitle>
+            {databaseIssue
+              ? "Database connection issue"
+              : runtimeDependencyIssue
+                ? "Runtime dependency issue"
+                : "Something went wrong"}
+          </CardTitle>
           <CardDescription>
             {databaseIssue
               ? "The app could not reach MongoDB. In local development, verify that your database is running and that MONGODB_URI is correct."
+              : runtimeDependencyIssue
+                ? "A runtime package failed while rendering this request. Retry once or continue browsing from a stable page."
               : "An unexpected server error interrupted the request. You can retry the page or return to the homepage."}
           </CardDescription>
         </CardHeader>

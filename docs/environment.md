@@ -44,6 +44,16 @@ These are optional. Leave blank if you only want credentials auth for the admin 
   Featured listing price in cents.
 - `STRIPE_FEATURED_LISTING_DURATION_DAYS`
   Number of days a paid featured listing stays active.
+- `STRIPE_PRO_MONTHLY_PRICE_ID` (optional)
+  If provided, checkout uses this existing Stripe Price for Pro monthly.
+- `STRIPE_PRO_YEARLY_PRICE_ID` (optional)
+  If provided, checkout uses this existing Stripe Price for Pro yearly.
+- `STRIPE_VENDOR_MONTHLY_PRICE_ID` (optional)
+  If provided, checkout uses this existing Stripe Price for Vendor monthly.
+- `STRIPE_VENDOR_YEARLY_PRICE_ID` (optional)
+  If provided, checkout uses this existing Stripe Price for Vendor yearly.
+
+If these optional plan price IDs are not set, the app auto-creates subscription line items at checkout using in-code default pricing.
 
 ## Email
 

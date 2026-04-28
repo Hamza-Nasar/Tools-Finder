@@ -82,3 +82,19 @@ export function isMissingTextIndexError(error: unknown) {
 
   return candidate.code === 27 || haystack.includes("IndexNotFound") || haystack.includes("text index required for $text query");
 }
+
+export function isLikelyRuntimeCallError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const candidate = error as { message?: unknown; cause?: unknown };
+  const message = typeof candidate.message === "string" ? candidate.message : "";
+  const causeMessage =
+    candidate.cause && typeof candidate.cause === "object" && "message" in candidate.cause
+      ? String((candidate.cause as { message?: unknown }).message ?? "")
+      : "";
+  const haystack = `${message} ${causeMessage}`;
+
+  return haystack.includes("Cannot read properties of undefined (reading 'call')");
+}
