@@ -151,36 +151,12 @@ export function HybridDiscoveryPanel({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="flex flex-col gap-10">
       <section>
         <SectionHeading
-          eyebrow="Local Tools"
-          title="Results from your MongoDB catalog"
-          description="These matches are already indexed locally, moderated, and ready to browse without any external fetch."
-        />
-        {localTools.length ? (
-          <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {localTools.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
-            ))}
-          </div>
-        ) : (
-          <div className="mt-4">
-            <EmptyState
-              label="Local"
-              title="No local matches yet"
-              description={`Nothing in the local database matched "${query}". Web discovery is still running below.`}
-            />
-          </div>
-        )}
-        <p className="mt-4 text-sm text-muted-foreground">{localTotal} local result(s) matched this search.</p>
-      </section>
-
-      <section>
-        <SectionHeading
-          eyebrow="Discovered on the Web"
-          title="Live matches from external AI tool sources"
-          description="These results are fetched from Futurepedia, GitHub, There's An AI For That, and Product Hunt when available."
+          eyebrow="Live discovery"
+          title="Overall matches from external tool sources"
+          description="These results stream in from external discovery sources, then duplicates already in your local catalog are removed."
         />
 
         {status === "loading" ? (
@@ -236,10 +212,34 @@ export function HybridDiscoveryPanel({
             <EmptyState
               label="Web"
               title="External discovery is temporarily unavailable"
-              description="Local results are still usable. Retry the search in a moment to fetch fresh web matches."
+              description="Overall site results and local MongoDB results are still usable. Retry the search in a moment to fetch fresh web matches."
             />
           </div>
         ) : null}
+      </section>
+
+      <section>
+        <SectionHeading
+          eyebrow="Local catalog"
+          title="MongoDB catalog matches"
+          description="These matches are already indexed locally, moderated, and ready to browse without any external fetch."
+        />
+        {localTools.length ? (
+          <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {localTools.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4">
+            <EmptyState
+              label="Local"
+              title="No local MongoDB matches"
+              description={`Nothing in the local database matched every important word in "${query}".`}
+            />
+          </div>
+        )}
+        <p className="mt-4 text-sm text-muted-foreground">{localTotal} local result(s) matched this search.</p>
       </section>
     </div>
   );

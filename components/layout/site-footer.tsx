@@ -1,182 +1,155 @@
 import Link from "next/link";
-import { ArrowRight, Flame, Layers3, Radar } from "lucide-react";
+import { ArrowRight, Layers3, Radar, Sparkles } from "lucide-react";
+import { MotionReveal } from "@/components/shared/motion-reveal";
 import { siteConfig } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
+const footerColumns = [
+  {
+    title: "Explore",
+    links: [
+      { href: "/tools", label: "Directory" },
+      { href: "/categories", label: "Categories" },
+      { href: "/today-ai-tools", label: "Today AI Tools" },
+      { href: "/best-ai-tools", label: "Best AI Tools" },
+      { href: "/seo-tools", label: "SEO Tools" },
+      { href: "/blog", label: "Blog" }
+    ]
+  },
+  {
+    title: "Workflows",
+    links: [
+      { href: "/find-ai-tool", label: "AI Finder" },
+      { href: "/workflows", label: "Workflows" },
+      { href: "/prompts", label: "Prompt Library" },
+      { href: "/my-stack", label: "My Stack" },
+      { href: "/image-tools", label: "Image Tools" },
+      { href: "/image-compressor", label: "Image Compressor" }
+    ]
+  },
+  {
+    title: "Growth",
+    links: [
+      { href: "/submit", label: "Submit Tool" },
+      { href: "/best-free-ai-tools", label: "Best Free AI Tools" },
+      { href: "/pdf-tools", label: "PDF Tools" },
+      { href: "/pdf-merger", label: "PDF Merger" },
+      { href: "/favorites", label: "Favorites" },
+      { href: "/auth/login", label: "Login" }
+    ]
+  }
+];
+
+const footerHighlights = [
+  {
+    icon: Radar,
+    label: "Intent search",
+    text: "Start from the job to be done, then compare tools with clearer context."
+  },
+  {
+    icon: Layers3,
+    label: "Workflow stacks",
+    text: "Save practical combinations instead of tracking disconnected product links."
+  },
+  {
+    icon: Sparkles,
+    label: "Daily signals",
+    text: "Return to new launches, rising tools, and focused editor picks."
+  }
+];
 
 export function SiteFooter() {
-  const footerColumns = [
-    {
-      title: "Explore",
-      links: [
-        { href: "/tools", label: "Directory" },
-        { href: "/categories", label: "Categories" },
-        { href: "/today-ai-tools", label: "Today AI Tools" },
-        { href: "/best-ai-tools", label: "Best AI Tools" },
-        { href: "/seo-tools", label: "SEO Tools" },
-        { href: "/blog", label: "Blog" }
-      ]
-    },
-    {
-      title: "Workflows",
-      links: [
-        { href: "/find-ai-tool", label: "AI Finder" },
-        { href: "/workflows", label: "Workflows" },
-        { href: "/prompts", label: "Prompt Library" },
-        { href: "/my-stack", label: "My Stack" },
-        { href: "/image-tools", label: "Image Tools" },
-        { href: "/image-compressor", label: "Image Compressor" }
-      ]
-    },
-    {
-      title: "Growth",
-      links: [
-        { href: "/submit", label: "Submit Tool" },
-        { href: "/best-free-ai-tools", label: "Best Free AI Tools" },
-        { href: "/pdf-tools", label: "PDF Tools" },
-        { href: "/pdf-merger", label: "PDF Merger" },
-        { href: "/favorites", label: "Favorites" },
-        { href: "/auth/login", label: "Login" }
-      ]
-    }
-  ];
-
   return (
-    <footer className="relative mt-16 overflow-hidden border-t border-slate-900/80 bg-slate-950 text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.16),transparent_24rem),radial-gradient(circle_at_top_right,rgba(6,182,212,0.16),transparent_26rem),linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))]" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+    <footer className="mt-16 border-t border-border/70 bg-background/[0.82] backdrop-blur">
+      <div className="page-frame py-12 md:py-16">
+        <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
+          <MotionReveal className="flex flex-col gap-6" y={18}>
+            <Link href="/" className="group inline-flex w-fit items-center gap-3">
+              <span className="grid size-11 place-items-center rounded-[1rem] bg-primary font-[family-name:var(--font-heading)] text-base font-bold text-primary-foreground shadow-glow transition-transform duration-300 group-hover:scale-105">
+                AI
+              </span>
+              <span>
+                <span className="block font-[family-name:var(--font-heading)] text-xl font-semibold">
+                  {siteConfig.name}
+                </span>
+                <span className="block text-sm text-muted-foreground">
+                  AI discovery and practical workflow shortcuts
+                </span>
+              </span>
+            </Link>
 
-      <div className="page-frame relative py-12 md:py-16">
-        <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_30px_100px_rgba(2,6,23,0.55)] backdrop-blur-xl">
-          <div className="grid gap-10 xl:grid-cols-[1.08fr_0.92fr]">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-primary to-cyan-400 font-[family-name:var(--font-heading)] text-lg font-bold text-slate-950 shadow-[0_20px_45px_rgba(34,211,238,0.22)]">
-                  AI
-                </div>
-                <div>
-                  <p className="font-[family-name:var(--font-heading)] text-xl font-semibold">{siteConfig.name}</p>
-                  <p className="text-sm text-white/60">Free online tools, AI discovery, and practical workflow shortcuts</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-                  Finish strong
-                </p>
-                <h2 className="mt-3 max-w-2xl font-[family-name:var(--font-heading)] text-3xl font-semibold leading-tight md:text-5xl">
-                  Find faster SEO, PDF, image, and AI tools without wasting clicks.
-                </h2>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/68 md:text-base">
-                  The strongest tool directories help visitors solve the immediate task and compare deeper options when needed. Start with a free online tool, then move into a focused workflow.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg" className="bg-white text-slate-950 hover:bg-white/92">
-                  <Link href="/find-ai-tool">
-                    Open AI Finder
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="border-white/15 bg-white/5 text-white hover:bg-white/10">
-                  <Link href="/submit">Feature your tool</Link>
-                </Button>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
-                  <Radar className="h-5 w-5 text-cyan-200" />
-                  <p className="mt-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/52">
-                    Discovery
-                  </p>
-                  <p className="mt-2 font-[family-name:var(--font-heading)] text-xl font-semibold">Search by intent</p>
-                  <p className="mt-2 text-sm leading-6 text-white/60">
-                    Let buyers start from the job they need done, not from brand recall.
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
-                  <Flame className="h-5 w-5 text-amber-200" />
-                  <p className="mt-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/52">
-                    Momentum
-                  </p>
-                  <p className="mt-2 font-[family-name:var(--font-heading)] text-xl font-semibold">Track what moved</p>
-                  <p className="mt-2 text-sm leading-6 text-white/60">
-                    Use daily signals to keep research fresh and worth revisiting.
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/6 p-5">
-                  <Layers3 className="h-5 w-5 text-emerald-200" />
-                  <p className="mt-4 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/52">
-                    System
-                  </p>
-                  <p className="mt-2 font-[family-name:var(--font-heading)] text-xl font-semibold">Build complete stacks</p>
-                  <p className="mt-2 text-sm leading-6 text-white/60">
-                    Move visitors from isolated products into reusable workflow combinations.
-                  </p>
-                </div>
-              </div>
+            <div className="max-w-xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Decision layer</p>
+              <h2 className="mt-3 font-[family-name:var(--font-heading)] text-3xl font-semibold leading-tight md:text-4xl">
+                Find tools faster without losing the comparison context.
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base">
+                Browse focused categories, run intent-based searches, and keep useful products organized into repeatable stacks.
+              </p>
             </div>
 
-            <div className="grid gap-6">
-              <div className="rounded-[1.75rem] border border-white/10 bg-black/20 p-6">
-                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-                  Navigation
-                </p>
-                <div className="mt-5 grid gap-6 sm:grid-cols-3">
-                  {footerColumns.map((column) => (
-                    <div key={column.title}>
-                      <p className="text-sm font-semibold text-white">{column.title}</p>
-                      <div className="mt-4 grid gap-3 text-sm text-white/62">
-                        {column.links.map((link) => (
-                          <Link key={link.href} href={link.href} className="transition hover:text-white">
-                            {link.label}
-                          </Link>
-                        ))}
-                      </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <Link href="/find-ai-tool">
+                  Open AI Finder
+                  <ArrowRight data-icon="inline-end" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/submit">Feature your tool</Link>
+              </Button>
+            </div>
+          </MotionReveal>
+
+          <div className="flex flex-col gap-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              {footerHighlights.map((item, index) => {
+                const Icon = item.icon;
+
+                return (
+                  <MotionReveal
+                    key={item.label}
+                    delay={index * 0.05}
+                    className="surface-card-hover rounded-[1.35rem] border border-white/70 bg-white/[0.72] p-5 shadow-sm backdrop-blur"
+                    y={16}
+                  >
+                    <Icon className="size-5 text-primary" aria-hidden="true" />
+                    <p className="mt-4 font-[family-name:var(--font-heading)] text-lg font-semibold">{item.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.text}</p>
+                  </MotionReveal>
+                );
+              })}
+            </div>
+
+            <MotionReveal
+              className="rounded-[1.5rem] border border-border/70 bg-white/70 p-5 shadow-sm backdrop-blur"
+              y={18}
+            >
+              <div className="grid gap-7 sm:grid-cols-3">
+                {footerColumns.map((column) => (
+                  <div key={column.title} className="flex flex-col gap-3">
+                    <p className="text-sm font-semibold text-foreground">{column.title}</p>
+                    <div className="flex flex-col gap-2">
+                      {column.links.map((link) => (
+                        <Link key={link.href} href={link.href} className="footer-link text-sm text-muted-foreground">
+                          {link.label}
+                        </Link>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Link
-                  href="/today-ai-tools"
-                  className="interactive-panel rounded-[1.5rem] border border-white/10 bg-white/6 p-5"
-                >
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
-                    Daily feed
-                  </p>
-                  <h3 className="mt-3 font-[family-name:var(--font-heading)] text-2xl font-semibold">
-                    What moved today?
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-white/60">
-                    New launches, rising tools, and editor picks in one focused stream.
-                  </p>
-                </Link>
-                <Link
-                  href="/workflows"
-                  className="interactive-panel rounded-[1.5rem] border border-white/10 bg-white/6 p-5"
-                >
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
-                    Workflows
-                  </p>
-                  <h3 className="mt-3 font-[family-name:var(--font-heading)] text-2xl font-semibold">
-                    See real tool systems
-                  </h3>
-                  <p className="mt-3 text-sm leading-6 text-white/60">
-                    Learn how strong products combine into practical operating flows.
-                  </p>
-                </Link>
-              </div>
-            </div>
+            </MotionReveal>
           </div>
+        </div>
 
-          <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-white/52 sm:flex-row sm:items-center sm:justify-between">
-            <p>Built to turn AI discovery into cleaner buyer decisions and higher-intent founder visibility.</p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/submit" className="transition hover:text-white">Submit your product</Link>
-            </div>
-          </div>
+        <Separator className="mt-10" />
+        <div className="mt-6 flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>Built for clearer AI discovery decisions and higher-intent product visibility.</p>
+          <Link href="/submit" className="footer-link font-medium text-foreground">
+            Submit your product
+          </Link>
         </div>
       </div>
     </footer>

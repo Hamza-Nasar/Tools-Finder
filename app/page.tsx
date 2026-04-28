@@ -156,6 +156,25 @@ const faqEntries = [
   }
 ];
 
+const toolFitPillars = [
+  {
+    title: "Task fit",
+    detail: "How directly the tool solves the exact workflow a visitor described."
+  },
+  {
+    title: "Setup friction",
+    detail: "How quickly users can get value without long onboarding or unnecessary signup steps."
+  },
+  {
+    title: "Stack compatibility",
+    detail: "How well the tool connects with common creator, marketing, developer, and research workflows."
+  },
+  {
+    title: "Market momentum",
+    detail: "How strong the recent discovery signals are based on views, favorites, and activity."
+  }
+] as const;
+
 export default async function HomePage() {
   const [categories, homepageTools, todayFeed, featuredStacks] = await Promise.all([
     getPublicCategories(),
@@ -322,6 +341,33 @@ export default async function HomePage() {
             "@type": "Answer",
             text: entry.answer
           }
+        }))
+      },
+      {
+        "@type": "WebPage",
+        "@id": absoluteUrl("/#homepage"),
+        name: "Tools Finder Homepage",
+        url: absoluteUrl("/"),
+        description:
+          "A workflow-first discovery hub for AI, SEO, PDF, and image tools with comparison routes and daily movement signals.",
+        about: {
+          "@type": "Thing",
+          name: "Workflow-first tool discovery"
+        },
+        mainEntity: {
+          "@id": absoluteUrl("/#tool-fit-framework")
+        }
+      },
+      {
+        "@type": "DefinedTermSet",
+        "@id": absoluteUrl("/#tool-fit-framework"),
+        name: "Tool Fit Score Framework",
+        description:
+          "A four-signal methodology used to evaluate whether a tool is practically useful for a specific workflow.",
+        hasDefinedTerm: toolFitPillars.map((pillar) => ({
+          "@type": "DefinedTerm",
+          name: pillar.title,
+          description: pillar.detail
         }))
       }
     ]
@@ -738,6 +784,27 @@ export default async function HomePage() {
         <div className="mt-8 grid gap-5 lg:grid-cols-3">
           {popularPrompts.map((prompt) => (
             <PromptCard key={prompt.id} prompt={prompt} />
+          ))}
+        </div>
+      </section>
+
+      <section className="page-frame py-10 md:py-14">
+        <SectionHeading
+          eyebrow="Unique framework"
+          title="Tool Fit Score: how we separate useful tools from noise."
+          description="Most directories stop at categories. Tools Finder adds a four-signal framework so visitors can decide faster with less trial and error."
+        />
+        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {toolFitPillars.map((pillar, index) => (
+            <div key={pillar.title} className="section-shell p-6">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary">
+                Signal {String(index + 1).padStart(2, "0")}
+              </p>
+              <h3 className="mt-3 font-[family-name:var(--font-heading)] text-2xl font-semibold leading-tight">
+                {pillar.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">{pillar.detail}</p>
+            </div>
           ))}
         </div>
       </section>

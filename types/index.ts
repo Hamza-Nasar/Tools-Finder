@@ -233,6 +233,73 @@ export interface ToolRecommendation {
   matchedTags: string[];
 }
 
+export type IntelligenceSkillLevel = "beginner" | "intermediate" | "advanced";
+export type IntelligenceContext = "student" | "creator" | "developer" | "business" | "casual user";
+export type IntelligenceDecisionType = "Best Single Tool" | "Best Tool Combination System";
+export type IntelligenceAlternativePathName = "Beginner path" | "Pro path" | "Free-only path";
+
+export interface IntentUnderstanding {
+  statedIntent: string;
+  hiddenGoal: string;
+  simpleGoal: string;
+  context: IntelligenceContext;
+  skillLevel: IntelligenceSkillLevel;
+  optimizationPriority: Array<"speed" | "simplicity" | "cost" | "efficiency">;
+}
+
+export interface ProblemDecompositionStep {
+  step: number;
+  phase: "ideation/input" | "creation/process" | "execution/output" | "optimization";
+  objective: string;
+}
+
+export interface ToolSystemItem {
+  tool: Tool;
+  roleInWorkflow: string;
+  whyItExists: string;
+  dependencyRelation: string;
+  whenToUse: string;
+}
+
+export interface SmartDecisionEngine {
+  selectionType: IntelligenceDecisionType;
+  winner: string;
+  whyItWins: string;
+  tradeoffs: string[];
+  whenItFails: string[];
+}
+
+export interface WorkflowExecutionStep {
+  stage: "Idea" | "Plan" | "Create" | "Enhance" | "Publish" | "Optimize";
+  toolUsage: string;
+  userAction: string;
+  expectedOutcome: string;
+}
+
+export interface HiddenOpportunityLayer {
+  improvements: string[];
+  automationOpportunities: string[];
+  productivityUpgrades: string[];
+  scalingIdeas: string[];
+}
+
+export interface AlternativeSystemPath {
+  name: IntelligenceAlternativePathName;
+  tools: string[];
+  workflow: string[];
+  bestFor: string;
+}
+
+export interface ProductIntelligenceOutput {
+  intentUnderstanding: IntentUnderstanding;
+  problemDecomposition: ProblemDecompositionStep[];
+  toolSystem: ToolSystemItem[];
+  decisionEngine: SmartDecisionEngine;
+  workflow: WorkflowExecutionStep[];
+  hiddenOpportunities: HiddenOpportunityLayer;
+  alternativePaths: AlternativeSystemPath[];
+}
+
 export interface PromptEntry {
   id: string;
   toolSlug: string;

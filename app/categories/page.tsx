@@ -5,9 +5,17 @@ import { CategoryGrid } from "@/components/marketing/category-grid";
 import { PageHero } from "@/components/shared/page-hero";
 
 export const metadata = buildMetadata({
-  title: "AI Tool Categories",
-  description: "Browse AI tools by workflow category including writing, coding, video, marketing, and research.",
-  path: "/categories"
+  title: "AI Tool Categories 2026: Writing, Coding, Marketing, Video, and Research",
+  description:
+    "Explore AI tool categories for writing, coding, design, video, marketing, chatbots, productivity, and research to find the right tool by workflow.",
+  path: "/categories",
+  keywords: [
+    "ai tool categories",
+    "ai tools by workflow",
+    "writing ai tools",
+    "coding ai tools",
+    "marketing ai tools"
+  ]
 });
 
 export default async function CategoriesPage() {

@@ -966,7 +966,7 @@ export class ToolDiscoveryService {
     const limit = options.limit || DEFAULT_EXTERNAL_LIMIT;
     const cached = await getFreshCache(options.q);
 
-    if (cached) {
+    if (cached?.results.length) {
       const filtered = applyExternalFilters(await removeDomainsAlreadyInDatabase(cached.results), options)
         .sort((left, right) => rankDiscoveredTool(right, options.q, options.sort) - rankDiscoveredTool(left, options.q, options.sort))
         .slice(0, limit);
@@ -1016,7 +1016,9 @@ export class ToolDiscoveryService {
       .sort((left, right) => rankDiscoveredTool(right, options.q, options.sort) - rankDiscoveredTool(left, options.q, options.sort))
       .slice(0, limit);
 
-    await writeCache(options.q, merged);
+    if (merged.length) {
+      await writeCache(options.q, merged);
+    }
 
     return {
       results: filtered,

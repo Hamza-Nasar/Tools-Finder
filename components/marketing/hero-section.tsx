@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BrainCircuit, Flame, Radar, Search, Sparkles, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MotionReveal } from "@/components/shared/motion-reveal";
 import { compactNumber } from "@/lib/utils";
 
 export function HeroSection({
@@ -22,13 +23,10 @@ export function HeroSection({
   return (
     <section className="page-frame pb-16 pt-14 md:pb-24 md:pt-20">
       <div className="section-shell hero-mesh premium-grid relative overflow-hidden px-6 py-10 shadow-glow md:px-12 md:py-16">
-        <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[radial-gradient(circle_at_center,rgba(0,133,161,0.16),transparent_58%)] lg:block" />
-        <div className="absolute -left-16 top-24 h-44 w-44 rounded-full bg-secondary/60 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute inset-x-8 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
         <div className="relative grid gap-10 xl:grid-cols-[1.08fr_0.92fr] xl:items-end">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/82 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          <MotionReveal className="max-w-3xl" y={24}>
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-white/[0.82] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               <Sparkles className="h-3.5 w-3.5" />
               Best free online tools for 2026
             </span>
@@ -48,7 +46,7 @@ export function HeroSection({
             </div>
             <form
               action="/tools"
-              className="mt-8 flex flex-col gap-3 rounded-[1.7rem] border border-white/80 bg-white/82 p-3 shadow-premium md:flex-row"
+              className="mt-8 flex flex-col gap-3 rounded-[1.7rem] border border-white/80 bg-white/[0.82] p-3 shadow-premium md:flex-row"
             >
               <div className="flex flex-1 items-center gap-3 rounded-[1.2rem] border border-border/70 bg-background/70 px-4">
                 <Search className="h-4 w-4 text-muted-foreground" />
@@ -66,7 +64,7 @@ export function HeroSection({
               <Button asChild size="lg">
                 <Link href="/find-ai-tool">
                   Open AI Finder
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight data-icon="inline-end" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
@@ -78,28 +76,28 @@ export function HeroSection({
                 <Link
                   key={toolName}
                   href={`/tools?q=${encodeURIComponent(toolName)}`}
-                  className="interactive-chip rounded-full border border-border bg-white/78 px-4 py-2 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  className="interactive-chip rounded-full border border-border bg-white/[0.78] px-4 py-2 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 >
                   {toolName}
                 </Link>
               ))}
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/82 px-4 py-4 shadow-sm">
+              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/[0.82] px-4 py-4 shadow-sm">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary">Catalog</p>
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(totalTools)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">approved tools ready to compare</p>
               </div>
-              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/82 px-4 py-4 shadow-sm">
+              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/[0.82] px-4 py-4 shadow-sm">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary">Categories</p>
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(totalCategories)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">workflow lanes for focused discovery</p>
               </div>
-              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/82 px-4 py-4 shadow-sm">
+              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/[0.82] px-4 py-4 shadow-sm">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary">Signal</p>
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(dailyCount)}
@@ -107,13 +105,13 @@ export function HeroSection({
                 <p className="mt-1 text-sm text-muted-foreground">fresh signals across the market</p>
               </div>
             </div>
-          </div>
+          </MotionReveal>
 
-          <div className="grid gap-4">
+          <MotionReveal className="grid gap-4" delay={0.08} y={24}>
             <div className="inner-glow rounded-[1.8rem] border border-slate-900/90 bg-slate-950 p-6 text-white shadow-[0_28px_80px_rgba(15,23,42,0.28)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-white/72">
+                  <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-white/[0.72]">
                     <Radar className="h-3.5 w-3.5" />
                     Free tool finder
                   </p>
@@ -134,7 +132,7 @@ export function HeroSection({
                     {popularCategories.map((category) => (
                       <span
                         key={category}
-                        className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm font-medium text-white/88"
+                        className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-sm font-medium text-white/[0.88]"
                       >
                         {category}
                       </span>
@@ -158,7 +156,7 @@ export function HeroSection({
             <div className="grid gap-4 sm:grid-cols-3">
               <Link
                 href="/find-ai-tool"
-                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/82 p-5 shadow-sm"
+                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/[0.82] p-5 shadow-sm"
               >
                 <BrainCircuit className="h-5 w-5 text-primary" />
                 <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-semibold">Describe the job</h3>
@@ -168,7 +166,7 @@ export function HeroSection({
               </Link>
               <Link
                 href="/today-ai-tools"
-                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/82 p-5 shadow-sm"
+                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/[0.82] p-5 shadow-sm"
               >
                 <Flame className="h-5 w-5 text-primary" />
                 <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-semibold">Track daily shifts</h3>
@@ -178,7 +176,7 @@ export function HeroSection({
               </Link>
               <Link
                 href="/workflows"
-                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/82 p-5 shadow-sm"
+                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/[0.82] p-5 shadow-sm"
               >
                 <Workflow className="h-5 w-5 text-primary" />
                 <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-semibold">Copy proven flows</h3>
@@ -187,7 +185,7 @@ export function HeroSection({
                 </p>
               </Link>
             </div>
-          </div>
+          </MotionReveal>
         </div>
       </div>
     </section>

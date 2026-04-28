@@ -21,10 +21,17 @@ const headingFont = Space_Grotesk({
 });
 
 export const metadata: Metadata = buildMetadata({
-  title: "AI Tools Finder",
+  title: "AI Tools Finder 2026: Discover, Compare, and Choose Better AI Tools",
   description:
-    "Discover, compare, and submit the best AI tools across writing, image generation, video, coding, marketing, productivity, chatbots, and research.",
-  path: "/"
+    "Discover, compare, and shortlist high-performing AI tools across writing, coding, image, video, marketing, productivity, and research workflows.",
+  path: "/",
+  keywords: [
+    "ai tools finder",
+    "best ai tools 2026",
+    "ai tools comparison",
+    "find ai tools",
+    "ai workflow tools"
+  ]
 });
 
 export default async function RootLayout({

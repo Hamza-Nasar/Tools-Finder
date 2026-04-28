@@ -51,6 +51,11 @@ export const toolSuggestionQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(10).default(6)
 });
 
+export const toolRecommendationQuerySchema = z.object({
+  q: z.string().trim().min(3).max(500),
+  limit: z.coerce.number().int().min(1).max(5).default(5)
+});
+
 export const hybridToolSearchQuerySchema = z.object({
   q: z.string().trim().min(2).max(80),
   category: slugSchema.optional(),

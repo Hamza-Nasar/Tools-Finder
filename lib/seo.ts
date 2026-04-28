@@ -12,6 +12,18 @@ interface BuildMetadataInput {
   noIndex?: boolean;
 }
 
+const DEFAULT_KEYWORDS = [
+  "ai tools finder",
+  "best ai tools",
+  "free online tools",
+  "seo tools",
+  "pdf tools",
+  "image tools",
+  "ai tool directory",
+  "ai tool comparison",
+  "no signup tools"
+] as const;
+
 export function absoluteUrl(path = "") {
   return new URL(path, siteConfig.url).toString();
 }
@@ -31,6 +43,12 @@ export function buildMetadata({
 }: BuildMetadataInput): Metadata {
   const url = absoluteUrl(path);
   const image = getSocialImageUrl(imagePath);
+  const normalizedTitle = title.toLowerCase().includes(siteConfig.name.toLowerCase())
+    ? title
+    : `${title} | ${siteConfig.name}`;
+  const mergedKeywords = Array.from(
+    new Set([...DEFAULT_KEYWORDS, ...(keywords ?? [])].map((keyword) => keyword.trim()).filter(Boolean))
+  );
   const robots = noIndex
     ? {
         index: false,
@@ -55,14 +73,21 @@ export function buildMetadata({
       };
 
   return {
-    title,
+    title: normalizedTitle,
     description,
-    keywords,
+    keywords: mergedKeywords,
     metadataBase: new URL(siteConfig.url),
     applicationName: siteConfig.name,
     creator: siteConfig.name,
     publisher: siteConfig.name,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
     category: "technology",
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false
+    },
+    referrer: "origin-when-cross-origin",
     icons: {
       icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
       shortcut: [{ url: "/icon.svg", type: "image/svg+xml" }],
@@ -78,7 +103,7 @@ export function buildMetadata({
       : undefined,
     robots,
     openGraph: {
-      title,
+      title: normalizedTitle,
       description,
       url,
       siteName: siteConfig.name,
@@ -89,16 +114,19 @@ export function buildMetadata({
           url: image,
           width: 1200,
           height: 630,
-          alt: title
+          alt: normalizedTitle
         }
       ]
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: normalizedTitle,
       description,
       images: [image],
       site: "@aitoolsfinder"
+    },
+    other: {
+      "theme-color": "#0b1020"
     }
   };
 }

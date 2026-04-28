@@ -16,12 +16,13 @@ export function HeaderChrome({ children }: { children: ReactNode }) {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 border-b border-border/60 backdrop-blur-2xl"
+      className="sticky top-0 z-50 border-b border-border/60 bg-background/[0.72] backdrop-blur-2xl"
+      initial={false}
       animate={
         reduceMotion
           ? undefined
           : {
-              backgroundColor: isElevated ? "rgba(247, 244, 239, 0.88)" : "rgba(247, 244, 239, 0.72)",
+              backgroundColor: isElevated ? "hsla(210, 30%, 98%, 0.9)" : "hsla(210, 30%, 98%, 0.72)",
               boxShadow: isElevated
                 ? "0 10px 38px rgba(20, 28, 44, 0.08)"
                 : "0 0 0 rgba(20, 28, 44, 0)"
