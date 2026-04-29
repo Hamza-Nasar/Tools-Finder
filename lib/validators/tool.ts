@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pricingOptions, toolStatusOptions } from "@/lib/constants";
+import { pricingOptions, skillLevelOptions, toolOutputTypeOptions, toolPlatformOptions, toolStatusOptions } from "@/lib/constants";
 import { booleanSearchParamSchema, paginationQuerySchema, slugSchema } from "@/lib/validators/common";
 
 export const toolBaseSchema = z.object({
@@ -11,6 +11,13 @@ export const toolBaseSchema = z.object({
   categorySlug: slugSchema,
   tags: z.array(z.string().trim().min(1).max(32)).min(1).max(12),
   pricing: z.enum(pricingOptions),
+  loginRequired: z.boolean().nullable().optional(),
+  skillLevel: z.enum(skillLevelOptions).nullable().optional(),
+  platforms: z.array(z.enum(toolPlatformOptions)).max(5).default([]),
+  outputTypes: z.array(z.enum(toolOutputTypeOptions)).max(6).default([]),
+  bestFor: z.array(z.string().trim().min(2).max(80)).max(8).default([]),
+  verifiedListing: z.boolean().default(false),
+  lastCheckedAt: z.string().datetime().nullable().optional(),
   logo: z.string().url().optional().nullable(),
   screenshots: z.array(z.string().url()).max(8).default([]),
   featured: z.boolean().default(false),
@@ -37,6 +44,10 @@ export const toolListQuerySchema = paginationQuerySchema.extend({
   tag: z.string().trim().min(1).max(32).optional(),
   tags: z.string().trim().max(160).optional(),
   pricing: z.enum(pricingOptions).optional(),
+  loginRequired: booleanSearchParamSchema.optional(),
+  skillLevel: z.enum(skillLevelOptions).optional(),
+  platforms: z.string().trim().max(200).optional(),
+  outputTypes: z.string().trim().max(200).optional(),
   sort: z
     .enum(["newest", "popular", "favorited", "featured", "latest"])
     .transform((value) => (value === "latest" ? "newest" : value))

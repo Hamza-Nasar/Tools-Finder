@@ -59,6 +59,9 @@ export function ToolDetail({
                     <div className="mt-4 flex flex-wrap gap-2">
                       <Badge variant="muted">{getHostnameLabel(tool.website)}</Badge>
                       <Badge>{tool.pricing}</Badge>
+                      {tool.verifiedListing ? <Badge variant="accent">Verified listing</Badge> : null}
+                      {tool.loginRequired === false ? <Badge variant="muted">No login required</Badge> : null}
+                      {tool.skillLevel ? <Badge variant="muted">{tool.skillLevel}</Badge> : null}
                       {tool.featured ? <Badge variant="accent">Featured</Badge> : null}
                     </div>
                   </div>
@@ -107,6 +110,45 @@ export function ToolDetail({
               <div className="surface-subtle p-6">
                 <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">Overview</h2>
                 <p className="mt-3 text-lg leading-8 text-muted-foreground">{tool.description}</p>
+                {tool.bestFor?.length ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {tool.bestFor.map((item) => (
+                      <Badge key={item} variant="muted">
+                        Best for: {item}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="surface-subtle p-6">
+                  <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">Pros</h2>
+                  <ul className="mt-3 space-y-2 text-sm leading-7 text-muted-foreground">
+                    <li>- Clear fit for {tool.category.toLowerCase()} workflows.</li>
+                    <li>- Pricing model: {tool.pricing.toLowerCase()}.</li>
+                    <li>- Discovery traction: {compactNumber(tool.reviewCount)} reviews and {compactNumber(tool.favoritesCount)} saves.</li>
+                    {tool.loginRequired === false ? <li>- No account needed for initial usage.</li> : null}
+                  </ul>
+                </div>
+                <div className="surface-subtle p-6">
+                  <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">Cons</h2>
+                  <ul className="mt-3 space-y-2 text-sm leading-7 text-muted-foreground">
+                    {tool.loginRequired === true ? <li>- Login required for core actions.</li> : <li>- Public listing may not reflect all premium limitations.</li>}
+                    {!tool.screenshots.length ? <li>- No screenshots published yet on this listing.</li> : null}
+                    {tool.reviewCount < 20 ? <li>- Limited review volume; validate with a real task trial.</li> : <li>- Compare with alternatives before team-wide adoption.</li>}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="surface-subtle p-6">
+                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">How to use</h2>
+                <ol className="mt-3 space-y-2 text-sm leading-7 text-muted-foreground">
+                  <li>1. Visit the official website and confirm your use case.</li>
+                  <li>2. Test one real workflow from start to output.</li>
+                  <li>3. Check pricing, login friction, and output quality.</li>
+                  <li>4. Compare against at least one alternative before finalizing.</li>
+                </ol>
               </div>
 
               <div className="surface-subtle p-6">
@@ -238,6 +280,14 @@ export function ToolDetail({
                   </div>
                 )}
               </div>
+
+              <div className="surface-subtle p-6">
+                <h2 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">User reviews snapshot</h2>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                  Current listing shows {tool.rating.toFixed(1)} / 5 from {compactNumber(tool.reviewCount)} reviews.
+                  Treat this as directional signal and verify against your own workflow requirements.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -281,6 +331,36 @@ export function ToolDetail({
                 <span className="text-muted-foreground">Website</span>
                 <span className="font-semibold">{getHostnameLabel(tool.website)}</span>
               </div>
+              <div className="surface-subtle flex items-center justify-between px-4 py-3">
+                <span className="text-muted-foreground">Login required</span>
+                <span className="font-semibold">
+                  {tool.loginRequired === true ? "Yes" : tool.loginRequired === false ? "No" : "Unknown"}
+                </span>
+              </div>
+              {tool.skillLevel ? (
+                <div className="surface-subtle flex items-center justify-between px-4 py-3">
+                  <span className="text-muted-foreground">Skill level</span>
+                  <span className="font-semibold">{tool.skillLevel}</span>
+                </div>
+              ) : null}
+              {tool.platforms?.length ? (
+                <div className="surface-subtle px-4 py-3">
+                  <p className="text-muted-foreground">Platforms</p>
+                  <p className="mt-1 font-semibold">{tool.platforms.join(", ")}</p>
+                </div>
+              ) : null}
+              {tool.outputTypes?.length ? (
+                <div className="surface-subtle px-4 py-3">
+                  <p className="text-muted-foreground">Output types</p>
+                  <p className="mt-1 font-semibold">{tool.outputTypes.join(", ")}</p>
+                </div>
+              ) : null}
+              {tool.lastCheckedAt ? (
+                <div className="surface-subtle flex items-center justify-between px-4 py-3">
+                  <span className="text-muted-foreground">Last checked</span>
+                  <span className="font-semibold">{new Date(tool.lastCheckedAt).toLocaleDateString()}</span>
+                </div>
+              ) : null}
               {tool.launchYear ? (
                 <div className="surface-subtle flex items-center justify-between px-4 py-3">
                   <span className="text-muted-foreground">Launch year</span>

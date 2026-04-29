@@ -7,7 +7,7 @@ const config = getSeoLandingConfig("ai-tools-for-bloggers");
 
 export const metadata = buildMetadata({
   title: config?.title ?? "AI Tools for Bloggers",
-  description: config?.description ?? "Browse AI tools for bloggers from the live directory.",
+  description: config?.description ?? "Browse AI tools for bloggers from the curated discovery engine.",
   path: "/ai-tools-for-bloggers",
   keywords: ["ai tools for bloggers", "blogging ai tools", "ai writing tools"]
 });

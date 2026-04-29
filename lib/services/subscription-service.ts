@@ -303,6 +303,9 @@ export class SubscriptionService {
 
     revalidatePath("/dashboard");
     revalidatePath("/my-stack");
+    revalidatePath("/admin");
+    revalidatePath("/admin/growth");
+    revalidatePath("/admin/users");
   }
 
   static async cancelUserSubscriptionByCustomerId(customerId: string) {
@@ -320,5 +323,10 @@ export class SubscriptionService {
         }
       }
     );
+
+    revalidatePath("/dashboard");
+    revalidatePath("/admin");
+    revalidatePath("/admin/growth");
+    revalidatePath("/admin/users");
   }
 }

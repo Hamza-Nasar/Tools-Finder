@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { getAdminOverview } from "@/lib/data/admin";
-import { compactNumber, formatDate } from "@/lib/utils";
+import { compactNumber, formatCurrencyFromCents, formatDate } from "@/lib/utils";
 import { AnalyticsService } from "@/lib/services/analytics-service";
 import { AnalyticsDashboard } from "@/components/admin/analytics-dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHero } from "@/components/shared/page-hero";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const [overview, dashboard] = await Promise.all([getAdminOverview(), AnalyticsService.getDashboardOverview()]);
@@ -21,8 +23,8 @@ export default async function AdminPage() {
     <div className="space-y-8">
       <PageHero
         eyebrow="Overview"
-        title="Operate the directory from one premium control surface."
-        description="Review incoming submissions, manage spotlight inventory, and keep the public catalog structured as the platform scales."
+        title="Operate the discovery engine from one premium control surface."
+        description="Review incoming submissions, manage spotlight inventory, and keep public discovery structured as the platform scales."
         actions={
           <>
             <Button asChild>
@@ -98,7 +100,7 @@ export default async function AdminPage() {
         <Card className="overflow-hidden">
           <CardHeader className="border-b border-border/70 bg-gradient-to-br from-white via-white to-background/60">
             <CardTitle>Latest catalog changes</CardTitle>
-            <CardDescription>Recently updated or added tools in the live directory.</CardDescription>
+            <CardDescription>Recently updated or added tools in the live discovery engine.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {overview.latestTools.map((tool) => (
@@ -119,6 +121,38 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b border-border/70 bg-gradient-to-br from-white via-white to-background/60">
+          <CardTitle>Recent purchases</CardTitle>
+          <CardDescription>Latest paid transactions captured from Stripe checkout flows.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {overview.latestPayments.length ? (
+            overview.latestPayments.map((payment) => (
+              <div key={payment.id} className="surface-subtle px-4 py-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{payment.toolName}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{payment.purchaserEmail ?? "No email captured"}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{formatDate(payment.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="accent">{formatCurrencyFromCents(payment.amountTotal, payment.currency)}</Badge>
+                    {payment.toolSlug ? (
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/tools/${payment.toolSlug}`}>View details</Link>
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground">No paid purchases recorded yet.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

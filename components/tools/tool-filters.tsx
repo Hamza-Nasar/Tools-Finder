@@ -7,7 +7,7 @@ import { Search, Sparkles, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Category, TagFacet, ToolSuggestion } from "@/types";
 import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
-import { pricingOptions, sortOptions } from "@/lib/constants";
+import { pricingOptions, skillLevelOptions, sortOptions, toolOutputTypeOptions, toolPlatformOptions } from "@/lib/constants";
 import { useToolFilters } from "@/hooks/use-tool-filters";
 import { Input } from "@/components/ui/input";
 
@@ -42,6 +42,20 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
   const activeSort = searchParams.get("sort") ?? "newest";
   const activeFeatured = searchParams.get("featured") === "true";
   const activeRecent = searchParams.get("recent") === "true";
+  const activeLoginRequired = searchParams.get("loginRequired");
+  const activeSkillLevel = searchParams.get("skillLevel") ?? "";
+  const activePlatforms =
+    searchParams
+      .get("platforms")
+      ?.split(",")
+      .map((value) => value.trim())
+      .filter(Boolean) ?? [];
+  const activeOutputTypes =
+    searchParams
+      .get("outputTypes")
+      ?.split(",")
+      .map((value) => value.trim())
+      .filter(Boolean) ?? [];
   const activeTags = parseTags(searchParams.get("tags") ?? searchParams.get("tag") ?? "");
   const updateFiltersRef = useRef(updateFilters);
 
@@ -125,8 +139,23 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
     commitTags([...activeTags, tag]);
   }
 
+  function toggleMultiValue(
+    key: "platforms" | "outputTypes",
+    currentValues: string[],
+    value: string
+  ) {
+    const nextValues = currentValues.includes(value)
+      ? currentValues.filter((item) => item !== value)
+      : [...currentValues, value];
+
+    updateFilters({
+      [key]: nextValues.length ? nextValues.join(",") : undefined,
+      page: undefined
+    });
+  }
+
   return (
-    <div className="surface-card p-5 md:p-6">
+    <div className="section-shell p-5 md:p-6">
       <div className="flex flex-col gap-3 border-b border-border/70 pb-5 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Search and refine</p>
@@ -134,7 +163,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             Full-text search runs across names, descriptions, tags, and categories with filters that update instantly.
           </p>
         </div>
-        <div className="rounded-full border border-border bg-white/80 px-4 py-2 text-sm text-muted-foreground shadow-sm">
+        <div className="rounded-full border border-white/85 bg-white/90 px-4 py-2 text-sm text-muted-foreground shadow-sm">
           {resultCount} results
         </div>
       </div>
@@ -162,7 +191,7 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                   animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
                   exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
                   transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute z-20 mt-3 w-full rounded-[1.35rem] border border-border/70 bg-white/95 p-2 shadow-floating backdrop-blur"
+                  className="absolute z-20 mt-3 w-full rounded-[1.35rem] border border-white/90 bg-white/95 p-2 shadow-floating backdrop-blur"
                 >
                   {isSuggestionsLoading ? (
                     <div className="space-y-2 p-2">
@@ -305,6 +334,22 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
               type="button"
               onClick={() =>
                 updateFilters({
+                  loginRequired: activeLoginRequired === "false" ? undefined : "false",
+                  page: undefined
+                })
+              }
+              className={`${chipClasses} ${
+                activeLoginRequired === "false"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              No login
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                updateFilters({
                   featured: activeFeatured ? undefined : "true",
                   page: undefined
                 })
@@ -363,6 +408,75 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
         </div>
       ) : null}
 
+      <div className="mt-5 grid gap-4 xl:grid-cols-3">
+        <div>
+          <label className="mb-2 block text-sm font-semibold">Skill level</label>
+          <select
+            value={activeSkillLevel}
+            onChange={(event) =>
+              updateFilters({
+                skillLevel: event.target.value || undefined,
+                page: undefined
+              })
+            }
+            className="field-select"
+          >
+            <option value="">Any level</option>
+            {skillLevelOptions.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-semibold">Platform</label>
+          <motion.div layout className="flex flex-wrap gap-2">
+            {toolPlatformOptions.map((platform) => {
+              const active = activePlatforms.includes(platform);
+
+              return (
+                <button
+                  key={platform}
+                  type="button"
+                  onClick={() => toggleMultiValue("platforms", activePlatforms, platform)}
+                  className={`${chipClasses} ${
+                    active
+                      ? "bg-secondary text-secondary-foreground shadow-sm"
+                      : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {platform}
+                </button>
+              );
+            })}
+          </motion.div>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-semibold">Output type</label>
+          <motion.div layout className="flex flex-wrap gap-2">
+            {toolOutputTypeOptions.map((outputType) => {
+              const active = activeOutputTypes.includes(outputType);
+
+              return (
+                <button
+                  key={outputType}
+                  type="button"
+                  onClick={() => toggleMultiValue("outputTypes", activeOutputTypes, outputType)}
+                  className={`${chipClasses} ${
+                    active
+                      ? "bg-secondary text-secondary-foreground shadow-sm"
+                      : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {outputType}
+                </button>
+              );
+            })}
+          </motion.div>
+        </div>
+      </div>
+
       <div className="mt-5 flex flex-col gap-3 border-t border-border/70 pt-4 md:flex-row md:items-center md:justify-between">
         <motion.div layout className="flex flex-wrap gap-2">
           {activeCategory ? (
@@ -383,6 +497,44 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
               Pricing: {activePricing} x
             </button>
           ) : null}
+          {activeLoginRequired === "false" ? (
+            <button
+              type="button"
+              onClick={() => updateFilters({ loginRequired: undefined, page: undefined })}
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              No login x
+            </button>
+          ) : null}
+          {activeSkillLevel ? (
+            <button
+              type="button"
+              onClick={() => updateFilters({ skillLevel: undefined, page: undefined })}
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              Skill: {activeSkillLevel} x
+            </button>
+          ) : null}
+          {activePlatforms.map((platform) => (
+            <button
+              key={`platform-${platform}`}
+              type="button"
+              onClick={() => toggleMultiValue("platforms", activePlatforms, platform)}
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              Platform: {platform} x
+            </button>
+          ))}
+          {activeOutputTypes.map((outputType) => (
+            <button
+              key={`output-${outputType}`}
+              type="button"
+              onClick={() => toggleMultiValue("outputTypes", activeOutputTypes, outputType)}
+              className="interactive-chip rounded-full border border-border bg-white px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
+            >
+              Output: {outputType} x
+            </button>
+          ))}
           {activeFeatured ? (
             <button
               type="button"
@@ -435,6 +587,10 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
                 q: undefined,
                 category: undefined,
                 pricing: undefined,
+                loginRequired: undefined,
+                skillLevel: undefined,
+                platforms: undefined,
+                outputTypes: undefined,
                 tags: undefined,
                 tag: undefined,
                 featured: undefined,

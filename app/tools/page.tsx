@@ -1,9 +1,12 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { getPublicCategories } from "@/lib/data/categories";
 import { getPublicToolList, getToolDirectoryFacets } from "@/lib/data/tools";
-import { pricingOptions } from "@/lib/constants";
+import { pricingOptions, skillLevelOptions, toolOutputTypeOptions, toolPlatformOptions } from "@/lib/constants";
+import { featureFlags } from "@/lib/feature-flags";
 import { buildMetadata } from "@/lib/seo";
 import { searchSiteContent } from "@/lib/site-search";
+import { TelemetryService } from "@/lib/services/telemetry-service";
 import { compactNumber } from "@/lib/utils";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
@@ -91,6 +94,14 @@ function normalizePricing(value: string | undefined) {
   return value as (typeof pricingOptions)[number];
 }
 
+function normalizeSkillLevel(value: string | undefined) {
+  if (!value || !skillLevelOptions.includes(value as (typeof skillLevelOptions)[number])) {
+    return undefined;
+  }
+
+  return value as (typeof skillLevelOptions)[number];
+}
+
 export default async function ToolsPage({
   searchParams
 }: {
@@ -104,11 +115,27 @@ export default async function ToolsPage({
     ?.split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
+  const platforms = firstValue(resolvedSearchParams.platforms)
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter((value): value is (typeof toolPlatformOptions)[number] =>
+      toolPlatformOptions.includes(value as (typeof toolPlatformOptions)[number])
+    );
+  const outputTypes = firstValue(resolvedSearchParams.outputTypes)
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter((value): value is (typeof toolOutputTypeOptions)[number] =>
+      toolOutputTypeOptions.includes(value as (typeof toolOutputTypeOptions)[number])
+    );
   const query = {
     q: firstValue(resolvedSearchParams.q),
     category: firstValue(resolvedSearchParams.category),
     tags,
     pricing: normalizePricing(firstValue(resolvedSearchParams.pricing)),
+    loginRequired: toBoolean(firstValue(resolvedSearchParams.loginRequired)),
+    skillLevel: normalizeSkillLevel(firstValue(resolvedSearchParams.skillLevel)),
+    platforms,
+    outputTypes,
     featured: toBoolean(firstValue(resolvedSearchParams.featured)),
     recent: toBoolean(firstValue(resolvedSearchParams.recent)),
     sort: normalizeSort(firstValue(resolvedSearchParams.sort)),
@@ -123,6 +150,23 @@ export default async function ToolsPage({
   const hasHybridSearch = Boolean(query.q?.trim() && query.q.trim().length >= 2);
   const siteResults = hasHybridSearch ? searchSiteContent(query.q ?? "", 6) : [];
 
+  if (featureFlags.toolsSearchTelemetry && query.q?.trim()) {
+    try {
+      await TelemetryService.recordEvent({
+        eventType: "tools_search",
+        path: "/tools",
+        query: query.q.trim(),
+        metadata: {
+          category: query.category ?? null,
+          pricing: query.pricing ?? null,
+          hasTags: Boolean(query.tags?.length)
+        }
+      });
+    } catch {
+      // Do not block page rendering on telemetry failures.
+    }
+  }
+
   function buildHref(nextPage: number) {
     const params = new URLSearchParams();
 
@@ -130,6 +174,10 @@ export default async function ToolsPage({
     if (query.category) params.set("category", query.category);
     if (query.tags?.length) params.set("tags", query.tags.join(","));
     if (query.pricing) params.set("pricing", query.pricing);
+    if (query.loginRequired !== undefined) params.set("loginRequired", String(query.loginRequired));
+    if (query.skillLevel) params.set("skillLevel", query.skillLevel);
+    if (query.platforms?.length) params.set("platforms", query.platforms.join(","));
+    if (query.outputTypes?.length) params.set("outputTypes", query.outputTypes.join(","));
     if (query.featured) params.set("featured", "true");
     if (query.recent) params.set("recent", "true");
     if (query.sort) params.set("sort", query.sort);
@@ -140,10 +188,10 @@ export default async function ToolsPage({
   }
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Directory"
-        title="Search and compare AI tools."
+        title="Find and compare the right tools."
         description="Explore the catalog with modern filters, shareable URLs, and pagination built for deep browsing instead of endless scrolling."
         stats={[
           { label: "Results", value: compactNumber(tools.total), detail: "matched for the current filter set" },
@@ -208,9 +256,37 @@ export default async function ToolsPage({
               Search runs against indexed catalog fields and keeps this URL shareable.
             </p>
           </div>
+          {featureFlags.comparePreview && tools.data.length >= 2 ? (
+            <div className="mt-4 section-shell p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Compare before choosing</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Start side-by-side evaluation instead of opening each tool in separate tabs.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  href={`/compare/${tools.data[0].slug}-vs-${tools.data[1].slug}`}
+                  className="inline-flex items-center rounded-[var(--radius-control)] border border-border bg-white/85 px-4 py-2 text-sm font-medium text-foreground hover:bg-white"
+                >
+                  Compare {tools.data[0].name} vs {tools.data[1].name}
+                </Link>
+              </div>
+            </div>
+          ) : null}
           <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {tools.data.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
+              <ToolCard
+                key={tool.id}
+                tool={tool}
+                matchReason={
+                  query.q?.trim()
+                    ? `Matched for "${query.q.trim()}"`
+                    : query.tags?.length
+                      ? `Matches selected tags: ${query.tags.slice(0, 2).join(", ")}`
+                      : query.category
+                        ? `In category: ${query.category}`
+                        : undefined
+                }
+              />
             ))}
           </div>
           <PaginationControls page={tools.page} totalPages={tools.totalPages} buildHref={buildHref} />
@@ -228,3 +304,4 @@ export default async function ToolsPage({
     </div>
   );
 }
+

@@ -71,13 +71,13 @@ export default async function ToolAlternativesPage({
 
   if (unavailable) {
     return (
-      <div className="page-frame py-12">
+      <div className="page-frame py-14">
         <EmptyState
           label="Offline"
           title="Alternative recommendations are temporarily unavailable"
-          description="The directory cannot reach its database right now. Restore the MongoDB connection and refresh the page."
+          description="The platform cannot reach its database right now. Restore the MongoDB connection and refresh the page."
           ctaHref="/tools"
-          ctaLabel="Back to directory"
+          ctaLabel="Back to tools"
         />
       </div>
     );
@@ -111,7 +111,7 @@ export default async function ToolAlternativesPage({
   };
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

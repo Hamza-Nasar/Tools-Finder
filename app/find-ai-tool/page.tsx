@@ -1,5 +1,7 @@
 import { buildMetadata } from "@/lib/seo";
+import { featureFlags } from "@/lib/feature-flags";
 import { RecommendationService } from "@/lib/services/recommendation-service";
+import { TelemetryService } from "@/lib/services/telemetry-service";
 import { AiToolFinder } from "@/components/tools/ai-tool-finder";
 import { PageHero } from "@/components/shared/page-hero";
 import Link from "next/link";
@@ -41,8 +43,25 @@ export default async function FindAiToolPage({
           tools: []
         };
 
+  if (featureFlags.finderTelemetry && query.length >= 3) {
+    try {
+      await TelemetryService.recordEvent({
+        eventType: "finder_search",
+        path: "/find-ai-tool",
+        query,
+        metadata: {
+          inferredCategories: recommendations.inferredCategories.length,
+          inferredTags: recommendations.inferredTags.length,
+          resultCount: recommendations.tools.length
+        }
+      });
+    } catch {
+      // Keep the finder resilient if telemetry fails.
+    }
+  }
+
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="AI tool finder"
         title="Describe the job. Get the right tool."
@@ -51,13 +70,13 @@ export default async function FindAiToolPage({
           <>
             <Button asChild size="lg">
               <Link href="#finder-workspace">
-                Start matching
+                Find my tool
                 <Search data-icon="inline-end" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
               <Link href="/tools">
-                Browse directory
+                Browse categories
                 <ArrowUpRight data-icon="inline-end" />
               </Link>
             </Button>
@@ -80,3 +99,4 @@ export default async function FindAiToolPage({
     </div>
   );
 }
+

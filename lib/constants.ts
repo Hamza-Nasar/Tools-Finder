@@ -1,4 +1,4 @@
-import type { NavItem, PricingTier } from "@/types";
+import type { NavItem, PricingTier, SkillLevel, ToolOutputType, ToolPlatform } from "@/types";
 
 export const siteConfig = {
   name: "AI Tools Finder",
@@ -29,6 +29,9 @@ export const adminNav: NavItem[] = [
 ];
 
 export const pricingOptions = ["Free", "Freemium", "Paid"] as const satisfies readonly PricingTier[];
+export const skillLevelOptions = ["Beginner", "Intermediate", "Advanced"] as const satisfies readonly SkillLevel[];
+export const toolPlatformOptions = ["Web", "Chrome Extension", "iOS", "Android", "Desktop"] as const satisfies readonly ToolPlatform[];
+export const toolOutputTypeOptions = ["Text", "Image", "PDF", "Video", "Code", "Audio"] as const satisfies readonly ToolOutputType[];
 export const toolStatusOptions = ["draft", "pending", "approved", "rejected"] as const;
 export const submissionStatusOptions = ["pending", "approved", "rejected"] as const;
 

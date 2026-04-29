@@ -20,6 +20,15 @@ export function HeroSection({
   popularCategories: string[];
   dailyCount: number;
 }) {
+  const quickTasks = [
+    "Compress PDF",
+    "Remove background",
+    "SEO audit",
+    "Summarize PDF",
+    "Write captions",
+    "Generate logo"
+  ].concat(trendingTools.slice(0, 2));
+
   return (
     <section className="page-frame pb-16 pt-14 md:pb-24 md:pt-20">
       <div className="section-shell hero-mesh premium-grid relative overflow-hidden px-6 py-10 shadow-glow md:px-12 md:py-16">
@@ -31,19 +40,19 @@ export function HeroSection({
               Best free online tools for 2026
             </span>
             <h1 className="mt-6 font-[family-name:var(--font-heading)] text-[2.9rem] font-bold leading-[0.98] md:text-[5.2rem]">
-              Best free online tools for SEO, PDF, image, and
+              What do you want to do today with SEO, PDF, image, and
               <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                {" "}AI workflows.
+                {" "}AI tools?
               </span>
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
-              Find fast, no-signup tools for everyday work: SEO audits, PDF cleanup, image conversion, AI research, content, coding, design, and marketing. Search by workflow and compare the strongest options before you commit.
+              Search, compare, and discover free and AI tools by what you want to do. Get clear matches instead of generic lists.
             </p>
             <div className="mt-5 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
               <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">Free and fast</span>
               <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">No signup routes</span>
-              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">SEO, PDF, image, and AI tools</span>
-            </div>
+                <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">Task-first search</span>
+              </div>
             <form
               action="/tools"
               className="mt-8 flex flex-col gap-3 rounded-[1.7rem] border border-white/80 bg-white/[0.82] p-3 shadow-premium md:flex-row"
@@ -52,33 +61,33 @@ export function HeroSection({
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <Input
                   name="q"
-                  placeholder="Search SEO tools, PDF tools, image tools, or AI workflows"
+                  placeholder='Try "compress PDF", "remove image background", "SEO audit", or "summarize PDF"'
                   className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                 />
               </div>
               <Button type="submit" size="lg" className="md:min-w-[180px]">
-                Find free tools
+                Find my tool
               </Button>
             </form>
             <div className="mt-4 flex flex-wrap gap-3">
               <Button asChild size="lg">
                 <Link href="/find-ai-tool">
-                  Open AI Finder
+                  Get recommendations
                   <ArrowRight data-icon="inline-end" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/seo-tools">Open free SEO tools</Link>
+                <Link href="/categories">Browse categories</Link>
               </Button>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
-              {trendingTools.map((toolName) => (
+              {quickTasks.map((task) => (
                 <Link
-                  key={toolName}
-                  href={`/tools?q=${encodeURIComponent(toolName)}`}
+                  key={task}
+                  href={`/tools?q=${encodeURIComponent(task)}`}
                   className="interactive-chip rounded-full border border-border bg-white/[0.78] px-4 py-2 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 >
-                  {toolName}
+                  {task}
                 </Link>
               ))}
             </div>

@@ -193,19 +193,19 @@ export default async function HomePage() {
   const freeToolRoutes = [
     {
       href: "/seo-tools",
-      title: "SEO tools",
+      title: "Grow my website",
       description:
         "Use free SEO tools for keyword research, technical audits, title rewrites, meta descriptions, and CTR improvements before you invest in a larger stack."
     },
     {
       href: "/pdf-tools",
-      title: "PDF tools",
+      title: "Fix my PDF",
       description:
         "Find fast PDF tools to compress, merge, split, convert, and prepare documents for clients, lead magnets, reports, and internal workflows."
     },
     {
       href: "/image-tools",
-      title: "Image tools",
+      title: "Edit an image fast",
       description:
         "Discover free image tools for compression, resizing, format conversion, background cleanup, AI visuals, and web-ready creative assets."
     }
@@ -414,7 +414,7 @@ export default async function HomePage() {
                   <h3 className="font-[family-name:var(--font-heading)] text-2xl font-semibold">{route.title}</h3>
                   <p className="mt-2 text-sm leading-7 text-muted-foreground">{route.description}</p>
                   <span className="mt-4 inline-flex items-center text-sm font-semibold text-foreground">
-                    Open free {route.title.toLowerCase()}
+                    Show tools
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </span>
                 </Link>
@@ -525,7 +525,7 @@ export default async function HomePage() {
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">{route.description}</p>
                 <span className="mt-6 inline-flex items-center text-sm font-semibold text-foreground">
-                  Open route
+                  Start workflow
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </span>
               </Link>
@@ -600,7 +600,7 @@ export default async function HomePage() {
               </h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">{route.description}</p>
               <span className="mt-6 inline-flex items-center text-sm font-semibold text-foreground">
-                Visit page
+                View details
                 <ArrowRight className="ml-2 h-4 w-4" />
               </span>
             </Link>
@@ -635,7 +635,7 @@ export default async function HomePage() {
           description="Use the AI tool finder to describe the job in plain language and get a ranked shortlist instead of guessing categories first."
           action={
             <Button asChild>
-              <Link href="/find-ai-tool">Open AI tool finder</Link>
+              <Link href="/find-ai-tool">Get recommendations</Link>
             </Button>
           }
         />
@@ -650,10 +650,10 @@ export default async function HomePage() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild>
-                <Link href="/find-ai-tool">Try the recommender</Link>
+                <Link href="/find-ai-tool">Find my tool</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/tools">Browse manually</Link>
+                <Link href="/tools">Browse categories</Link>
               </Button>
             </div>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -711,7 +711,7 @@ export default async function HomePage() {
           description="A daily snapshot of new listings, rising tools, and editor-selected standouts."
           action={
             <Button asChild variant="outline">
-              <Link href="/today-ai-tools">Open daily feed</Link>
+              <Link href="/today-ai-tools">View details</Link>
             </Button>
           }
         />
@@ -777,7 +777,7 @@ export default async function HomePage() {
           description="A prompt library for the most popular AI tools, with reusable starting points for real workflows."
           action={
             <Button asChild variant="outline">
-              <Link href="/prompts">Open prompt library</Link>
+              <Link href="/prompts">View prompt library</Link>
             </Button>
           }
         />

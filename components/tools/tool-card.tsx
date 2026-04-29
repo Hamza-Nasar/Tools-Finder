@@ -11,11 +11,42 @@ import { compactNumber, formatRelativeDate, getHostnameLabel } from "@/lib/utils
 
 export function ToolCard({
   tool,
-  action
+  action,
+  matchReason
 }: {
   tool: Tool;
   action?: ReactNode;
+  matchReason?: string;
 }) {
+  const metrics: Array<{ icon: ReactNode; label: string; value: string; detail: string }> = [
+    ...(tool.reviewCount > 0
+      ? [
+          {
+            icon: <Star className="size-3.5" />,
+            label: "Rating",
+            value: tool.rating.toFixed(1),
+            detail: `${compactNumber(tool.reviewCount)} reviews`
+          }
+        ]
+      : []),
+    ...(tool.favoritesCount > 0
+      ? [
+          {
+            icon: <Heart className="size-3.5" />,
+            label: "Saves",
+            value: compactNumber(tool.favoritesCount),
+            detail: `Score ${tool.trendingScore.toFixed(1)}`
+          }
+        ]
+      : []),
+    {
+      icon: <Eye className="size-3.5" />,
+      label: "Views",
+      value: compactNumber(tool.viewsCount),
+      detail: `Added ${formatRelativeDate(tool.createdAt)}`
+    }
+  ];
+
   return (
     <MotionReveal
       className="h-full"
@@ -24,8 +55,8 @@ export function ToolCard({
       whileTap={{ scale: 0.995 }}
     >
       <Card className="group surface-card-hover flex h-full flex-col border-white/75 bg-white/[0.88]">
-        <CardHeader className="relative flex flex-row items-start justify-between gap-4 border-b border-border/70 bg-gradient-to-br from-white via-white to-background/70">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary via-primary/70 to-accent" />
+        <CardHeader className="relative flex flex-row items-start justify-between gap-4 border-b border-border/70 bg-gradient-to-br from-white via-white to-secondary/20">
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary-foreground to-primary" />
           <div className="flex min-w-0 gap-4">
             {tool.logo ? (
               <div className="relative size-14 shrink-0 overflow-hidden rounded-[1.15rem] border border-white/80 bg-white/[0.92] shadow-sm transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-hover:shadow-premium">
@@ -39,9 +70,7 @@ export function ToolCard({
                 />
               </div>
             ) : (
-              <div
-                className={`grid size-14 shrink-0 place-items-center rounded-[1.15rem] bg-gradient-to-br ${tool.logoBackground} font-[family-name:var(--font-heading)] text-lg font-bold text-white shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]`}
-              >
+              <div className="grid size-14 shrink-0 place-items-center rounded-[1.15rem] bg-gradient-to-br from-primary via-secondary-foreground to-primary font-[family-name:var(--font-heading)] text-lg font-bold text-white shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]">
                 {tool.logoText}
               </div>
             )}
@@ -56,6 +85,9 @@ export function ToolCard({
                   </Badge>
                 </Link>
                 <Badge variant={tool.featured ? "accent" : "default"}>{tool.pricing}</Badge>
+                {tool.verifiedListing ? <Badge variant="accent">Verified</Badge> : null}
+                {tool.loginRequired === false ? <Badge variant="muted">No login</Badge> : null}
+                {tool.skillLevel ? <Badge variant="muted">{tool.skillLevel}</Badge> : null}
               </div>
               <p className="mt-2 truncate text-xs text-muted-foreground">{getHostnameLabel(tool.website)}</p>
             </div>
@@ -67,6 +99,12 @@ export function ToolCard({
             <Link href={`/tools/${tool.slug}`}>{tool.name}</Link>
           </CardTitle>
           <CardDescription className="mt-2 line-clamp-2 text-sm text-foreground/80">{tool.tagline}</CardDescription>
+          {tool.bestFor?.length ? (
+            <p className="mt-3 text-sm font-medium text-secondary-foreground">
+              Best for: {tool.bestFor.slice(0, 2).join(" | ")}
+            </p>
+          ) : null}
+          {matchReason ? <p className="mt-2 text-xs font-medium text-primary">{matchReason}</p> : null}
           <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{tool.description}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             {tool.tags.slice(0, 3).map((tag) => (
@@ -83,28 +121,9 @@ export function ToolCard({
         </CardContent>
         <CardFooter className="mt-auto flex-col items-stretch gap-4 border-t border-border/70 bg-background/[0.45]">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {[
-              {
-                icon: <Star className="size-3.5" />,
-                label: "Rating",
-                value: tool.rating.toFixed(1),
-                detail: `${compactNumber(tool.reviewCount)} reviews`
-              },
-              {
-                icon: <Heart className="size-3.5" />,
-                label: "Saves",
-                value: compactNumber(tool.favoritesCount),
-                detail: `Score ${tool.trendingScore.toFixed(1)}`
-              },
-              {
-                icon: <Eye className="size-3.5" />,
-                label: "Views",
-                value: compactNumber(tool.viewsCount),
-                detail: `Added ${formatRelativeDate(tool.createdAt)}`
-              }
-            ].map((metric) => (
-              <div key={metric.label} className="rounded-[1.2rem] border border-white/80 bg-white/[0.78] px-3 py-3 shadow-sm">
-                <div className="flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-primary">
+            {metrics.map((metric) => (
+              <div key={metric.label} className="rounded-[1.2rem] border border-white/90 bg-white/[0.9] px-3 py-3 shadow-sm">
+                <div className="flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-secondary-foreground">
                   {metric.icon}
                   <span>{metric.label}</span>
                 </div>
@@ -113,6 +132,11 @@ export function ToolCard({
               </div>
             ))}
           </div>
+          {tool.reviewCount === 0 && tool.favoritesCount === 0 ? (
+            <div className="rounded-[1rem] border border-border/70 bg-white/75 px-3 py-2 text-xs font-medium text-muted-foreground">
+              New listing
+            </div>
+          ) : null}
           <div className="flex items-center justify-between gap-3">
             {action ? <div className="shrink-0">{action}</div> : <div />}
             <Button asChild variant="outline" size="sm" className="group/button">

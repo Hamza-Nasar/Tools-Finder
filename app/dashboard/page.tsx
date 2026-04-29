@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   const dashboard = await UserDashboardService.getDashboard(user.id);
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Dashboard"
         title={`Welcome back, ${user.name.split(" ")[0] ?? "there"}.`}
@@ -36,3 +36,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+

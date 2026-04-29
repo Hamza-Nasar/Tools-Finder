@@ -19,26 +19,26 @@ export default async function PricingPage() {
   const user = session?.user ? await UserService.syncSessionUser(session) : null;
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Pricing"
-        title="Scale from discovery to revenue."
+        title="Scale from discovery to execution."
         description="Start free, upgrade for advanced compare and alerts, then unlock vendor growth tools."
       />
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
-        <Card>
+        <Card className="surface-card-hover">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Free <Badge variant="muted">$0</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Basic discovery and directory browsing</p>
+            <p>Basic discovery and task-based browsing</p>
             <p>Starter recommendations</p>
             <p>Tool pages and comparisons</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="surface-card-hover border-primary/30">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Pro <Badge>$19/mo</Badge>
@@ -50,7 +50,7 @@ export default async function PricingPage() {
             <p>Workflow alerts</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="surface-card-hover">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               Vendor <Badge variant="accent">$99/mo</Badge>
@@ -63,7 +63,7 @@ export default async function PricingPage() {
           </CardContent>
         </Card>
       </div>
-      <div className="mt-8 rounded-[1.2rem] border border-border/70 bg-background/50 p-6">
+      <div className="section-shell mt-8 p-6">
         {user ? (
           <>
             <p className="text-sm font-medium">Current plan: <span className="capitalize">{user.plan}</span></p>
@@ -83,3 +83,4 @@ export default async function PricingPage() {
     </div>
   );
 }
+

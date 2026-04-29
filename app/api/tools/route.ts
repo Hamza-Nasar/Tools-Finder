@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { created, handleApiError, paginated, parseRequestBody, parseSearchParams } from "@/lib/api";
+import { toolOutputTypeOptions, toolPlatformOptions } from "@/lib/constants";
 import { requireAdminSession } from "@/lib/server-guards";
 import { ToolService } from "@/lib/services/tool-service";
 import { UserService } from "@/lib/services/user-service";
@@ -19,6 +20,20 @@ export async function GET(request: NextRequest) {
           .filter(Boolean) ??
         (query.tag ? [query.tag] : undefined),
       pricing: query.pricing,
+      loginRequired: query.loginRequired,
+      skillLevel: query.skillLevel,
+      platforms: query.platforms
+        ?.split(",")
+        .map((value) => value.trim())
+        .filter((value): value is (typeof toolPlatformOptions)[number] =>
+          toolPlatformOptions.includes(value as (typeof toolPlatformOptions)[number])
+        ),
+      outputTypes: query.outputTypes
+        ?.split(",")
+        .map((value) => value.trim())
+        .filter((value): value is (typeof toolOutputTypeOptions)[number] =>
+          toolOutputTypeOptions.includes(value as (typeof toolOutputTypeOptions)[number])
+        ),
       sort: query.sort,
       featured: query.featured,
       recent: query.recent,
@@ -48,6 +63,13 @@ export async function POST(request: NextRequest) {
       categorySlug: payload.categorySlug,
       tags: payload.tags,
       pricing: payload.pricing,
+      loginRequired: payload.loginRequired ?? null,
+      skillLevel: payload.skillLevel ?? null,
+      platforms: payload.platforms,
+      outputTypes: payload.outputTypes,
+      bestFor: payload.bestFor,
+      verifiedListing: payload.verifiedListing,
+      lastCheckedAt: payload.lastCheckedAt ?? null,
       logo: payload.logo ?? null,
       screenshots: payload.screenshots,
       featured: payload.featured,

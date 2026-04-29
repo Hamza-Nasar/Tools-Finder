@@ -19,14 +19,14 @@ export default function PromptsPage() {
   const popularPrompts = getPopularPrompts(4);
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Prompt library"
         title="Reusable prompts for your favorite AI tools."
-        description="A curated prompt directory for writing, research, design, coding, and productivity workflows."
+        description="A curated prompt system for writing, research, design, coding, and productivity workflows."
         actions={
           <Button asChild>
-            <Link href="/tools">Browse tools</Link>
+            <Link href="/tools">Find my tool</Link>
           </Button>
         }
         stats={[
@@ -34,6 +34,27 @@ export default function PromptsPage() {
           { label: "Prompt packs", value: String(popularPrompts.length), detail: "featured prompts ready to copy" }
         ]}
       />
+
+      <section className="mt-8 grid gap-4 lg:grid-cols-3">
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Reusable</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Prompts are written to be copied directly with minimal editing before first use.
+          </p>
+        </div>
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Tool-aligned</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Each prompt pack is grouped by tool so visitors can stay in one focused workflow lane.
+          </p>
+        </div>
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Production-ready</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Useful for research, writing, coding, marketing ops, and repeatable team playbooks.
+          </p>
+        </div>
+      </section>
 
       <section className="mt-10">
         <SectionHeading
@@ -52,7 +73,7 @@ export default function PromptsPage() {
         <SectionHeading
           eyebrow="Browse by tool"
           title="Tool-specific prompt packs."
-          description="Open a dedicated prompt page for each AI tool and keep similar workflows grouped together."
+          description="Use dedicated prompt pages for each AI tool and keep similar workflows grouped together."
         />
         <div className="mt-8 grid gap-5 lg:grid-cols-3">
           {promptGroups.map((group) => (
@@ -64,7 +85,7 @@ export default function PromptsPage() {
                 </CardHeader>
                 <CardContent className="flex items-center justify-between gap-3 pt-6">
                   <span className="text-sm font-medium text-primary">{group.promptCount} prompts</span>
-                  <span className="text-sm text-muted-foreground transition group-hover:text-foreground">Open</span>
+                  <span className="text-sm text-muted-foreground transition group-hover:text-foreground">View details</span>
                 </CardContent>
               </Card>
             </Link>

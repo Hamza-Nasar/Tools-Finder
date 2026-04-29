@@ -7,7 +7,7 @@ const config = getSeoLandingConfig("best-ai-tools-for-students");
 
 export const metadata = buildMetadata({
   title: config?.title ?? "Best AI Tools for Students",
-  description: config?.description ?? "Browse the best AI tools for students from the live directory.",
+  description: config?.description ?? "Browse the best AI tools for students from the curated discovery engine.",
   path: "/best-ai-tools-for-students",
   keywords: ["best ai tools for students", "student ai tools", "free ai tools for studying"]
 });

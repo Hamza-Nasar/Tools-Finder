@@ -12,7 +12,11 @@ export default async function AdminGrowthPage() {
     { label: "Vendor leads", value: snapshot.leads },
     { label: "Vendor claims", value: snapshot.claims },
     { label: "Paid records", value: snapshot.paidRecords },
-    { label: "Paid conversion", value: `${snapshot.paidConversionRate}%` }
+    { label: "Paid conversion", value: `${snapshot.paidConversionRate}%` },
+    { label: "Tools searches (14d)", value: snapshot.telemetry.toolsSearches },
+    { label: "Finder searches (14d)", value: snapshot.telemetry.finderSearches },
+    { label: "Compare views (14d)", value: snapshot.telemetry.compareViews },
+    { label: "CTA clicks (14d)", value: snapshot.telemetry.ctaClicks }
   ];
 
   return (

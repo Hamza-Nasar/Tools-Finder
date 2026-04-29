@@ -25,9 +25,9 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
         <MotionReveal key={category.slug} className="h-full" delay={index * 0.04} y={16}>
           <Link href={`/categories/${category.slug}`} className="block h-full">
             <Card className="group surface-card-hover h-full overflow-hidden">
-              <CardHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-white to-background/60">
+              <CardHeader className="relative overflow-hidden border-b border-border/60 bg-gradient-to-br from-white via-white to-secondary/20">
                 <div
-                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${categoryGradientMap[category.slug] ?? "from-primary to-primary/70"} font-[family-name:var(--font-heading)] text-xl font-semibold text-white shadow-sm`}
+                  className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${categoryGradientMap[category.slug] ?? "from-primary via-secondary-foreground to-primary"} font-[family-name:var(--font-heading)] text-xl font-semibold text-white shadow-sm`}
                 >
                   {category.name.slice(0, 2).toUpperCase()}
                 </div>

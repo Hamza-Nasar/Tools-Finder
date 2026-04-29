@@ -37,7 +37,7 @@ export default async function WorkflowDetailPage({
   const tools = await ToolService.listToolsBySlugs(workflow.toolsUsed);
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Workflow"
         title={workflow.title}

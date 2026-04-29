@@ -107,6 +107,21 @@ function getFeatureRows(toolA: Tool, toolB: Tool) {
       b: toolB.pricing
     },
     {
+      label: "Login required",
+      a: toolA.loginRequired === true ? "Yes" : toolA.loginRequired === false ? "No" : "Unknown",
+      b: toolB.loginRequired === true ? "Yes" : toolB.loginRequired === false ? "No" : "Unknown"
+    },
+    {
+      label: "Skill level",
+      a: toolA.skillLevel ?? "Unknown",
+      b: toolB.skillLevel ?? "Unknown"
+    },
+    {
+      label: "Platforms",
+      a: toolA.platforms?.length ? toolA.platforms.join(", ") : "Unknown",
+      b: toolB.platforms?.length ? toolB.platforms.join(", ") : "Unknown"
+    },
+    {
       label: "Rating",
       a: toolA.rating.toFixed(1),
       b: toolB.rating.toFixed(1)

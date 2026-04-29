@@ -24,7 +24,7 @@ export function SectionHeading({
     >
       <div className="max-w-3xl">
         {eyebrow ? (
-          <p className="inline-flex rounded-full border border-primary/15 bg-primary/[0.08] px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          <p className="inline-flex rounded-full border border-primary/20 bg-white/76 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground">
             {eyebrow}
           </p>
         ) : null}

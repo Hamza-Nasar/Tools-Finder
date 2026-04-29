@@ -8,6 +8,14 @@
   NextAuth callback URL. Match the deployment domain.
 - `NEXTAUTH_SECRET`
   Long random secret used for session encryption.
+- `FF_COMPARE_PREVIEW` (optional)
+  Feature flag to enable compare preview block on `/tools`. Default: `true`.
+- `FF_FINDER_TELEMETRY` (optional)
+  Feature flag to record finder search events. Default: `true`.
+- `FF_TOOLS_SEARCH_TELEMETRY` (optional)
+  Feature flag to record tools search events. Default: `true`.
+- `FF_ADMIN_AUTO_REFRESH` (optional)
+  Feature flag to enable periodic admin auto-refresh. Default: `true`.
 
 ## Database
 

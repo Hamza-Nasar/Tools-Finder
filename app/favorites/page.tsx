@@ -43,7 +43,7 @@ export default async function FavoritesPage({
   const favorites = await getFavoritesForUser(user.id, page, 12);
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Favorites"
         title="Your saved shortlist."
@@ -54,6 +54,27 @@ export default async function FavoritesPage({
           { label: "Status", value: "Synced", detail: "favorites update instantly via server actions" }
         ]}
       />
+
+      <section className="mt-8 grid gap-4 lg:grid-cols-3">
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Focus</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Save tools while browsing, then return here to compare and decide without losing context.
+          </p>
+        </div>
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Workflow</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Move tools into your stack from detail pages once your shortlist is clear.
+          </p>
+        </div>
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Signal</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Favorites are account-synced, so they remain available across sessions and devices.
+          </p>
+        </div>
+      </section>
 
       {favorites.data.length ? (
         <>
@@ -82,9 +103,9 @@ export default async function FavoritesPage({
         <div className="mt-8">
           <EmptyState
             title="No saved tools yet"
-            description="Browse the directory and save tools from a detail page to build your shortlist."
+            description="Browse categories and save tools from a detail page to build your shortlist."
             ctaHref="/tools"
-            ctaLabel="Browse tools"
+            ctaLabel="Find my tool"
           />
         </div>
       )}

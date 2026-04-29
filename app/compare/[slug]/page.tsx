@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getRelatedToolsCached, getSeoComparisonPairsCached, getToolBySlugCached } from "@/lib/data/tools";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
+import { TelemetryService } from "@/lib/services/telemetry-service";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
 import { ToolComparison } from "@/components/tools/tool-comparison";
@@ -81,6 +82,18 @@ export default async function ToolComparisonPage({
       getToolBySlugCached(resolved.toolASlug),
       getToolBySlugCached(resolved.toolBSlug)
     ]);
+    try {
+      await TelemetryService.recordEvent({
+        eventType: "compare_view",
+        path: `/compare/${toolA.slug}-vs-${toolB.slug}`,
+        metadata: {
+          toolA: toolA.slug,
+          toolB: toolB.slug
+        }
+      });
+    } catch {
+      // Comparison pages should remain available if telemetry write fails.
+    }
     const year = new Date().getFullYear();
     const alternatives = await getRelatedToolsCached({
       slug: toolA.slug,
@@ -103,7 +116,7 @@ export default async function ToolComparisonPage({
     };
 
     return (
-      <div className="page-frame py-12">
+      <div className="page-frame py-14">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -131,11 +144,11 @@ export default async function ToolComparisonPage({
                   Need a wider comparison set?
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
-                  Explore alternatives and adjacent tools from the same workflow to compare more than just this pair.
+                  Explore alternatives and adjacent tools from the same workflow before making a final choice.
                 </p>
               </div>
               <Button asChild>
-                <Link href={`/alternatives/${toolA.slug}`}>See more {toolA.name} alternatives</Link>
+                <Link href={`/alternatives/${toolA.slug}`}>Compare alternatives</Link>
               </Button>
             </div>
           ) : (

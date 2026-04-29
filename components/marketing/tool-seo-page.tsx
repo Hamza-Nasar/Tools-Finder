@@ -95,19 +95,19 @@ export function ToolSeoPage({ page }: { page: ToolSeoPageConfig }) {
             <div className="mt-4 grid gap-3">
               <Link
                 href="/"
-                className="interactive-panel rounded-[1.15rem] border border-border/70 bg-white/72 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
+                className="interactive-panel rounded-[1.15rem] border border-white/85 bg-white/86 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
               >
                 Best free online tools
               </Link>
               <Link
                 href={page.categoryHref}
-                className="interactive-panel rounded-[1.15rem] border border-border/70 bg-white/72 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
+                className="interactive-panel rounded-[1.15rem] border border-white/85 bg-white/86 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
               >
                 {page.categoryLabel}
               </Link>
               <Link
                 href={page.blogHref}
-                className="interactive-panel rounded-[1.15rem] border border-border/70 bg-white/72 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
+                className="interactive-panel rounded-[1.15rem] border border-white/85 bg-white/86 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
               >
                 {page.blogLabel}
               </Link>

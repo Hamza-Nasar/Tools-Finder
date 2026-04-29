@@ -6,6 +6,8 @@
 - Seed initial approved tools
 - Verify homepage sections are populated
 - Review all empty states
+- Validate decision metadata coverage (`loginRequired`, `skillLevel`, `platforms`, `outputTypes`, `bestFor`)
+- Validate trust metadata (`verifiedListing`, `lastCheckedAt`)
 
 ## Monetization
 
@@ -21,6 +23,7 @@
 - Verify `/best-ai-tools-for-developers`
 - Verify `/best-free-ai-tools`
 - Submit sitemap to Google Search Console
+- Review telemetry baseline for `tools_search`, `finder_search`, and `compare_view`
 
 ## Operations
 
@@ -43,3 +46,4 @@
 - Test category filters and search suggestions
 - Test favorites
 - Test affiliate redirect tracking
+- Execute `docs/ui-qa-checklist.md`

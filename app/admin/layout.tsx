@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { featureFlags } from "@/lib/feature-flags";
 import { getOptionalSession } from "@/lib/server-guards";
+import { AdminLiveRefresh } from "@/components/admin/admin-live-refresh";
 import { AdminShell } from "@/components/layout/admin-shell";
 
 export const dynamic = "force-dynamic";
@@ -19,5 +21,10 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <>
+      {featureFlags.adminAutoRefresh ? <AdminLiveRefresh /> : null}
+      <AdminShell>{children}</AdminShell>
+    </>
+  );
 }

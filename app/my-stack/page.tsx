@@ -27,7 +27,7 @@ export default async function MyStackPage() {
   const suggestedTools = suggested.data.filter((tool) => !stack.tools.some((stackTool) => stackTool.id === tool.id)).slice(0, 6);
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="My stack"
         title={stack.name}
@@ -38,7 +38,22 @@ export default async function MyStackPage() {
         ]}
       />
 
-      <div className="mt-10">
+      <section className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Stack strategy</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Keep one primary tool per critical step, then add alternates only where reliability matters.
+          </p>
+        </div>
+        <div className="section-shell p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Suggested additions</p>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            Suggestions below are filtered to exclude tools already in your stack.
+          </p>
+        </div>
+      </section>
+
+      <div className="mt-10 section-shell p-2 md:p-3">
         <StackBuilder stack={stack} suggestedTools={suggestedTools} />
       </div>
     </div>

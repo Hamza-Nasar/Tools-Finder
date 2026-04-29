@@ -32,7 +32,7 @@ export function PromptCard({ prompt }: { prompt: PromptEntry }) {
           <CardDescription className="mt-2">{prompt.description}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 pt-6">
-          <pre className="overflow-hidden whitespace-pre-wrap rounded-[1.4rem] border border-border/70 bg-white/70 p-4 text-sm leading-7 text-muted-foreground">
+          <pre className="overflow-hidden whitespace-pre-wrap rounded-[1.4rem] border border-white/85 bg-white/88 p-4 text-sm leading-7 text-muted-foreground">
             {prompt.prompt}
           </pre>
           <div className="flex flex-wrap gap-3">

@@ -290,6 +290,87 @@ function ToolEditorForm({
             </div>
           </div>
 
+          <div className="surface-subtle grid gap-5 p-5 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="loginRequired">Login required</Label>
+              <select
+                id="loginRequired"
+                name="loginRequired"
+                defaultValue={tool?.loginRequired === true ? "yes" : tool?.loginRequired === false ? "no" : "unknown"}
+                className="field-select"
+              >
+                <option value="unknown">Unknown</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="skillLevel">Skill level</Label>
+              <select
+                id="skillLevel"
+                name="skillLevel"
+                defaultValue={tool?.skillLevel ?? ""}
+                className="field-select"
+              >
+                <option value="">Unknown</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastCheckedAt">Last checked</Label>
+              <Input
+                id="lastCheckedAt"
+                name="lastCheckedAt"
+                type="datetime-local"
+                defaultValue={tool?.lastCheckedAt ? new Date(tool.lastCheckedAt).toISOString().slice(0, 16) : ""}
+              />
+            </div>
+          </div>
+
+          <div className="surface-subtle grid gap-5 p-5 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="platforms">Platforms</Label>
+              <Input
+                id="platforms"
+                name="platforms"
+                defaultValue={tool?.platforms?.join(", ") ?? ""}
+                placeholder="Web, iOS, Android"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="outputTypes">Output types</Label>
+              <Input
+                id="outputTypes"
+                name="outputTypes"
+                defaultValue={tool?.outputTypes?.join(", ") ?? ""}
+                placeholder="Text, PDF, Image"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="bestFor">Best for</Label>
+              <Input
+                id="bestFor"
+                name="bestFor"
+                defaultValue={tool?.bestFor?.join(", ") ?? ""}
+                placeholder="SEO audit, PDF compression"
+              />
+            </div>
+          </div>
+
+          <div className="surface-subtle grid gap-5 p-5 md:grid-cols-2">
+            <label className="flex items-center gap-3 rounded-[1.2rem] border border-border/70 bg-white/82 px-4 py-3 text-sm font-medium shadow-sm">
+              <input
+                type="checkbox"
+                name="verifiedListing"
+                defaultChecked={tool?.verifiedListing ?? false}
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              Verified listing
+            </label>
+          </div>
+
           <div className="surface-subtle grid gap-5 p-5 md:grid-cols-4">
             <div className="space-y-2">
               <Label htmlFor="rating">Rating</Label>

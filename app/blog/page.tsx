@@ -15,10 +15,10 @@ export const metadata = buildMetadata({
 
 export default function BlogIndexPage() {
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Blog"
-        title="SEO guides for free online tools, rankings, and faster workflows."
+        title="SEO guides for free online tools, rankings, and conversion-focused workflows."
         description="Read practical articles that connect search intent to useful tool pages, category hubs, and step-by-step optimization workflows."
         stats={[
           { label: "Articles", value: String(blogPosts.length), detail: "SEO-focused guides ready for internal linking" },

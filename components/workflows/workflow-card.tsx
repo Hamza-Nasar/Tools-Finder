@@ -9,8 +9,8 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
     <MotionReveal className="h-full" y={16}>
       <Link href={`/workflows/${workflow.slug}`} className="block h-full">
         <Card className="group surface-card-hover h-full overflow-hidden">
-          <CardHeader className="border-b border-border/60 bg-gradient-to-br from-white via-white to-background/70">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{workflow.audience}</p>
+          <CardHeader className="border-b border-border/60 bg-gradient-to-br from-white via-white to-secondary/20">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-secondary-foreground">{workflow.audience}</p>
             <CardTitle className="mt-3 transition-colors duration-200 group-hover:text-primary">
               {workflow.title}
             </CardTitle>

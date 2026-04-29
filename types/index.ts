@@ -1,4 +1,7 @@
 export type PricingTier = "Free" | "Freemium" | "Paid";
+export type SkillLevel = "Beginner" | "Intermediate" | "Advanced";
+export type ToolPlatform = "Web" | "Chrome Extension" | "iOS" | "Android" | "Desktop";
+export type ToolOutputType = "Text" | "Image" | "PDF" | "Video" | "Code" | "Audio";
 export type UserRole = "user" | "admin";
 export type UserPlan = "free" | "pro" | "vendor";
 export type BillingCycle = "monthly" | "yearly";
@@ -67,6 +70,13 @@ export interface Tool {
   featuredUntil?: string | null;
   featureSource?: FeatureSource | null;
   createdBy?: string | null;
+  loginRequired?: boolean | null;
+  skillLevel?: SkillLevel | null;
+  platforms?: ToolPlatform[];
+  outputTypes?: ToolOutputType[];
+  bestFor?: string[];
+  verifiedListing?: boolean;
+  lastCheckedAt?: string | null;
 }
 
 export interface ToolQuery {
@@ -74,6 +84,10 @@ export interface ToolQuery {
   category?: string;
   tags?: string[];
   pricing?: PricingTier;
+  loginRequired?: boolean;
+  skillLevel?: SkillLevel;
+  platforms?: ToolPlatform[];
+  outputTypes?: ToolOutputType[];
   featured?: boolean;
   recent?: boolean;
   sort?: ToolSort;

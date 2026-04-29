@@ -28,6 +28,10 @@ function parseOptionalNumber(value: FormDataEntryValue | null) {
 }
 
 function getToolFormInput(formData: FormData) {
+  const loginRequiredValue = String(formData.get("loginRequired") ?? "").trim();
+  const skillLevelValue = String(formData.get("skillLevel") ?? "").trim();
+  const lastCheckedAtValue = String(formData.get("lastCheckedAt") ?? "").trim();
+
   return {
     slug: String(formData.get("slug") ?? "").trim() || undefined,
     name: String(formData.get("name") ?? "").trim(),
@@ -38,6 +42,14 @@ function getToolFormInput(formData: FormData) {
     categorySlug: String(formData.get("categorySlug") ?? "").trim(),
     tags: parseList(formData.get("tags")),
     pricing: String(formData.get("pricing") ?? "").trim(),
+    loginRequired:
+      loginRequiredValue === "yes" ? true : loginRequiredValue === "no" ? false : null,
+    skillLevel: skillLevelValue || null,
+    platforms: parseList(formData.get("platforms")),
+    outputTypes: parseList(formData.get("outputTypes")),
+    bestFor: parseList(formData.get("bestFor")),
+    verifiedListing: formData.get("verifiedListing") === "on",
+    lastCheckedAt: lastCheckedAtValue || null,
     logo: String(formData.get("logo") ?? "").trim() || null,
     screenshots: parseList(formData.get("screenshots")),
     featured: formData.get("featured") === "on",
@@ -62,6 +74,13 @@ export async function createToolAction(input: unknown) {
     categorySlug: payload.categorySlug,
     tags: payload.tags,
     pricing: payload.pricing,
+    loginRequired: payload.loginRequired ?? null,
+    skillLevel: payload.skillLevel ?? null,
+    platforms: payload.platforms,
+    outputTypes: payload.outputTypes,
+    bestFor: payload.bestFor,
+    verifiedListing: payload.verifiedListing,
+    lastCheckedAt: payload.lastCheckedAt ?? null,
     logo: payload.logo ?? null,
     screenshots: payload.screenshots,
     featured: payload.featured,

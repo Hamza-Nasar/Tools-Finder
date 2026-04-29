@@ -7,7 +7,7 @@ const config = getSeoLandingConfig("ai-tools-for-youtubers");
 
 export const metadata = buildMetadata({
   title: config?.title ?? "AI Tools for YouTubers",
-  description: config?.description ?? "Browse AI tools for YouTubers from the live directory.",
+  description: config?.description ?? "Browse AI tools for YouTubers from the curated discovery engine.",
   path: "/ai-tools-for-youtubers",
   keywords: ["ai tools for youtubers", "youtube ai tools", "ai tools for creators"]
 });

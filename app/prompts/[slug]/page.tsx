@@ -37,7 +37,7 @@ export default async function PromptToolPage({
   }
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Prompt pack"
         title={`${group.toolName} prompts`}
@@ -45,10 +45,10 @@ export default async function PromptToolPage({
         actions={
           <>
             <Button asChild>
-              <Link href="/prompts">All prompts</Link>
+              <Link href="/prompts">View prompt library</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href={`/tools?q=${encodeURIComponent(group.toolName)}`}>Find tool</Link>
+              <Link href={`/tools?q=${encodeURIComponent(group.toolName)}`}>Find my tool</Link>
             </Button>
           </>
         }

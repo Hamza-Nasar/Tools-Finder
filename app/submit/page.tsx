@@ -6,7 +6,7 @@ import { PageHero } from "@/components/shared/page-hero";
 
 export const metadata = buildMetadata({
   title: "Submit an AI Tool",
-  description: "Submit a new AI tool for moderation and listing in the AI Tools Finder directory.",
+  description: "Submit a new AI tool for moderation and listing in the AI Tools Finder discovery engine.",
   path: "/submit"
 });
 
@@ -15,15 +15,15 @@ export default async function SubmitToolPage() {
   const categories = await getPublicCategories();
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Submit"
-        title="Pitch a tool for inclusion in the directory."
+        title="Submit your tool for premium review."
         description="Share the product, workflow, and category fit. Every submission is reviewed before it appears publicly."
         stats={[
           { label: "Review flow", value: "Moderated", detail: "new tools enter a pending queue" },
           { label: "Categories", value: String(categories.length), detail: "available workflow lanes" },
-          { label: "Listing state", value: "Premium", detail: "approved entries feed the main directory" }
+          { label: "Listing state", value: "Premium", detail: "approved entries feed the discovery engine" }
         ]}
       />
       <div className="mt-8 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -52,3 +52,4 @@ export default async function SubmitToolPage() {
     </div>
   );
 }
+

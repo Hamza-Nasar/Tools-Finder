@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { isDatabaseUnavailableError } from "@/lib/errors";
 import { ToolService } from "@/lib/services/tool-service";
+import type { SkillLevel, ToolOutputType, ToolPlatform } from "@/types";
 
 const getHomepageToolsCached = unstable_cache(
   async () => {
@@ -43,6 +44,10 @@ const getPublicToolListCached = unstable_cache(
     category?: string;
     tags?: string[];
     pricing?: "Free" | "Freemium" | "Paid";
+    loginRequired?: boolean;
+    skillLevel?: SkillLevel;
+    platforms?: ToolPlatform[];
+    outputTypes?: ToolOutputType[];
     sort?: "newest" | "popular" | "favorited" | "featured";
     featured?: boolean;
     recent?: boolean;
@@ -147,6 +152,10 @@ export async function getPublicToolList(query: {
   category?: string;
   tags?: string[];
   pricing?: "Free" | "Freemium" | "Paid";
+  loginRequired?: boolean;
+  skillLevel?: SkillLevel;
+  platforms?: ToolPlatform[];
+  outputTypes?: ToolOutputType[];
   sort?: "newest" | "popular" | "favorited" | "featured";
   featured?: boolean;
   recent?: boolean;

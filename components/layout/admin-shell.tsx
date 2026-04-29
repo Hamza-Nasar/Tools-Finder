@@ -10,7 +10,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="page-frame grid gap-8 py-10 lg:grid-cols-[280px_1fr]">
-      <aside className="surface-card hero-mesh p-5 lg:sticky lg:top-24 lg:h-fit">
+      <aside className="section-shell hero-mesh p-5 lg:sticky lg:top-24 lg:h-fit">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Admin</p>
         <h1 className="mt-2 font-[family-name:var(--font-heading)] text-2xl font-bold">
           Platform control
@@ -29,8 +29,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "rounded-[1.1rem] px-4 py-3 text-sm font-medium transition",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "border border-transparent text-muted-foreground hover:border-border/80 hover:bg-white/82 hover:text-foreground"
+                    ? "bg-gradient-to-r from-primary via-secondary-foreground to-primary text-primary-foreground shadow-sm"
+                    : "border border-transparent text-muted-foreground hover:border-border/80 hover:bg-white/86 hover:text-foreground"
                 )}
               >
                 {item.label}

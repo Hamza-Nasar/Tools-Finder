@@ -11,8 +11,8 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, ctaHref, ctaLabel, label = "Empty" }: EmptyStateProps) {
   return (
-    <div className="surface-card rounded-[2rem] border-dashed px-6 py-14 text-center">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-border bg-white/80 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+    <div className="section-shell rounded-[2rem] border-dashed px-6 py-14 text-center">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-white/85 bg-white/90 text-sm font-semibold uppercase tracking-[0.18em] text-secondary-foreground">
         {label}
       </div>
       <h3 className="mt-6 font-[family-name:var(--font-heading)] text-2xl font-semibold">{title}</h3>

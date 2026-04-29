@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type SyntheticEvent } from "react";
+import { useMemo, useState, type SyntheticEvent } from "react";
 import Image, { type ImageProps } from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -24,19 +24,38 @@ export function SmoothImage({
   alt,
   blurDataURL,
   className,
-  fadeDurationMs = 500,
+  fadeDurationMs = 320,
   onLoad,
   placeholder,
-  quality = 90,
+  quality = 75,
   style,
   ...props
 }: SmoothImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  const isRemoteUrl = useMemo(() => {
+    if (typeof props.src !== "string") {
+      return false;
+    }
+
+    return props.src.startsWith("http://") || props.src.startsWith("https://");
+  }, [props.src]);
 
   const handleLoad = (event: SyntheticEvent<HTMLImageElement, Event>) => {
     setIsLoaded(true);
     onLoad?.(event);
   };
+
+  if (hasError) {
+    return (
+      <span
+        aria-hidden="true"
+        className={cn("block bg-muted/70", className)}
+        style={style}
+      />
+    );
+  }
 
   return (
     <Image
@@ -45,12 +64,14 @@ export function SmoothImage({
       blurDataURL={blurDataURL ?? DEFAULT_BLUR_DATA_URL}
       className={cn(
         "transform-gpu transition-[opacity,transform,filter] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
-        isLoaded ? "scale-100 opacity-100 blur-0" : "scale-[1.03] opacity-0 blur-sm",
+        isLoaded ? "scale-100 opacity-100 blur-0" : "scale-[1.01] opacity-0 blur-[1px]",
         className
       )}
       onLoad={handleLoad}
+      onError={() => setHasError(true)}
       placeholder={placeholder ?? "blur"}
       quality={quality}
+      unoptimized={props.unoptimized ?? isRemoteUrl}
       style={{ ...style, transitionDuration: `${fadeDurationMs}ms` }}
     />
   );

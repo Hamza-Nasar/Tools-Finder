@@ -23,10 +23,10 @@ export default async function CategoriesPage() {
   const totalTools = categories.reduce((sum, category) => sum + category.toolCount, 0);
 
   return (
-    <div className="page-frame py-12">
+    <div className="page-frame py-14">
       <PageHero
         eyebrow="Categories"
-        title="Browse the AI landscape by workflow."
+        title="Find tools by task, not by guesswork."
         description="Every category is designed to scale into a premium landing page with curated discovery, spotlight inventory, and a focused tool feed."
         stats={[
           { label: "Categories", value: compactNumber(categories.length), detail: "covering the major AI workflows" },
@@ -40,3 +40,4 @@ export default async function CategoriesPage() {
     </div>
   );
 }
+

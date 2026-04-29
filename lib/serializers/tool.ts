@@ -68,6 +68,22 @@ export function serializeTool(record: SerializableRecord): Tool {
     categorySlug,
     tags: toStringArray(record.tags),
     pricing: record.pricing as Tool["pricing"],
+    loginRequired:
+      typeof record.loginRequired === "boolean"
+        ? record.loginRequired
+        : record.loginRequired === null
+          ? null
+          : null,
+    skillLevel: (record.skillLevel as Tool["skillLevel"] | undefined) ?? null,
+    platforms: Array.isArray(record.platforms)
+      ? record.platforms.map((item) => String(item)) as NonNullable<Tool["platforms"]>
+      : [],
+    outputTypes: Array.isArray(record.outputTypes)
+      ? record.outputTypes.map((item) => String(item)) as NonNullable<Tool["outputTypes"]>
+      : [],
+    bestFor: Array.isArray(record.bestFor) ? record.bestFor.map((item) => String(item)) : [],
+    verifiedListing: Boolean(record.verifiedListing),
+    lastCheckedAt: record.lastCheckedAt ? toIsoString(record.lastCheckedAt) : null,
     featured: isActiveFeatured,
     status: record.status as Tool["status"],
     logo: record.logo ? String(record.logo) : null,

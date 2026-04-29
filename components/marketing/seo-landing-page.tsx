@@ -81,7 +81,7 @@ export function SeoLandingPage({
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="interactive-panel block rounded-[1.15rem] border border-border/70 bg-white/72 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
+                    className="interactive-panel block rounded-[1.15rem] border border-white/85 bg-white/86 px-4 py-4 text-sm font-medium text-foreground hover:bg-white"
                   >
                     {link.label}
                   </Link>

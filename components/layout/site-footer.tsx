@@ -25,7 +25,7 @@ const footerColumns = [
       { href: "/prompts", label: "Prompt Library" },
       { href: "/my-stack", label: "My Stack" },
       { href: "/image-tools", label: "Image Tools" },
-      { href: "/image-compressor", label: "Image Compressor" }
+      { href: "/find-ai-tool", label: "Quick Recommender" }
     ]
   },
   {
@@ -34,7 +34,7 @@ const footerColumns = [
       { href: "/submit", label: "Submit Tool" },
       { href: "/best-free-ai-tools", label: "Best Free AI Tools" },
       { href: "/pdf-tools", label: "PDF Tools" },
-      { href: "/pdf-merger", label: "PDF Merger" },
+      { href: "/pricing", label: "Pricing" },
       { href: "/favorites", label: "Favorites" },
       { href: "/auth/login", label: "Login" }
     ]
@@ -92,7 +92,7 @@ export function SiteFooter() {
             <div className="flex flex-wrap gap-3">
               <Button asChild>
                 <Link href="/find-ai-tool">
-                  Open AI Finder
+                  Find my tool
                   <ArrowRight data-icon="inline-end" />
                 </Link>
               </Button>
@@ -104,14 +104,14 @@ export function SiteFooter() {
 
           <div className="flex flex-col gap-6">
             <div className="grid gap-4 md:grid-cols-3">
-              {footerHighlights.map((item, index) => {
+      {footerHighlights.map((item, index) => {
                 const Icon = item.icon;
 
                 return (
                   <MotionReveal
                     key={item.label}
                     delay={index * 0.05}
-                    className="surface-card-hover rounded-[1.35rem] border border-white/70 bg-white/[0.72] p-5 shadow-sm backdrop-blur"
+                    className="surface-card-hover rounded-[1.35rem] border border-white/80 bg-white/[0.84] p-5 shadow-sm backdrop-blur"
                     y={16}
                   >
                     <Icon className="size-5 text-primary" aria-hidden="true" />
@@ -123,7 +123,7 @@ export function SiteFooter() {
             </div>
 
             <MotionReveal
-              className="rounded-[1.5rem] border border-border/70 bg-white/70 p-5 shadow-sm backdrop-blur"
+              className="rounded-[1.5rem] border border-white/80 bg-white/82 p-5 shadow-sm backdrop-blur"
               y={18}
             >
               <div className="grid gap-7 sm:grid-cols-3">
@@ -132,7 +132,11 @@ export function SiteFooter() {
                     <p className="text-sm font-semibold text-foreground">{column.title}</p>
                     <div className="flex flex-col gap-2">
                       {column.links.map((link) => (
-                        <Link key={link.href} href={link.href} className="footer-link text-sm text-muted-foreground">
+                        <Link
+                          key={`${column.title}-${link.href}-${link.label}`}
+                          href={link.href}
+                          className="footer-link text-sm text-muted-foreground"
+                        >
                           {link.label}
                         </Link>
                       ))}
@@ -146,7 +150,7 @@ export function SiteFooter() {
 
         <Separator className="mt-10" />
         <div className="mt-6 flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>Built for clearer AI discovery decisions and higher-intent product visibility.</p>
+          <p>Built for faster AI decisions, stronger discovery pages, and scalable SaaS growth.</p>
           <Link href="/submit" className="footer-link font-medium text-foreground">
             Submit your product
           </Link>

@@ -58,11 +58,11 @@ export function AiToolFinder({
               <div className="flex flex-wrap gap-3">
                 <Button type="submit">
                   <Search data-icon="inline-start" />
-                  Find tools
+                  Get recommendations
                 </Button>
                 <Button asChild type="button" variant="outline">
                   <Link href="/tools">
-                    Browse manually
+                    Browse categories
                     <ArrowUpRight data-icon="inline-end" />
                   </Link>
                 </Button>

@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
-import type { PricingTier, TodayToolsFeed, Tool, ToolDirectoryFacets, ToolSort, ToolSuggestion } from "@/types";
+import type {
+  PricingTier,
+  SkillLevel,
+  TodayToolsFeed,
+  Tool,
+  ToolDirectoryFacets,
+  ToolOutputType,
+  ToolPlatform,
+  ToolSort,
+  ToolSuggestion
+} from "@/types";
 import { slugify } from "@/utils/slugify";
 import { connectToDatabase } from "@/lib/mongodb";
 import { AppError, isMissingTextIndexError } from "@/lib/errors";
@@ -23,6 +33,10 @@ interface ListToolsOptions {
   category?: string;
   tags?: string[];
   pricing?: PricingTier;
+  loginRequired?: boolean;
+  skillLevel?: SkillLevel;
+  platforms?: ToolPlatform[];
+  outputTypes?: ToolOutputType[];
   sort?: ToolSort;
   featured?: boolean;
   recent?: boolean;
@@ -43,6 +57,13 @@ interface ToolWriteInput {
   categorySlug: string;
   tags: string[];
   pricing: "Free" | "Freemium" | "Paid";
+  loginRequired?: boolean | null;
+  skillLevel?: SkillLevel | null;
+  platforms?: ToolPlatform[];
+  outputTypes?: ToolOutputType[];
+  bestFor?: string[];
+  verifiedListing?: boolean;
+  lastCheckedAt?: string | null;
   logo?: string | null;
   screenshots?: string[];
   featured?: boolean;
@@ -95,6 +116,13 @@ const TOOL_LIST_PROJECTION = {
   categorySlug: 1,
   tags: 1,
   pricing: 1,
+  loginRequired: 1,
+  skillLevel: 1,
+  platforms: 1,
+  outputTypes: 1,
+  bestFor: 1,
+  verifiedListing: 1,
+  lastCheckedAt: 1,
   featured: 1,
   affiliateUrl: 1,
   launchYear: 1,
@@ -391,6 +419,24 @@ export class ToolService {
 
     if (options.pricing) {
       filter.pricing = options.pricing;
+    }
+
+    if (options.loginRequired !== undefined) {
+      filter.loginRequired = options.loginRequired;
+    }
+
+    if (options.skillLevel) {
+      filter.skillLevel = options.skillLevel;
+    }
+
+    const normalizedPlatforms = (options.platforms ?? []).map((value) => value.trim()).filter(Boolean);
+    if (normalizedPlatforms.length) {
+      filter.platforms = { $in: normalizedPlatforms };
+    }
+
+    const normalizedOutputTypes = (options.outputTypes ?? []).map((value) => value.trim()).filter(Boolean);
+    if (normalizedOutputTypes.length) {
+      filter.outputTypes = { $in: normalizedOutputTypes };
     }
 
     if (options.featured !== undefined) {
@@ -1044,6 +1090,13 @@ export class ToolService {
       categorySlug: category.slug,
       tags: sanitizeTagList(input.tags),
       pricing: input.pricing,
+      loginRequired: input.loginRequired ?? null,
+      skillLevel: input.skillLevel ?? null,
+      platforms: (input.platforms ?? []).map((value) => value.trim()).filter(Boolean),
+      outputTypes: (input.outputTypes ?? []).map((value) => value.trim()).filter(Boolean),
+      bestFor: (input.bestFor ?? []).map((value) => sanitizeText(value)).filter(Boolean),
+      verifiedListing: input.verifiedListing ?? false,
+      lastCheckedAt: input.lastCheckedAt ? new Date(input.lastCheckedAt) : null,
       logo: sanitizeOptionalUrl(input.logo ?? null),
       screenshots: (input.screenshots ?? []).map((shot) => sanitizeUrl(shot)),
       featured: input.featured ?? false,
@@ -1109,6 +1162,21 @@ export class ToolService {
     if (input.launchYear !== undefined) tool.launchYear = sanitizeLaunchYear(input.launchYear);
     if (input.tags !== undefined) tool.tags = sanitizeTagList(input.tags);
     if (input.pricing !== undefined) tool.pricing = input.pricing;
+    if (input.loginRequired !== undefined) tool.loginRequired = input.loginRequired;
+    if (input.skillLevel !== undefined) tool.skillLevel = input.skillLevel;
+    if (input.platforms !== undefined) {
+      tool.platforms = input.platforms.map((value) => value.trim()).filter(Boolean);
+    }
+    if (input.outputTypes !== undefined) {
+      tool.outputTypes = input.outputTypes.map((value) => value.trim()).filter(Boolean);
+    }
+    if (input.bestFor !== undefined) {
+      tool.bestFor = input.bestFor.map((value) => sanitizeText(value)).filter(Boolean);
+    }
+    if (input.verifiedListing !== undefined) tool.verifiedListing = input.verifiedListing;
+    if (input.lastCheckedAt !== undefined) {
+      tool.lastCheckedAt = input.lastCheckedAt ? new Date(input.lastCheckedAt) : null;
+    }
     if (input.logo !== undefined) tool.logo = sanitizeOptionalUrl(input.logo ?? null);
     if (input.screenshots !== undefined) tool.screenshots = input.screenshots.map((shot) => sanitizeUrl(shot));
     if (input.featured !== undefined) {

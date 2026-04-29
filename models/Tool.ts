@@ -79,6 +79,37 @@ const ToolSchema = new Schema(
       enum: ["Free", "Freemium", "Paid"],
       required: true
     },
+    loginRequired: {
+      type: Boolean,
+      default: null
+    },
+    skillLevel: {
+      type: String,
+      enum: ["Beginner", "Intermediate", "Advanced"],
+      default: null
+    },
+    platforms: {
+      type: [String],
+      enum: ["Web", "Chrome Extension", "iOS", "Android", "Desktop"],
+      default: []
+    },
+    outputTypes: {
+      type: [String],
+      enum: ["Text", "Image", "PDF", "Video", "Code", "Audio"],
+      default: []
+    },
+    bestFor: {
+      type: [String],
+      default: []
+    },
+    verifiedListing: {
+      type: Boolean,
+      default: false
+    },
+    lastCheckedAt: {
+      type: Date,
+      default: null
+    },
     featured: {
       type: Boolean,
       default: false
@@ -156,6 +187,7 @@ ToolSchema.index({ status: 1, featured: -1, createdAt: -1 });
 ToolSchema.index({ status: 1, categorySlug: 1, trendingScore: -1, createdAt: -1 });
 ToolSchema.index({ status: 1, tags: 1 });
 ToolSchema.index({ status: 1, pricing: 1, createdAt: -1 });
+ToolSchema.index({ status: 1, loginRequired: 1, skillLevel: 1, createdAt: -1 });
 ToolSchema.index({ websiteDomain: 1, status: 1, createdAt: -1 });
 ToolSchema.index({ status: 1, trendingScore: -1, favoritesCount: -1, viewsCount: -1, createdAt: -1 });
 ToolSchema.index({ status: 1, favoritesCount: -1, latestFavoriteAt: -1, createdAt: -1 });

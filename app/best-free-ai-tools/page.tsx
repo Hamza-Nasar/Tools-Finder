@@ -7,7 +7,7 @@ const config = getSeoLandingConfig("best-free-ai-tools");
 
 export const metadata = buildMetadata({
   title: config?.title ?? "Best Free AI Tools",
-  description: config?.description ?? "Browse the best free AI tools from the live directory.",
+  description: config?.description ?? "Browse the best free AI tools from the curated discovery engine.",
   path: "/best-free-ai-tools",
   keywords: ["best free ai tools", "free ai tools", "top free ai apps"]
 });

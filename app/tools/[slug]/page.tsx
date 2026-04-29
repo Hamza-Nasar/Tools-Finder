@@ -74,13 +74,13 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
 
   if (unavailable) {
     return (
-      <div className="page-frame py-12">
+      <div className="page-frame py-14">
         <EmptyState
           label="Offline"
           title="Tool details are temporarily unavailable"
-          description="The directory cannot reach its database right now. Restore the MongoDB connection and refresh the page."
+          description="The platform cannot reach its database right now. Restore the MongoDB connection and refresh the page."
           ctaHref="/tools"
-          ctaLabel="Back to directory"
+          ctaLabel="Back to tools"
         />
       </div>
     );
@@ -120,7 +120,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
     name: tool.name,
     description: tool.description,
     applicationCategory: tool.category,
-    operatingSystem: "Web",
+    operatingSystem: tool.platforms?.length ? tool.platforms.join(", ") : "Web",
     mainEntityOfPage: absoluteUrl(`/tools/${tool.slug}`),
     sameAs: [tool.website],
     datePublished: tool.launchYear ? `${tool.launchYear}-01-01` : undefined,
@@ -131,6 +131,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
       price: tool.pricing === "Paid" ? "Paid" : "0",
       priceCurrency: "USD"
     },
+    featureList: tool.bestFor ?? [],
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: Number(tool.rating.toFixed(1)),
@@ -177,7 +178,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           toolSlug={tool.slug}
           pagePath={`/tools/${tool.slug}`}
           compact
-          title={`Get more tools like ${tool.name} without checking the directory every day.`}
+          title={`Get more tools like ${tool.name} without checking multiple sites every day.`}
           description={`Join the newsletter for new ${tool.category.toLowerCase()} tools, comparison pages, and workflow updates surfaced from the fastest-moving parts of the catalog.`}
           buttonLabel="Send me updates"
         />
