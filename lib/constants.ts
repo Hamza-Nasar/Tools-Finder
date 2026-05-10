@@ -1,10 +1,43 @@
 import type { NavItem, PricingTier, SkillLevel, ToolOutputType, ToolPlatform } from "@/types";
 
+const productionUrl = "https://tools-finder-delta.vercel.app";
+
+function normalizeSiteUrl(input: string | undefined) {
+  if (!input) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(input.startsWith("http") ? input : `https://${input}`);
+    return url.origin.replace(/\/+$/, "");
+  } catch {
+    return undefined;
+  }
+}
+
+function isLocalSiteUrl(input: string | undefined) {
+  if (!input) {
+    return false;
+  }
+
+  try {
+    const url = new URL(input.startsWith("http") ? input : `https://${input}`);
+    return ["localhost", "127.0.0.1", "::1"].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+const configuredSiteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_APP_URL);
+const vercelProductionUrl = normalizeSiteUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+const shouldUseConfiguredSiteUrl =
+  configuredSiteUrl && (process.env.NODE_ENV !== "production" || !isLocalSiteUrl(configuredSiteUrl));
+
 export const siteConfig = {
   name: "AI Tools Finder",
   description:
     "A free online tools directory for SEO tools, PDF tools, image tools, AI workflows, and faster no-signup discovery.",
-  url: (process.env.NEXT_PUBLIC_APP_URL ?? "https://tools-finder-delta.vercel.app").replace(/\/+$/, "")
+  url: shouldUseConfiguredSiteUrl ? configuredSiteUrl : (vercelProductionUrl ?? productionUrl)
 };
 
 export const mainNav: NavItem[] = [

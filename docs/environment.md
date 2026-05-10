@@ -4,6 +4,7 @@
 
 - `NEXT_PUBLIC_APP_URL`
   Public base URL for metadata, canonical URLs, Stripe redirects, sitemap entries, and email links.
+  In production, set this to the live domain. Localhost values are ignored for SEO URLs during production builds so sitemap and robots output cannot point crawlers at a local development server.
 - `NEXTAUTH_URL`
   NextAuth callback URL. Match the deployment domain.
 - `NEXTAUTH_SECRET`
