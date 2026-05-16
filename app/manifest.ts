@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/constants";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: siteConfig.name,
-    short_name: "Tools Finder",
+    short_name: "Toolverse",
     description:
       "Find and compare the best AI, SEO, PDF, and image tools with workflow-first discovery and fast no-signup routes.",
     start_url: "/",

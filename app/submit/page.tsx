@@ -6,7 +6,7 @@ import { PageHero } from "@/components/shared/page-hero";
 
 export const metadata = buildMetadata({
   title: "Submit an AI Tool",
-  description: "Submit a new AI tool for moderation and listing in the AI Tools Finder discovery engine.",
+  description: "Submit a new AI tool for moderation and listing in the Toolverse Atlas discovery engine.",
   path: "/submit"
 });
 

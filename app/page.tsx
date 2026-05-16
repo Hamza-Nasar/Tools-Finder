@@ -346,7 +346,7 @@ export default async function HomePage() {
       {
         "@type": "WebPage",
         "@id": absoluteUrl("/#homepage"),
-        name: "Tools Finder Homepage",
+        name: "Toolverse Homepage",
         url: absoluteUrl("/"),
         description:
           "A workflow-first discovery hub for AI, SEO, PDF, and image tools with comparison routes and daily movement signals.",
@@ -398,7 +398,7 @@ export default async function HomePage() {
                 Best free online tools for SEO, PDF, image, and AI workflows in 2026.
               </h2>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
-                Tools Finder helps you move from a vague search result to the right browser-based tool faster. Instead of opening five tabs and testing random apps, start with focused routes for free online tools that solve common work problems: SEO tools for better rankings and click-through rates, PDF tools for cleaner documents, image tools for lighter visual assets, and AI tools for research, content, coding, design, and marketing workflows.
+                Toolverse helps you move from a vague search result to the right browser-based tool faster. Instead of opening five tabs and testing random apps, start with focused routes for free online tools that solve common work problems: SEO tools for better rankings and click-through rates, PDF tools for cleaner documents, image tools for lighter visual assets, and AI tools for research, content, coding, design, and marketing workflows.
               </p>
               <p className="mt-4 text-base leading-8 text-muted-foreground">
                 The goal is simple: fast results, clear comparisons, and no unnecessary signup friction when the job should be instant. Use the homepage when you want the best free online tools in one place, then move into a dedicated page when you already know the task. Each route links back into the broader directory so you can compare free, freemium, and premium options without losing context.
@@ -792,7 +792,7 @@ export default async function HomePage() {
         <SectionHeading
           eyebrow="Unique framework"
           title="Tool Fit Score: how we separate useful tools from noise."
-          description="Most directories stop at categories. Tools Finder adds a four-signal framework so visitors can decide faster with less trial and error."
+          description="Most directories stop at categories. Toolverse adds a four-signal framework so visitors can decide faster with less trial and error."
         />
         <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {toolFitPillars.map((pillar, index) => (

@@ -3,8 +3,8 @@ import { env } from "@/lib/env";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Signup | AI Tools Finder",
-  description: "Create an AI Tools Finder account with email and password or continue with Google.",
+  title: "Signup | Toolverse Atlas",
+  description: "Create a Toolverse Atlas account with email and password or continue with Google.",
   path: "/auth/signup",
   noIndex: true
 });

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "AI Tools Finder";
+export const alt = "Toolverse Atlas";
 export const size = {
   width: 1200,
   height: 630
@@ -51,7 +51,7 @@ export default function OpenGraphImage() {
             AI
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.05 }}>AI Tools Finder</div>
+            <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.05 }}>Toolverse Atlas</div>
             <div style={{ fontSize: 30, color: "#3E4D57", maxWidth: 900 }}>
               Premium discovery, featured listings, and launch-ready monetization for modern AI products.
             </div>

@@ -1,6 +1,6 @@
-# AI Tools Finder
+# Toolverse Atlas
 
-AI Tools Finder is a production-ready SaaS directory for discovering, filtering, submitting, saving, and featuring AI tools. The platform is built with Next.js App Router, TypeScript, Tailwind CSS, MongoDB, NextAuth, and Stripe.
+Toolverse Atlas is a production-ready SaaS directory for discovering, filtering, submitting, saving, and featuring AI tools. The platform is built with Next.js App Router, TypeScript, Tailwind CSS, MongoDB, NextAuth, and Stripe.
 
 ## What is included
 

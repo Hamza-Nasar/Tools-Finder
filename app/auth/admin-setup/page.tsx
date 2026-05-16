@@ -4,8 +4,8 @@ import { buildMetadata } from "@/lib/seo";
 import { UserService } from "@/lib/services/user-service";
 
 export const metadata = buildMetadata({
-  title: "First Admin Setup | AI Tools Finder",
-  description: "Create the first AI Tools Finder admin account.",
+  title: "First Admin Setup | Toolverse Atlas",
+  description: "Create the first Toolverse Atlas admin account.",
   path: "/auth/admin-setup",
   noIndex: true
 });

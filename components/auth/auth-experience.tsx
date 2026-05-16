@@ -203,7 +203,7 @@ export function AuthExperience({
           <CardHeader className="border-b border-border/70">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-primary shadow-sm">
               <Sparkles className="h-3.5 w-3.5" />
-              AI Tools Finder
+              Toolverse Atlas
             </div>
             <CardTitle className="mt-6 max-w-xl text-4xl md:text-5xl">
               {isLogin ? "Welcome back to your AI workspace." : "Create your account and start curating faster."}

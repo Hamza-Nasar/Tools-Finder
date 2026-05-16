@@ -153,10 +153,10 @@ export class EmailService {
 
     return sendEmail({
       to: input.to,
-      subject: "Your AI Tools Finder admin invite",
+      subject: "Your Toolverse Atlas admin invite",
       html: `
         <h1>Admin invite</h1>
-        <p>${input.invitedByEmail} invited you to join AI Tools Finder as an admin.</p>
+        <p>${input.invitedByEmail} invited you to join Toolverse Atlas as an admin.</p>
         <p>This invite expires on <strong>${input.expiresAt}</strong>.</p>
         <p><a href="${input.inviteUrl}">Accept admin invite</a></p>
         <p>If you did not expect this invite, ignore this email.</p>
@@ -198,10 +198,10 @@ export class EmailService {
   }) {
     return sendEmail({
       to: input.to,
-      subject: `${input.toolName} was approved on AI Tools Finder`,
+      subject: `${input.toolName} was approved on Toolverse Atlas`,
       html: `
         <h1>Your submission was approved</h1>
-        <p>${input.toolName} is now live on AI Tools Finder.</p>
+        <p>${input.toolName} is now live on Toolverse Atlas.</p>
         ${
           input.toolUrl
             ? `<p><a href="${input.toolUrl}">View the live listing</a></p>`
@@ -218,7 +218,7 @@ export class EmailService {
   }) {
     return sendEmail({
       to: input.to,
-      subject: `${input.toolName} was submitted to AI Tools Finder`,
+      subject: `${input.toolName} was submitted to Toolverse Atlas`,
       html: `
         <h1>Your tool is in review</h1>
         <p>We received <strong>${input.toolName}</strong> and added it to the moderation queue.</p>

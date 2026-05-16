@@ -18,11 +18,11 @@ export function BlogPostPage({ post }: { post: BlogPostConfig }) {
         dateModified: post.dateModified,
         author: {
           "@type": "Organization",
-          name: "Tools Finder"
+          name: "Toolverse"
         },
         publisher: {
           "@type": "Organization",
-          name: "Tools Finder",
+          name: "Toolverse",
           logo: {
             "@type": "ImageObject",
             url: absoluteUrl("/icon.svg")

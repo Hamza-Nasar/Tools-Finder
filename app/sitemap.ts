@@ -23,7 +23,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/prompts",
     "/today-ai-tools",
     "/workflows",
-    "/submit",
     ...toolCollections.map((collection) => `/collections/${collection.slug}`),
     ...promptGroups.map((group) => `/prompts/${group.slug}`),
     ...workflows.map((workflow) => `/workflows/${workflow.slug}`),
@@ -34,8 +33,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ].map((route) => ({
     url: `${siteConfig.url}${route}`,
     lastModified: new Date(),
-    changeFrequency: "daily" as const,
-    priority: route === "" ? 1 : 0.8
+    changeFrequency: route === "" ? ("daily" as const) : ("weekly" as const),
+    priority:
+      route === ""
+        ? 1
+        : ["/tools", "/categories", "/find-ai-tool", "/today-ai-tools", "/workflows"].includes(route)
+          ? 0.9
+          : 0.75
   }));
 
   try {
@@ -51,14 +55,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const toolRoutes = tools.data.map((tool) => ({
       url: `${siteConfig.url}/tools/${tool.slug}`,
-      lastModified: new Date(tool.createdAt),
+      lastModified: new Date((tool.updatedAt ?? tool.createdAt) as string | Date),
       changeFrequency: "weekly" as const,
       priority: tool.featured ? 0.9 : 0.7
     }));
 
     const alternativeRoutes = tools.data.map((tool) => ({
       url: `${siteConfig.url}/alternatives/${tool.slug}`,
-      lastModified: new Date(tool.createdAt),
+      lastModified: new Date((tool.updatedAt ?? tool.createdAt) as string | Date),
       changeFrequency: "weekly" as const,
       priority: 0.65
     }));

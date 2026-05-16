@@ -98,7 +98,7 @@ export function OnlineToolLandingPage({ config }: { config: OnlineToolLandingCon
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Why this page exists</p>
             <p className="mt-4 text-sm leading-7 text-muted-foreground">
               Search visitors often need one fast answer before they compare a larger stack. These pages give Google and
-              users a clear route into focused tool categories while linking back to the broader Tools Finder homepage.
+              users a clear route into focused tool categories while linking back to the broader Toolverse homepage.
             </p>
           </div>
         </aside>

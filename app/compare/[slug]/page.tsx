@@ -111,7 +111,7 @@ export default async function ToolComparisonPage({
       about: [toolA.name, toolB.name],
       author: {
         "@type": "Organization",
-        name: "AI Tools Finder"
+        name: "Toolverse Atlas"
       }
     };
 

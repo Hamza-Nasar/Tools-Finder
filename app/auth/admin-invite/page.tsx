@@ -6,8 +6,8 @@ import { buildMetadata } from "@/lib/seo";
 import { AdminInviteService } from "@/lib/services/admin-invite-service";
 
 export const metadata = buildMetadata({
-  title: "Admin Invite | AI Tools Finder",
-  description: "Accept an AI Tools Finder admin invite.",
+  title: "Admin Invite | Toolverse Atlas",
+  description: "Accept a Toolverse Atlas admin invite.",
   path: "/auth/admin-invite",
   noIndex: true
 });
