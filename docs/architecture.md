@@ -1,8 +1,8 @@
-# AI Tools Finder Architecture
+# Toolverse Atlas Architecture
 
 ## Product scope
 
-AI Tools Finder is designed as a global directory for discovering AI tools, filtering the catalog, reading detailed profiles, submitting new tools, saving favorites, and promoting featured listings. The initial architecture is optimized for SEO, modularity, and migration from mock data to MongoDB without rewriting the route tree.
+Toolverse Atlas is designed as a global directory for discovering AI tools, filtering the catalog, reading detailed profiles, submitting new tools, saving favorites, and promoting featured listings. The initial architecture is optimized for SEO, modularity, and migration from mock data to MongoDB without rewriting the route tree.
 
 ## Core architecture decisions
 

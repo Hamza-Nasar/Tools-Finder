@@ -76,7 +76,7 @@ export const onlineToolLandingPages: OnlineToolLandingConfig[] = [
         heading: "How to choose the right image tool",
         body: [
           "Start with the output you need. Use compression tools when page speed matters, converters when a platform requires WebP, PNG, JPG, or SVG, and resizing tools when dimensions are fixed for ads, thumbnails, ecommerce, or blog graphics. Use AI image tools when you need original concepts, variations, visual prompts, mockups, or faster exploration before a final design pass.",
-          "Tools Finder links image workflows back into the wider directory so you can compare image tools beside SEO tools, PDF tools, writing apps, design assistants, and AI productivity tools. That internal structure helps users stay on one site instead of bouncing between unrelated utilities."
+          "Toolverse links image workflows back into the wider directory so you can compare image tools beside SEO tools, PDF tools, writing apps, design assistants, and AI productivity tools. That internal structure helps users stay on one site instead of bouncing between unrelated utilities."
         ]
       }
     ],
@@ -152,7 +152,7 @@ export const onlineToolLandingPages: OnlineToolLandingConfig[] = [
         heading: "When PDF tools help SEO and content teams",
         body: [
           "PDFs are not only office files. They are used for lead magnets, white papers, product sheets, case studies, checklists, invoices, and downloadable resources. Compressing PDFs can reduce load friction. Clear file names, readable text, and accessible formatting help users and search engines understand the document. Converting old PDFs into editable content can also make it easier to republish useful material as web pages.",
-          "Tools Finder connects PDF tools with image tools, SEO tools, writing tools, and AI productivity tools so a visitor can solve the document task and continue into the next workflow. That kind of internal linking supports deeper sessions and gives Google clearer topical context."
+          "Toolverse connects PDF tools with image tools, SEO tools, writing tools, and AI productivity tools so a visitor can solve the document task and continue into the next workflow. That kind of internal linking supports deeper sessions and gives Google clearer topical context."
         ]
       }
     ],
@@ -228,7 +228,7 @@ export const onlineToolLandingPages: OnlineToolLandingConfig[] = [
         heading: "How to use SEO tools without over-optimizing",
         body: [
           "Use keyword research tools to understand how people search, then write for the reader first. Use audit tools to catch missing metadata, broken links, thin content, slow images, duplicate titles, and crawl issues. Use SERP tools to compare title formats and content angles from competing pages, but avoid copying them. The goal is to make your result more useful, clearer, and easier to click.",
-          "Tools Finder connects SEO tools with PDF tools, image tools, AI writing tools, and marketing workflows because SEO work is connected. A compressed image can improve performance, a better PDF can support lead generation, and a stronger writing tool can help refresh old content. Internal links across these pages create topical depth and help users move naturally through related tasks."
+          "Toolverse connects SEO tools with PDF tools, image tools, AI writing tools, and marketing workflows because SEO work is connected. A compressed image can improve performance, a better PDF can support lead generation, and a stronger writing tool can help refresh old content. Internal links across these pages create topical depth and help users move naturally through related tasks."
         ]
       }
     ],

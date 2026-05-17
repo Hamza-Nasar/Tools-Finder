@@ -21,16 +21,17 @@ const headingFont = Space_Grotesk({
 });
 
 export const metadata: Metadata = buildMetadata({
-  title: "AI Tools Finder 2026: Discover, Compare, and Choose Better AI Tools",
+  title: "Toolverse Atlas 2026: Discover, Compare, and Choose Better AI Tools",
   description:
-    "Discover, compare, and shortlist high-performing AI tools across writing, coding, image, video, marketing, productivity, and research workflows.",
+    "Compare top AI, SEO, PDF, and image tools with workflow-first discovery, intent-based search, and no-signup routes.",
   path: "/",
   keywords: [
-    "ai tools finder",
+    "toolverse atlas",
     "best ai tools 2026",
     "ai tools comparison",
     "find ai tools",
-    "ai workflow tools"
+    "ai workflow tools",
+    "free online tools"
   ]
 });
 

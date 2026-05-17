@@ -13,7 +13,7 @@ interface BuildMetadataInput {
 }
 
 const DEFAULT_KEYWORDS = [
-  "ai tools finder",
+  "toolverse atlas",
   "best ai tools",
   "free online tools",
   "seo tools",
@@ -94,7 +94,11 @@ export function buildMetadata({
       apple: [{ url: "/icon.svg", type: "image/svg+xml" }]
     },
     alternates: {
-      canonical: url
+      canonical: url,
+      languages: {
+        "en-US": url,
+        "x-default": url
+      }
     },
     verification: env.GOOGLE_SITE_VERIFICATION
       ? {
@@ -122,8 +126,7 @@ export function buildMetadata({
       card: "summary_large_image",
       title: normalizedTitle,
       description,
-      images: [image],
-      site: "@aitoolsfinder"
+      images: [image]
     },
     other: {
       "theme-color": "#0b1020"

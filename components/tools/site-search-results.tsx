@@ -21,7 +21,7 @@ export function SiteSearchResults({
     <section>
       <SectionHeading
         eyebrow="Overall search"
-        title="Best matches across Tools Finder"
+        title="Best matches across Toolverse"
         description={`Pages, guides, and hubs that match "${query}" before the MongoDB catalog is shown.`}
       />
       <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">

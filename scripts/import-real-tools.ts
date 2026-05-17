@@ -73,7 +73,7 @@ const SOURCE_FETCH_CONCURRENCY = 4;
 const WEBSITE_FETCH_CONCURRENCY = 6;
 const IMPORTER_EMAIL = "importer@ai-tools-finder.local";
 const IMPORTER_NAME = "AI Tools Importer";
-const USER_AGENT = "AI Tools Finder Importer/1.0 (+https://ai-tools-finder.local)";
+const USER_AGENT = "Toolverse Atlas Importer/1.0 (+https://ai-tools-finder.local)";
 
 const canonicalCategories: CategoryDefinition[] = [
   {
@@ -997,7 +997,7 @@ function cleanDescription(value: string | null | undefined, fallbackName: string
   const normalized = normalizeWhitespace(value ?? "");
 
   if (!normalized) {
-    return `${fallbackName} is an AI tool listed in AI Tools Finder.`;
+    return `${fallbackName} is an AI tool listed in Toolverse Atlas.`;
   }
 
   return truncateText(normalized, 320);

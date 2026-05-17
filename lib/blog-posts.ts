@@ -75,7 +75,7 @@ export const blogPosts: BlogPostConfig[] = [
         heading: "The biggest mistake with free SEO tools",
         paragraphs: [
           "The biggest mistake is collecting reports instead of improving pages. Free SEO tools should not become a ritual where you export data, admire charts, and leave the website unchanged. Each tool should answer a clear question: what keyword should this page target, why is this page not getting clicks, what technical issue blocks crawling, or where should internal links point next?",
-          "Use the Tools Finder SEO hub as the starting point, then move into individual long-tail tool pages such as keyword research, SEO audits, and meta title generation. That internal path gives users a way to learn, compare, and act without bouncing back to Google for every next step."
+          "Use the Toolverse SEO hub as the starting point, then move into individual long-tail tool pages such as keyword research, SEO audits, and meta title generation. That internal path gives users a way to learn, compare, and act without bouncing back to Google for every next step."
         ]
       }
     ],

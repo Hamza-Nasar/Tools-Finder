@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   return buildMetadata({
-    title: `${tool.name}: ${tool.tagline} | AI Tools Finder`,
+    title: `${tool.name}: ${tool.tagline} | Toolverse Atlas`,
     description: `${tool.tagline} ${tool.description}`.slice(0, 155),
     path: `/tools/${tool.slug}`,
     keywords: [tool.name, tool.category, ...tool.tags.slice(0, 5)],
@@ -116,28 +116,55 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
   const comparisonTools = relatedTools.filter((relatedTool) => relatedTool.categorySlug === tool.categorySlug).slice(0, 3);
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: tool.name,
-    description: tool.description,
-    applicationCategory: tool.category,
-    operatingSystem: tool.platforms?.length ? tool.platforms.join(", ") : "Web",
-    mainEntityOfPage: absoluteUrl(`/tools/${tool.slug}`),
-    sameAs: [tool.website],
-    datePublished: tool.launchYear ? `${tool.launchYear}-01-01` : undefined,
-    keywords: tool.tags.join(", "),
-    image: tool.logo ?? absoluteUrl("/opengraph-image"),
-    offers: {
-      "@type": "Offer",
-      price: tool.pricing === "Paid" ? "Paid" : "0",
-      priceCurrency: "USD"
-    },
-    featureList: tool.bestFor ?? [],
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: Number(tool.rating.toFixed(1)),
-      ratingCount: tool.reviewCount
-    },
-    url: absoluteUrl(`/tools/${tool.slug}`)
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        name: tool.name,
+        description: tool.description,
+        applicationCategory: tool.category,
+        operatingSystem: tool.platforms?.length ? tool.platforms.join(", ") : "Web",
+        mainEntityOfPage: absoluteUrl(`/tools/${tool.slug}`),
+        sameAs: [tool.website],
+        datePublished: tool.launchYear ? `${tool.launchYear}-01-01` : undefined,
+        keywords: tool.tags.join(", "),
+        image: tool.logo ?? absoluteUrl("/opengraph-image"),
+        offers: {
+          "@type": "Offer",
+          price: tool.pricing === "Paid" ? "Paid" : "0",
+          priceCurrency: "USD"
+        },
+        featureList: tool.bestFor ?? [],
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: Number(tool.rating.toFixed(1)),
+          ratingCount: tool.reviewCount
+        },
+        url: absoluteUrl(`/tools/${tool.slug}`)
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: absoluteUrl("/")
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Tools",
+            item: absoluteUrl("/tools")
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: tool.name,
+            item: absoluteUrl(`/tools/${tool.slug}`)
+          }
+        ]
+      }
+    ]
   };
 
   return (

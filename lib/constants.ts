@@ -34,7 +34,7 @@ const shouldUseConfiguredSiteUrl =
   configuredSiteUrl && (process.env.NODE_ENV !== "production" || !isLocalSiteUrl(configuredSiteUrl));
 
 export const siteConfig = {
-  name: "AI Tools Finder",
+  name: "Toolverse Atlas",
   description:
     "A free online tools directory for SEO tools, PDF tools, image tools, AI workflows, and faster no-signup discovery.",
   url: shouldUseConfiguredSiteUrl ? configuredSiteUrl : (vercelProductionUrl ?? productionUrl)

@@ -103,18 +103,45 @@ export default async function CategoryDetailPage({
   );
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: `${category.name} AI Tools`,
-    description: category.description,
-    mainEntity: {
-      "@type": "ItemList",
-      itemListElement: tools.data.map((tool, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        url: absoluteUrl(`/tools/${tool.slug}`),
-        name: tool.name
-      }))
-    }
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: `${category.name} AI Tools`,
+        description: category.description,
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: tools.data.map((tool, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            url: absoluteUrl(`/tools/${tool.slug}`),
+            name: tool.name
+          }))
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: absoluteUrl("/")
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Categories",
+            item: absoluteUrl("/categories")
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: category.name,
+            item: absoluteUrl(`/categories/${category.slug}`)
+          }
+        ]
+      }
+    ]
   };
 
   return (
