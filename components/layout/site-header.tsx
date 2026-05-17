@@ -8,6 +8,7 @@ import { HeaderChrome } from "@/components/layout/header-chrome";
 import { MobileNavSheet } from "@/components/layout/mobile-nav-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
 
 export async function SiteHeader() {
   const session = await getServerSession(authOptions);
@@ -20,35 +21,42 @@ export async function SiteHeader() {
     <HeaderChrome>
       <div className="page-frame py-2.5 md:py-3">
         <div className="glass-nav rounded-[1.2rem] px-2.5 py-2 transition-[border-color,box-shadow,background-color] duration-300 md:px-3.5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-4">
-              <Link href="/" className="group flex min-w-0 items-center gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3 overflow-hidden lg:gap-4">
+              <Link href="/" className="group flex shrink-0 items-center gap-3">
                 <div className="spotlight-ring grid size-10 shrink-0 place-items-center rounded-[1rem] bg-gradient-to-br from-primary via-secondary-foreground to-primary font-[family-name:var(--font-heading)] text-base font-bold text-primary-foreground transition-transform duration-300 group-hover:scale-105">
                   TF
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate font-[family-name:var(--font-heading)] text-lg font-bold">{siteConfig.name}</p>
+                <div className="min-w-0 max-w-[10rem] lg:max-w-[12rem]">
+                  <p className="truncate font-[family-name:var(--font-heading)] text-lg font-bold">
+                    {siteConfig.name}
+                  </p>
                   <p className="hidden truncate text-xs text-muted-foreground sm:block">
                     AI discovery intelligence for buyers and founders
                   </p>
                 </div>
               </Link>
 
-              <nav className="no-scrollbar hidden max-w-[48rem] items-center gap-1 overflow-x-auto rounded-[var(--radius-control)] border border-white/80 bg-background/70 p-1 md:flex">
-                {mainNav.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="nav-link-modern interactive-control shrink-0 rounded-[var(--radius-control)] px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-white hover:text-foreground"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              <NavigationMenu className="hidden min-w-0 flex-1 md:flex">
+                <NavigationMenuList className="no-scrollbar min-w-0 max-w-[42rem] gap-1 overflow-x-auto rounded-[var(--radius-control)] border border-white/80 bg-background/70 p-1 xl:max-w-[46rem]">
+                  {mainNav.map((item) => (
+                    <NavigationMenuItem key={item.href}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href={item.href}
+                          className="nav-link-modern interactive-control block shrink-0 whitespace-nowrap rounded-[var(--radius-control)] px-3.5 py-2 text-sm font-medium text-muted-foreground hover:bg-white hover:text-foreground"
+                        >
+                          {item.label}
+                        </Link>
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
             </div>
 
             <div className="flex shrink-0 items-center gap-2 md:gap-3">
-              <form action="/tools" className="hidden w-[20rem] items-center gap-2 rounded-[var(--radius-control)] border border-white/85 bg-white/78 px-2 py-1.5 xl:flex">
+              <form action="/tools" className="hidden w-[18rem] items-center gap-2 rounded-[var(--radius-control)] border border-white/85 bg-white/78 px-2 py-1.5 2xl:flex">
                 <Search className="ml-1 h-4 w-4 text-muted-foreground" />
                 <Input
                   name="q"

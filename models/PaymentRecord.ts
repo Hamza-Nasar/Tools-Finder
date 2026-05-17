@@ -8,7 +8,18 @@ const PaymentRecordSchema = new Schema(
     toolId: {
       type: Types.ObjectId,
       ref: "Tool",
-      required: true
+      default: null
+    },
+    userId: {
+      type: Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+    purpose: {
+      type: String,
+      enum: ["featured-listing", "plan-subscription"],
+      default: "featured-listing",
+      index: true
     },
     stripeSessionId: {
       type: String,
@@ -18,6 +29,21 @@ const PaymentRecordSchema = new Schema(
     },
     stripePaymentIntentId: {
       type: String,
+      default: null
+    },
+    stripeSubscriptionId: {
+      type: String,
+      default: null,
+      index: true
+    },
+    plan: {
+      type: String,
+      enum: ["free", "pro", "vendor", null],
+      default: null
+    },
+    billingCycle: {
+      type: String,
+      enum: ["monthly", "yearly", null],
       default: null
     },
     purchaserEmail: {
@@ -55,7 +81,9 @@ const PaymentRecordSchema = new Schema(
 );
 
 PaymentRecordSchema.index({ toolId: 1, createdAt: -1 });
+PaymentRecordSchema.index({ userId: 1, createdAt: -1 });
 PaymentRecordSchema.index({ status: 1, featuredUntil: -1 });
+PaymentRecordSchema.index({ purpose: 1, status: 1, createdAt: -1 });
 
 export type PaymentRecordDocument = InferSchemaType<typeof PaymentRecordSchema>;
 

@@ -250,10 +250,22 @@ export interface ToolRecommendation {
   fitScore?: number;
   fitBreakdown?: {
     taskFit: number;
-    setupFriction: number;
-    stackCompatibility: number;
-    marketMomentum: number;
+    pricingFit: number;
+    integrationFit: number;
+    popularityMomentum: number;
   };
+}
+
+export interface SavedShortlist {
+  id: string;
+  name: string;
+  query: string;
+  inferredCategories: string[];
+  inferredTags: string[];
+  tools: Tool[];
+  shareSlug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export type IntelligenceSkillLevel = "beginner" | "intermediate" | "advanced";

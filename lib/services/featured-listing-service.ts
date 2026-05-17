@@ -51,6 +51,7 @@ export class FeaturedListingService {
       ),
       PaymentRecordModel.updateMany(
         {
+          purpose: "featured-listing",
           status: "paid",
           featuredUntil: { $lt: now }
         },
@@ -112,6 +113,7 @@ export class FeaturedListingService {
       { stripeSessionId: sessionId },
       {
         $set: {
+          purpose: "featured-listing",
           toolId: objectId,
           stripePaymentIntentId:
             typeof stripeSession?.payment_intent === "string" ? stripeSession.payment_intent : null,
@@ -156,12 +158,12 @@ export class FeaturedListingService {
 
     const [revenueTotals, paidCount, activeFeaturedCount, recentPayments] = await Promise.all([
       PaymentRecordModel.aggregate<{ _id: string; totalRevenue: number }>([
-        { $match: { status: "paid" } },
+        { $match: { purpose: "featured-listing", status: "paid" } },
         { $group: { _id: "$currency", totalRevenue: { $sum: "$amountTotal" } } }
       ]),
-      PaymentRecordModel.countDocuments({ status: "paid" }),
+      PaymentRecordModel.countDocuments({ purpose: "featured-listing", status: "paid" }),
       ToolModel.countDocuments(getActiveFeaturedFilter()),
-      PaymentRecordModel.find({ status: "paid" })
+      PaymentRecordModel.find({ purpose: "featured-listing", status: "paid" })
         .sort({ createdAt: -1 })
         .limit(8)
         .lean()

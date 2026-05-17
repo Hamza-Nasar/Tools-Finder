@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, Flame, Radar, Search, Sparkles, Workflow } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, Search, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { MotionReveal } from "@/components/shared/motion-reveal";
 import { compactNumber } from "@/lib/utils";
@@ -24,10 +29,8 @@ export function HeroSection({
     "Compress PDF",
     "Remove background",
     "SEO audit",
-    "Summarize PDF",
-    "Write captions",
-    "Generate logo"
-  ].concat(trendingTools.slice(0, 2));
+    "Summarize PDF"
+  ].concat(trendingTools.slice(0, 1));
 
   return (
     <section className="page-frame pb-16 pt-14 md:pb-24 md:pt-20">
@@ -40,19 +43,21 @@ export function HeroSection({
               Best free online tools for 2026
             </span>
             <h1 className="mt-6 font-[family-name:var(--font-heading)] text-[2.9rem] font-bold leading-[0.98] md:text-[5.2rem]">
-              What do you want to do today with SEO, PDF, image, and
-              <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                {" "}AI tools?
-              </span>
+              Find the right tool for your task in 60 seconds.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-muted-foreground md:text-xl">
-              Search, compare, and discover free and AI tools by what you want to do. Get clear matches instead of generic lists.
+              Describe the job, get a ranked shortlist, and compare options without opening dozens of tabs.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
-              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">Free and fast</span>
-              <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">No signup routes</span>
-                <span className="rounded-full border border-border/70 bg-white/70 px-3 py-1.5">Task-first search</span>
-              </div>
+            <motion.div
+              className="mt-5 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+            >
+              <Badge variant="muted">Free and fast</Badge>
+              <Badge variant="muted">No signup routes</Badge>
+              <Badge variant="muted">Task-first search</Badge>
+            </motion.div>
             <form
               action="/tools"
               className="mt-8 flex flex-col gap-3 rounded-[1.7rem] border border-white/80 bg-white/[0.82] p-3 shadow-premium md:flex-row"
@@ -72,128 +77,83 @@ export function HeroSection({
             <div className="mt-4 flex flex-wrap gap-3">
               <Button asChild size="lg">
                 <Link href="/find-ai-tool">
-                  Get recommendations
+                  Find my tool
                   <ArrowRight data-icon="inline-end" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/categories">Browse categories</Link>
+                <Link href="/tools">Browse all tools</Link>
               </Button>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
-              {quickTasks.map((task) => (
-                <Link
+              {quickTasks.map((task, index) => (
+                <motion.div
                   key={task}
-                  href={`/tools?q=${encodeURIComponent(task)}`}
-                  className="interactive-chip rounded-full border border-border bg-white/[0.78] px-4 py-2 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1], delay: 0.06 * index }}
                 >
-                  {task}
-                </Link>
+                  <Link
+                    href={`/tools?q=${encodeURIComponent(task)}`}
+                    className="interactive-chip rounded-full border border-border bg-white/[0.78] px-4 py-2 text-sm font-medium text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  >
+                    {task}
+                  </Link>
+                </motion.div>
               ))}
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/[0.82] px-4 py-4 shadow-sm">
+              <Card className="interactive-panel border-white/85 bg-white/[0.82] shadow-sm">
+                <CardContent className="px-4 py-4">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary">Catalog</p>
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(totalTools)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">approved tools ready to compare</p>
-              </div>
-              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/[0.82] px-4 py-4 shadow-sm">
+                </CardContent>
+              </Card>
+              <Card className="interactive-panel border-white/85 bg-white/[0.82] shadow-sm">
+                <CardContent className="px-4 py-4">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary">Categories</p>
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(totalCategories)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">workflow lanes for focused discovery</p>
-              </div>
-              <div className="interactive-panel rounded-[1.4rem] border border-white/85 bg-white/[0.82] px-4 py-4 shadow-sm">
+                </CardContent>
+              </Card>
+              <Card className="interactive-panel border-white/85 bg-white/[0.82] shadow-sm">
+                <CardContent className="px-4 py-4">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary">Signal</p>
                 <p className="mt-2 font-[family-name:var(--font-heading)] text-3xl font-bold">
                   {compactNumber(dailyCount)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">fresh signals across the market</p>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </MotionReveal>
 
           <MotionReveal className="grid gap-4" delay={0.08} y={24}>
-            <div className="inner-glow rounded-[1.8rem] border border-slate-900/90 bg-slate-950 p-6 text-white shadow-[0_28px_80px_rgba(15,23,42,0.28)]">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-white/[0.72]">
-                    <Radar className="h-3.5 w-3.5" />
-                    Free tool finder
-                  </p>
-                  <h2 className="mt-4 font-[family-name:var(--font-heading)] text-2xl font-semibold leading-tight md:text-[2rem]">
-                    Start with the task, compare the best free options, then build a workflow that saves time.
-                  </h2>
-                </div>
-                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">
-                  Live
-                </span>
+            <Card className="section-shell p-0">
+              <CardContent className="p-6">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary">How it works</p>
+              <ol className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground">
+                <li>1. Describe the task in plain language.</li>
+                <li>2. Get ranked recommendations with clear fit signals.</li>
+                <li>3. Compare top options before clicking out.</li>
+              </ol>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {popularCategories.slice(0, 5).map((category) => (
+                  <Badge key={category} variant="muted">
+                    {category}
+                  </Badge>
+                ))}
               </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/60">
-                    Most active lanes
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {popularCategories.map((category) => (
-                      <span
-                        key={category}
-                        className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-sm font-medium text-white/[0.88]"
-                      >
-                        {category}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/60">
-                    Revenue surface
-                  </p>
-                  <p className="mt-3 font-[family-name:var(--font-heading)] text-3xl font-semibold">
-                    {compactNumber(featuredCount)}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-white/70">
-                    featured placements reviewed inside the same discovery experience.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Link
-                href="/find-ai-tool"
-                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/[0.82] p-5 shadow-sm"
-              >
-                <BrainCircuit className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-semibold">Describe the job</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Match tools from plain-language use cases instead of browsing blind.
-                </p>
-              </Link>
-              <Link
-                href="/today-ai-tools"
-                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/[0.82] p-5 shadow-sm"
-              >
-                <Flame className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-semibold">Track daily shifts</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Review new tools and trending moves before they become obvious.
-                </p>
-              </Link>
-              <Link
-                href="/workflows"
-                className="interactive-panel rounded-[1.5rem] border border-white/85 bg-white/[0.82] p-5 shadow-sm"
-              >
-                <Workflow className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 font-[family-name:var(--font-heading)] text-xl font-semibold">Copy proven flows</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  See how strong tools fit together inside repeatable, outcome-based systems.
-                </p>
-              </Link>
-            </div>
+              <p className="mt-5 text-sm text-muted-foreground">
+                {compactNumber(featuredCount)} featured vendors and {compactNumber(dailyCount)} fresh market signals are tracked daily.
+              </p>
+              </CardContent>
+            </Card>
           </MotionReveal>
         </div>
       </div>

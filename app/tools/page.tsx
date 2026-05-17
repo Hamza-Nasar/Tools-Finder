@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { getPublicCategories } from "@/lib/data/categories";
 import { getPublicToolList, getToolDirectoryFacets } from "@/lib/data/tools";
 import { pricingOptions, skillLevelOptions, toolOutputTypeOptions, toolPlatformOptions } from "@/lib/constants";
@@ -12,8 +11,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageHero } from "@/components/shared/page-hero";
 import { PaginationControls } from "@/components/shared/pagination-controls";
 import { SiteSearchResults } from "@/components/tools/site-search-results";
-import { ToolCard } from "@/components/tools/tool-card";
+import { ToolGridWithCompare } from "@/components/tools/tool-grid-with-compare";
 import { ToolFilters } from "@/components/tools/tool-filters";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const HybridDiscoveryPanel = dynamic(
   () => import("@/components/tools/hybrid-discovery-panel").then((module) => module.HybridDiscoveryPanel),
@@ -21,13 +22,15 @@ const HybridDiscoveryPanel = dynamic(
     loading: () => (
       <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="surface-card p-6">
-            <div className="skeleton-shimmer h-12 w-12 rounded-2xl" />
-            <div className="mt-4 skeleton-shimmer h-5 w-2/3 rounded-full" />
-            <div className="mt-3 skeleton-shimmer h-4 w-full rounded-full" />
-            <div className="mt-2 skeleton-shimmer h-4 w-5/6 rounded-full" />
-            <div className="mt-6 skeleton-shimmer h-10 w-full rounded-xl" />
-          </div>
+          <Card key={index}>
+            <CardContent className="p-6">
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <Skeleton className="mt-4 h-5 w-2/3 rounded-full" />
+              <Skeleton className="mt-3 h-4 w-full rounded-full" />
+              <Skeleton className="mt-2 h-4 w-5/6 rounded-full" />
+              <Skeleton className="mt-6 h-10 w-full rounded-xl" />
+            </CardContent>
+          </Card>
         ))}
       </div>
     )
@@ -258,37 +261,24 @@ export default async function ToolsPage({
           </div>
           {featureFlags.comparePreview && tools.data.length >= 2 ? (
             <div className="mt-4 section-shell p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Compare before choosing</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary-foreground">Compare-first browsing</p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Start side-by-side evaluation instead of opening each tool in separate tabs.
+                Add tools into the compare tray while browsing. The tray stays pinned at the bottom for faster side-by-side decisions.
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  href={`/compare/${tools.data[0].slug}-vs-${tools.data[1].slug}`}
-                  className="inline-flex items-center rounded-[var(--radius-control)] border border-border bg-white/85 px-4 py-2 text-sm font-medium text-foreground hover:bg-white"
-                >
-                  Compare {tools.data[0].name} vs {tools.data[1].name}
-                </Link>
-              </div>
             </div>
           ) : null}
-          <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {tools.data.map((tool) => (
-              <ToolCard
-                key={tool.id}
-                tool={tool}
-                matchReason={
-                  query.q?.trim()
-                    ? `Matched for "${query.q.trim()}"`
-                    : query.tags?.length
-                      ? `Matches selected tags: ${query.tags.slice(0, 2).join(", ")}`
-                      : query.category
-                        ? `In category: ${query.category}`
-                        : undefined
-                }
-              />
-            ))}
-          </div>
+          <ToolGridWithCompare
+            items={tools.data.map((tool) => ({
+              tool,
+              matchReason: query.q?.trim()
+                ? `Matched for "${query.q.trim()}"`
+                : query.tags?.length
+                  ? `Matches selected tags: ${query.tags.slice(0, 2).join(", ")}`
+                  : query.category
+                    ? `In category: ${query.category}`
+                    : undefined
+            }))}
+          />
           <PaginationControls page={tools.page} totalPages={tools.totalPages} buildHref={buildHref} />
         </>
       ) : (

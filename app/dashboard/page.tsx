@@ -10,10 +10,25 @@ export const dynamic = "force-dynamic";
 export const metadata = buildMetadata({
   title: "Your dashboard",
   description: "Manage your saved tools, submissions, and account activity.",
-  path: "/dashboard"
+  path: "/dashboard",
+  noIndex: true
 });
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const billingParam = Array.isArray(resolvedSearchParams.billing)
+    ? resolvedSearchParams.billing[0]
+    : resolvedSearchParams.billing;
+  const sessionIdParam = Array.isArray(resolvedSearchParams.session_id)
+    ? resolvedSearchParams.session_id[0]
+    : resolvedSearchParams.session_id;
+  const billingStatus =
+    billingParam === "success" || billingParam === "cancel" ? billingParam : undefined;
+
   const session = await requireAuthenticatedSession();
   const user = await UserService.syncSessionUser(session);
   const dashboard = await UserDashboardService.getDashboard(user.id);
@@ -31,9 +46,13 @@ export default async function DashboardPage() {
         ]}
       />
       <div className="mt-8">
-        <UserDashboard user={user} dashboard={dashboard} />
+        <UserDashboard
+          user={user}
+          dashboard={dashboard}
+          billingStatus={billingStatus}
+          billingSessionId={sessionIdParam}
+        />
       </div>
     </div>
   );
 }
-

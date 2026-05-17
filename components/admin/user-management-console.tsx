@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatDate } from "@/lib/utils";
 
 type ManagedUser = {
@@ -350,40 +351,54 @@ export function UserManagementConsole({
         </CardHeader>
         <CardContent className="space-y-4">
           {users.length ? (
-            users.map((user) => {
-              const isCurrentUser = user.id === currentUserId;
-              const isLastAdmin = user.role === "admin" && adminCount <= 1;
-              const canRemoveAdmin = user.role === "admin" && !isCurrentUser && !isLastAdmin;
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => {
+                  const isCurrentUser = user.id === currentUserId;
+                  const isLastAdmin = user.role === "admin" && adminCount <= 1;
+                  const canRemoveAdmin = user.role === "admin" && !isCurrentUser && !isLastAdmin;
 
-              return (
-                <div key={user.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border px-4 py-4">
-                  <div>
-                    <p className="font-semibold">{user.name}</p>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {user.passwordConfigured ? "Email login enabled" : "Google-only account"}
-                      {user.lastLoginAt ? ` | Last login ${formatDate(user.lastLoginAt)}` : ""}
-                      {user.lastLoginProvider ? ` | ${user.lastLoginProvider}` : ""}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-sm text-muted-foreground">Joined {formatDate(user.createdAt)}</span>
-                    <Badge variant={user.role === "admin" ? "accent" : "muted"}>{user.role}</Badge>
-                    {user.role === "admin" ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={!canRemoveAdmin || pendingUserId === user.id}
-                        onClick={() => void removeAdmin(user)}
-                      >
-                        Remove admin
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <p className="font-semibold">{user.name}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {user.passwordConfigured ? "Email login enabled" : "Google-only account"}
+                          {user.lastLoginAt ? ` | Last login ${formatDate(user.lastLoginAt)}` : ""}
+                          {user.lastLoginProvider ? ` | ${user.lastLoginProvider}` : ""}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={user.role === "admin" ? "accent" : "muted"}>{user.role}</Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{formatDate(user.createdAt)}</TableCell>
+                      <TableCell className="text-right">
+                        {user.role === "admin" ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={!canRemoveAdmin || pendingUserId === user.id}
+                            onClick={() => void removeAdmin(user)}
+                          >
+                            Remove admin
+                          </Button>
+                        ) : null}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           ) : (
             <p className="text-sm text-muted-foreground">No user records found.</p>
           )}

@@ -2,9 +2,9 @@ import type { Tool } from "@/types";
 
 export interface ToolFitBreakdown {
   taskFit: number;
-  setupFriction: number;
-  stackCompatibility: number;
-  marketMomentum: number;
+  pricingFit: number;
+  integrationFit: number;
+  popularityMomentum: number;
 }
 
 export interface ToolFitScoreResult {
@@ -25,28 +25,46 @@ export function computeToolFitScore(input: {
   const tool = input.tool;
   const query = input.query.toLowerCase();
   const normalizedTags = tool.tags.map((tag) => tag.toLowerCase());
+  const normalizedOutputs = (tool.outputTypes ?? []).map((value) => value.toLowerCase());
+  const normalizedPlatforms = (tool.platforms ?? []).map((value) => value.toLowerCase());
   const matchedCategoryCount = input.inferredCategories.includes(tool.categorySlug) ? 1 : 0;
   const matchedTagCount = input.inferredTags.filter((tag) => normalizedTags.includes(tag)).length;
-  const queryMentionsPriceSensitivity = ["cheap", "budget", "free"].some((keyword) => query.includes(keyword));
-
-  const taskFit = clampScore(40 + matchedCategoryCount * 35 + matchedTagCount * 8);
-  const setupFriction = clampScore(
-    tool.pricing === "Free" ? 92 : tool.pricing === "Freemium" ? 76 : queryMentionsPriceSensitivity ? 48 : 64
+  const queryMentionsPriceSensitivity = ["cheap", "budget", "free", "low cost", "freemium"].some((keyword) =>
+    query.includes(keyword)
   );
-  const stackCompatibility = clampScore(52 + Math.min(normalizedTags.length, 8) * 5);
-  const marketMomentum = clampScore(
-    20 + tool.trendingScore * 2.2 + tool.favoritesCount / 20 + tool.viewsCount / 100 + tool.reviewCount / 4
+  const queryMentionsIntegrations = ["integrate", "api", "automation", "workflow", "team"].some((keyword) =>
+    query.includes(keyword)
   );
 
-  const score = clampScore(taskFit * 0.42 + setupFriction * 0.2 + stackCompatibility * 0.18 + marketMomentum * 0.2);
+  const taskFit = clampScore(38 + matchedCategoryCount * 34 + matchedTagCount * 9);
+  const pricingFit = clampScore(
+    tool.pricing === "Free"
+      ? queryMentionsPriceSensitivity
+        ? 96
+        : 88
+      : tool.pricing === "Freemium"
+        ? queryMentionsPriceSensitivity
+          ? 82
+          : 78
+        : queryMentionsPriceSensitivity
+          ? 42
+          : 68
+  );
+  const integrationSignal = Math.min(normalizedTags.length, 7) * 5 + normalizedOutputs.length * 4 + normalizedPlatforms.length * 4;
+  const integrationFit = clampScore(queryMentionsIntegrations ? 40 + integrationSignal : 48 + integrationSignal * 0.82);
+  const popularityMomentum = clampScore(
+    22 + tool.trendingScore * 2.3 + tool.favoritesCount / 18 + tool.viewsCount / 95 + tool.reviewCount / 3.4
+  );
+
+  const score = clampScore(taskFit * 0.43 + pricingFit * 0.2 + integrationFit * 0.18 + popularityMomentum * 0.19);
 
   return {
     score,
     breakdown: {
       taskFit,
-      setupFriction,
-      stackCompatibility,
-      marketMomentum
+      pricingFit,
+      integrationFit,
+      popularityMomentum
     }
   };
 }

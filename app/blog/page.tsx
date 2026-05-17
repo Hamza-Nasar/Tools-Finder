@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { buildMetadata } from "@/lib/seo";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { blogPosts } from "@/lib/blog-posts";
 import { PageHero } from "@/components/shared/page-hero";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +14,23 @@ export const metadata = buildMetadata({
 });
 
 export default function BlogIndexPage() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Toolverse Blog",
+    url: absoluteUrl("/blog"),
+    description:
+      "Practical SEO, PDF, image, and AI tools workflow guides with internal links to high-intent tool pages.",
+    blogPost: blogPosts.slice(0, 12).map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.title,
+      url: absoluteUrl(`/blog/${post.slug}`)
+    }))
+  };
+
   return (
     <div className="page-frame py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <PageHero
         eyebrow="Blog"
         title="SEO guides for free online tools, rankings, and conversion-focused workflows."

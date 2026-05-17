@@ -3,13 +3,20 @@
 import Link from "next/link";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Search, Sparkles, Tag } from "lucide-react";
+import { Check, ChevronsUpDown, Search, Sparkles, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Category, TagFacet, ToolSuggestion } from "@/types";
 import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { pricingOptions, skillLevelOptions, sortOptions, toolOutputTypeOptions, toolPlatformOptions } from "@/lib/constants";
 import { useToolFilters } from "@/hooks/use-tool-filters";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ToolFiltersProps {
   categories: Category[];
@@ -240,23 +247,27 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
 
           <div>
             <label className="mb-2 block text-sm font-semibold">Category</label>
-            <select
-              value={activeCategory}
-              onChange={(event) =>
+            <Select
+              value={activeCategory || "all"}
+              onValueChange={(value) =>
                 updateFilters({
-                  category: event.target.value || undefined,
+                  category: value === "all" ? undefined : value,
                   page: undefined
                 })
               }
-              className="field-select"
             >
-              <option value="">All categories</option>
-              {categories.map((category) => (
-                <option key={category.slug} value={category.slug}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="All categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.slug} value={category.slug}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -277,109 +288,92 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
 
           <div>
             <label className="mb-2 block text-sm font-semibold">Sort</label>
-            <select
+            <Select
               value={activeSort}
-              onChange={(event) =>
+              onValueChange={(value) =>
                 updateFilters({
-                  sort: event.target.value,
+                  sort: value,
                   page: undefined
                 })
               }
-              className="field-select"
             >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[1fr_auto]">
-        <div>
-          <label className="mb-2 block text-sm font-semibold">Pricing</label>
-          <motion.div layout className="flex flex-wrap gap-2">
-            {pricingOptions.map((pricing) => {
-              const active = activePricing === pricing;
+        <Tabs defaultValue="pricing" className="w-full">
+          <TabsList className="mb-3 grid w-full grid-cols-2">
+            <TabsTrigger value="pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="quick">Quick filters</TabsTrigger>
+          </TabsList>
+          <TabsContent value="pricing">
+            <motion.div layout className="flex flex-wrap gap-2">
+              {pricingOptions.map((pricing) => {
+                const active = activePricing === pricing;
 
-              return (
-                <button
-                  key={pricing}
-                  type="button"
-                  onClick={() =>
-                    updateFilters({
-                      pricing: active ? undefined : pricing,
-                      page: undefined
-                    })
+                return (
+                  <button
+                    key={pricing}
+                    type="button"
+                    onClick={() =>
+                      updateFilters({
+                        pricing: active ? undefined : pricing,
+                        page: undefined
+                      })
+                    }
+                    className={`${chipClasses} ${
+                      active
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {pricing}
+                  </button>
+                );
+              })}
+            </motion.div>
+          </TabsContent>
+          <TabsContent value="quick">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="flex items-center justify-between rounded-[var(--radius-control)] border border-border/70 bg-white/85 px-3 py-2">
+                <span className="text-sm font-medium">No login</span>
+                <Switch
+                  checked={activeLoginRequired === "false"}
+                  onCheckedChange={(checked) =>
+                    updateFilters({ loginRequired: checked ? "false" : undefined, page: undefined })
                   }
-                  className={`${chipClasses} ${
-                    active
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {pricing}
-                </button>
-              );
-            })}
-          </motion.div>
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-semibold">Quick filters</label>
-          <motion.div layout className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() =>
-                updateFilters({
-                  loginRequired: activeLoginRequired === "false" ? undefined : "false",
-                  page: undefined
-                })
-              }
-              className={`${chipClasses} ${
-                activeLoginRequired === "false"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              No login
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                updateFilters({
-                  featured: activeFeatured ? undefined : "true",
-                  page: undefined
-                })
-              }
-              className={`${chipClasses} ${
-                activeFeatured
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Featured only
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                updateFilters({
-                  recent: activeRecent ? undefined : "true",
-                  page: undefined
-                })
-              }
-              className={`${chipClasses} ${
-                activeRecent
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Added in last 30 days
-            </button>
-          </motion.div>
-        </div>
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-[var(--radius-control)] border border-border/70 bg-white/85 px-3 py-2">
+                <span className="text-sm font-medium">Featured only</span>
+                <Switch
+                  checked={activeFeatured}
+                  onCheckedChange={(checked) => updateFilters({ featured: checked ? "true" : undefined, page: undefined })}
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-[var(--radius-control)] border border-border/70 bg-white/85 px-3 py-2">
+                <span className="text-sm font-medium">Added in last 30 days</span>
+                <Switch
+                  checked={activeRecent}
+                  onCheckedChange={(checked) => updateFilters({ recent: checked ? "true" : undefined, page: undefined })}
+                />
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+        <div />
       </div>
 
       {topTags.length ? (
@@ -411,69 +405,94 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
       <div className="mt-5 grid gap-4 xl:grid-cols-3">
         <div>
           <label className="mb-2 block text-sm font-semibold">Skill level</label>
-          <select
-            value={activeSkillLevel}
-            onChange={(event) =>
+          <Select
+            value={activeSkillLevel || "any"}
+            onValueChange={(value) =>
               updateFilters({
-                skillLevel: event.target.value || undefined,
+                skillLevel: value === "any" ? undefined : value,
                 page: undefined
               })
             }
-            className="field-select"
           >
-            <option value="">Any level</option>
-            {skillLevelOptions.map((level) => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder="Any level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Any level</SelectItem>
+              {skillLevelOptions.map((level) => (
+                <SelectItem key={level} value={level}>
+                  {level}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <label className="mb-2 block text-sm font-semibold">Platform</label>
-          <motion.div layout className="flex flex-wrap gap-2">
-            {toolPlatformOptions.map((platform) => {
-              const active = activePlatforms.includes(platform);
-
-              return (
-                <button
-                  key={platform}
-                  type="button"
-                  onClick={() => toggleMultiValue("platforms", activePlatforms, platform)}
-                  className={`${chipClasses} ${
-                    active
-                      ? "bg-secondary text-secondary-foreground shadow-sm"
-                      : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {platform}
-                </button>
-              );
-            })}
-          </motion.div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="flex h-11 w-full items-center justify-between rounded-[var(--radius-control)] border border-input bg-background px-3 text-sm">
+                {activePlatforms.length ? `${activePlatforms.length} selected` : "Select platforms"}
+                <ChevronsUpDown className="h-4 w-4 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[280px] p-0">
+              <Command>
+                <CommandInput placeholder="Search platform..." />
+                <CommandList>
+                  <CommandEmpty>No platform found.</CommandEmpty>
+                  <CommandGroup>
+                    <ScrollArea className="h-48">
+                      {toolPlatformOptions.map((platform) => {
+                        const active = activePlatforms.includes(platform);
+                        return (
+                          <CommandItem key={platform} onSelect={() => toggleMultiValue("platforms", activePlatforms, platform)}>
+                            <Check className={`mr-2 h-4 w-4 ${active ? "opacity-100" : "opacity-0"}`} />
+                            {platform}
+                          </CommandItem>
+                        );
+                      })}
+                    </ScrollArea>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         <div>
           <label className="mb-2 block text-sm font-semibold">Output type</label>
-          <motion.div layout className="flex flex-wrap gap-2">
-            {toolOutputTypeOptions.map((outputType) => {
-              const active = activeOutputTypes.includes(outputType);
-
-              return (
-                <button
-                  key={outputType}
-                  type="button"
-                  onClick={() => toggleMultiValue("outputTypes", activeOutputTypes, outputType)}
-                  className={`${chipClasses} ${
-                    active
-                      ? "bg-secondary text-secondary-foreground shadow-sm"
-                      : "border border-border bg-white/80 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {outputType}
-                </button>
-              );
-            })}
-          </motion.div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button type="button" className="flex h-11 w-full items-center justify-between rounded-[var(--radius-control)] border border-input bg-background px-3 text-sm">
+                {activeOutputTypes.length ? `${activeOutputTypes.length} selected` : "Select output types"}
+                <ChevronsUpDown className="h-4 w-4 opacity-50" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[280px] p-0">
+              <Command>
+                <CommandInput placeholder="Search output type..." />
+                <CommandList>
+                  <CommandEmpty>No output type found.</CommandEmpty>
+                  <CommandGroup>
+                    <ScrollArea className="h-48">
+                      {toolOutputTypeOptions.map((outputType) => {
+                        const active = activeOutputTypes.includes(outputType);
+                        return (
+                          <CommandItem
+                            key={outputType}
+                            onSelect={() => toggleMultiValue("outputTypes", activeOutputTypes, outputType)}
+                          >
+                            <Check className={`mr-2 h-4 w-4 ${active ? "opacity-100" : "opacity-0"}`} />
+                            {outputType}
+                          </CommandItem>
+                        );
+                      })}
+                    </ScrollArea>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -607,6 +626,11 @@ export function ToolFilters({ categories, topTags, resultCount }: ToolFiltersPro
             {isPending ? "Updating results..." : "Filters update the URL without a full page reload."}
           </p>
         </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {activeCategory ? <Badge variant="accent">Category active</Badge> : null}
+        {activePricing ? <Badge variant="accent">Pricing active</Badge> : null}
+        {activeTags.length ? <Badge variant="accent">{activeTags.length} tags selected</Badge> : null}
       </div>
     </div>
   );

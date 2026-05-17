@@ -78,6 +78,7 @@ export class PaymentService {
       { stripeSessionId: session.id },
       {
         $set: {
+          purpose: "featured-listing",
           toolId: tool._id,
           purchaserEmail: input.customerEmail ?? null,
           amountTotal: session.amount_total ?? getFeaturedListingPriceCents(),
@@ -225,8 +226,77 @@ export class PaymentService {
             subscription,
             fallbackUserId
           });
+
+          const requestedPlan = session.metadata?.requestedPlan;
+          const requestedBillingCycle = session.metadata?.requestedBillingCycle;
+          if (
+            fallbackUserId &&
+            (requestedPlan === "pro" || requestedPlan === "vendor") &&
+            (requestedBillingCycle === "monthly" || requestedBillingCycle === "yearly") &&
+            (session.amount_total ?? 0) > 0
+          ) {
+            await SubscriptionService.recordPlanCheckoutPayment({
+              userId: fallbackUserId,
+              plan: requestedPlan,
+              billingCycle: requestedBillingCycle,
+              stripeSessionId: session.id,
+              stripeSubscriptionId: subscriptionId,
+              stripePaymentIntentId:
+                typeof session.payment_intent === "string" ? session.payment_intent : null,
+              amountTotal: session.amount_total ?? 0,
+              currency: session.currency ?? "usd",
+              purchaserEmail: session.customer_details?.email ?? session.customer_email ?? null
+            });
+          }
         }
 
+        break;
+      }
+      case "invoice.paid": {
+        const invoice = event.data.object;
+        const subscriptionId =
+          typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id ?? null;
+
+        if (!subscriptionId) {
+          break;
+        }
+
+        const stripe = requireStripe();
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const customerId = typeof invoice.customer === "string" ? invoice.customer : null;
+
+        await SubscriptionService.syncUserSubscriptionFromStripe({
+          customerId,
+          subscription,
+          fallbackUserId: subscription.metadata?.userId ?? null
+        });
+
+        const resolvedPlan = subscription.metadata?.requestedPlan;
+        const resolvedCycle = subscription.metadata?.requestedBillingCycle;
+        const userId = subscription.metadata?.userId ?? null;
+
+        if (
+          userId &&
+          (resolvedPlan === "pro" || resolvedPlan === "vendor") &&
+          (resolvedCycle === "monthly" || resolvedCycle === "yearly") &&
+          (invoice.amount_paid ?? 0) > 0
+        ) {
+          const customerEmail =
+            invoice.customer_email ??
+            (typeof invoice.customer === "object" && invoice.customer && "email" in invoice.customer
+              ? invoice.customer.email ?? null
+              : null);
+          await SubscriptionService.recordPlanInvoicePayment({
+            userId,
+            stripeSubscriptionId: subscriptionId,
+            amountTotal: invoice.amount_paid ?? 0,
+            currency: invoice.currency ?? "usd",
+            purchaserEmail: customerEmail,
+            plan: resolvedPlan,
+            billingCycle: resolvedCycle,
+            stripeSessionId: `invoice:${invoice.id}`
+          });
+        }
         break;
       }
       case "customer.subscription.updated":

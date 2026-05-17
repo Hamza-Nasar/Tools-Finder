@@ -15,7 +15,7 @@ export async function getAdminOverview() {
     CategoryService.listCategories({ page: 1, limit: 20 }),
     UserService.listUsers({ page: 1, limit: 20 })
   ]);
-  const latestPaymentRows = await PaymentRecordModel.find({ status: "paid" })
+  const latestPaymentRows = await PaymentRecordModel.find({ status: "paid", purpose: "featured-listing" })
     .sort({ createdAt: -1 })
     .limit(6)
     .lean();

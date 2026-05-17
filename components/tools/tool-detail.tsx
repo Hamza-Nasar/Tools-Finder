@@ -119,6 +119,31 @@ export function ToolDetail({
                     ))}
                   </div>
                 ) : null}
+                <div className="mt-5 grid gap-4 md:grid-cols-3">
+                  <div className="rounded-[1.1rem] border border-border/70 bg-white/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Why this tool</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Strong signal from {compactNumber(tool.favoritesCount)} saves, {compactNumber(tool.reviewCount)} reviews, and {tool.pricing.toLowerCase()} pricing accessibility.
+                    </p>
+                  </div>
+                  <div className="rounded-[1.1rem] border border-border/70 bg-white/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Best for</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {tool.bestFor?.length ? tool.bestFor.slice(0, 3).join(", ") : `${tool.category} workflows with fast evaluation requirements.`}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.1rem] border border-border/70 bg-white/80 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Not ideal for</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Teams needing offline tooling, deep enterprise controls, or guaranteed zero-login onboarding.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/alternatives/${tool.slug}`}>Compare alternatives</Link>
+                  </Button>
+                </div>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">

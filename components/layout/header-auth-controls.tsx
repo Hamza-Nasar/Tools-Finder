@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function getInitials(name?: string | null, email?: string | null) {
   const fallback = name?.trim() || email?.trim() || "User";
@@ -47,40 +47,7 @@ function ChevronIcon({ open }: { open: boolean }) {
 export function HeaderAuthControls() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useSsrSafeReducedMotion();
   const callbackUrl = pathname && !pathname.startsWith("/auth/") ? pathname : "/dashboard";
-
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!menuOpen) {
-      return;
-    }
-
-    const handlePointerDown = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [menuOpen]);
 
   if (status === "loading") {
     return (
@@ -119,90 +86,51 @@ export function HeaderAuthControls() {
         </Link>
       </Button>
 
-      <div ref={menuRef} className="relative">
-        <motion.button
-          type="button"
-          onClick={() => setMenuOpen((current) => !current)}
-          className="interactive-control flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm hover:border-border hover:bg-white"
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          aria-label="Open account menu"
-          whileTap={reduceMotion ? undefined : { scale: 0.97 }}
-        >
-          {session.user.image ? (
-            <motion.img
-              src={session.user.image}
-              alt={session.user.name ?? "Signed-in user"}
-              className="h-9 w-9 rounded-full object-cover"
-              referrerPolicy="no-referrer"
-              whileHover={reduceMotion ? undefined : { scale: 1.04 }}
-            />
-          ) : (
-            <motion.span
-              className="grid h-9 w-9 place-items-center rounded-full bg-primary/12 font-semibold text-primary"
-              whileHover={reduceMotion ? undefined : { scale: 1.04 }}
-            >
-              {getInitials(session.user.name, session.user.email)}
-            </motion.span>
-          )}
-          <span className="hidden text-left lg:block">
-            <span className="block text-sm font-medium text-foreground">{session.user.name ?? "Signed in"}</span>
-            <span className="block text-xs text-muted-foreground">Account</span>
-          </span>
-          <span className="hidden text-muted-foreground md:block">
-            <ChevronIcon open={menuOpen} />
-          </span>
-        </motion.button>
-
-        <AnimatePresence>
-          {menuOpen ? (
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0, y: 8, scale: 0.98 }}
-              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.98 }}
-              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-0 top-[calc(100%+0.75rem)] z-50 min-w-60 rounded-[1.4rem] border border-border/70 bg-background/95 p-2 shadow-floating backdrop-blur-xl"
-            >
-              <div className="border-b border-border/70 px-3 py-2">
-                <p className="text-sm font-semibold text-foreground">{session.user.name ?? "Signed in"}</p>
-                <p className="text-xs text-muted-foreground">{session.user.email}</p>
-              </div>
-              <motion.div layout className="grid gap-1 px-1 py-2">
-                {[
-                  { href: "/dashboard", label: "Dashboard" },
-                  { href: "/dashboard#submitted-tools", label: "My Submissions" },
-                  { href: "/my-stack", label: "My Stack" },
-                  { href: "/favorites", label: "Favorites" },
-                  ...(session.user.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
-                ].map((item) => (
-                  <motion.div key={item.href} whileHover={reduceMotion ? undefined : { x: 2 }}>
-                    <Link
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="interactive-control block rounded-2xl px-3 py-2 text-sm font-medium text-foreground hover:bg-white"
-                    >
-                      {item.label}
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <div className="border-t border-border/70 px-1 pt-2">
-                <motion.button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    void signOut({ callbackUrl: "/" });
-                  }}
-                  className="interactive-control flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium text-foreground hover:bg-white"
-                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-                >
-                  Logout
-                </motion.button>
-              </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </div>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <motion.button type="button" className="interactive-control flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm hover:border-border hover:bg-white">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "Signed-in user"} referrerPolicy="no-referrer" />
+              <AvatarFallback className="bg-primary/12 font-semibold text-primary">
+                {getInitials(session.user.name, session.user.email)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="hidden text-left lg:block">
+              <span className="block text-sm font-medium text-foreground">{session.user.name ?? "Signed in"}</span>
+              <span className="block text-xs text-muted-foreground">Account</span>
+            </span>
+            <span className="hidden text-muted-foreground md:block">
+              <ChevronIcon open={false} />
+            </span>
+          </motion.button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-60">
+          <DropdownMenuLabel>
+            <p className="text-sm font-semibold text-foreground">{session.user.name ?? "Signed in"}</p>
+            <p className="text-xs font-normal text-muted-foreground">{session.user.email}</p>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {[
+            { href: "/dashboard", label: "Dashboard" },
+            { href: "/dashboard#submitted-tools", label: "My Submissions" },
+            { href: "/my-stack", label: "My Stack" },
+            { href: "/favorites", label: "Favorites" },
+            ...(session.user.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
+          ].map((item) => (
+            <DropdownMenuItem key={item.href} asChild>
+              <Link href={item.href}>{item.label}</Link>
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => {
+              void signOut({ callbackUrl: "/" });
+            }}
+          >
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

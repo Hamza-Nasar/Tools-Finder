@@ -11,8 +11,20 @@ import type { Category, Tool } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 
 const initialToolState: ActionState<Tool> = { status: "idle" };
@@ -29,12 +41,6 @@ function ToolDeleteButton({
   const [message, setMessage] = useState<string | null>(null);
 
   function handleDelete() {
-    const confirmed = window.confirm("Delete this tool from the directory?");
-
-    if (!confirmed) {
-      return;
-    }
-
     startTransition(async () => {
       const result = await deleteToolFormAction(slug);
       setMessage(result.message ?? null);
@@ -48,10 +54,26 @@ function ToolDeleteButton({
 
   return (
     <div className="space-y-2">
-      <Button type="button" variant="outline" onClick={handleDelete} disabled={isPending}>
-        <Trash2 className="mr-2 h-4 w-4" />
-        {isPending ? "Deleting..." : "Delete tool"}
-      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button type="button" variant="outline" disabled={isPending}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            {isPending ? "Deleting..." : "Delete tool"}
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this tool?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action removes the tool from the directory and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete permanently</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {message ? <p className="text-xs text-muted-foreground">{message}</p> : null}
     </div>
   );
@@ -361,12 +383,7 @@ function ToolEditorForm({
 
           <div className="surface-subtle grid gap-5 p-5 md:grid-cols-2">
             <label className="flex items-center gap-3 rounded-[1.2rem] border border-border/70 bg-white/82 px-4 py-3 text-sm font-medium shadow-sm">
-              <input
-                type="checkbox"
-                name="verifiedListing"
-                defaultChecked={tool?.verifiedListing ?? false}
-                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-              />
+              <Checkbox name="verifiedListing" defaultChecked={tool?.verifiedListing ?? false} />
               Verified listing
             </label>
           </div>
@@ -385,12 +402,7 @@ function ToolEditorForm({
               <Input id="trendingScore" name="trendingScore" type="number" defaultValue={tool?.trendingScore ?? 0} />
             </div>
             <label className="flex items-center gap-3 rounded-[1.2rem] border border-border/70 bg-white/82 px-4 py-3 text-sm font-medium shadow-sm">
-              <input
-                type="checkbox"
-                name="featured"
-                defaultChecked={tool?.featured ?? false}
-                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-              />
+              <Checkbox name="featured" defaultChecked={tool?.featured ?? false} />
               Feature on homepage
             </label>
           </div>
