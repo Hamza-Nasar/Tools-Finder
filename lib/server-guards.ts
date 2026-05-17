@@ -3,11 +3,20 @@ import { authOptions } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 
 export async function getOptionalSession() {
-  return getServerSession(authOptions);
+  try {
+    return await getServerSession(authOptions);
+  } catch {
+    return null;
+  }
 }
 
 export async function requireAuthenticatedSession() {
-  const session = await getServerSession(authOptions);
+  let session = null;
+  try {
+    session = await getServerSession(authOptions);
+  } catch {
+    session = null;
+  }
 
   if (!session?.user) {
     throw new AppError(401, "Authentication required.", "UNAUTHORIZED");
@@ -17,7 +26,12 @@ export async function requireAuthenticatedSession() {
 }
 
 export async function requireAdminSession() {
-  const session = await getServerSession(authOptions);
+  let session = null;
+  try {
+    session = await getServerSession(authOptions);
+  } catch {
+    session = null;
+  }
 
   if (!session?.user || session.user.role !== "admin") {
     throw new AppError(403, "Admin access required.", "FORBIDDEN");

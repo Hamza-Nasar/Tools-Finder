@@ -190,7 +190,7 @@ export class AnalyticsService {
         purchases: number;
         revenue: number;
       }>([
-        { $match: { status: "paid", createdAt: { $gte: cutoffDate } } },
+        { $match: { status: "paid", purpose: "featured-listing", createdAt: { $gte: cutoffDate } } },
         {
           $group: {
             _id: {
@@ -209,7 +209,35 @@ export class AnalyticsService {
           }
         }
       ]),
-      PaymentRecordModel.find({ status: "paid" }).sort({ createdAt: -1 }).limit(6).lean()
+      PaymentRecordModel.find({ status: "paid", purpose: "featured-listing" }).sort({ createdAt: -1 }).limit(6).lean()
+    ]);
+
+    const [subscriptionRevenueTotals, recentPlanPayments] = await Promise.all([
+      PaymentRecordModel.aggregate<{ _id: string; totalRevenue: number; count: number }>([
+        { $match: { status: "paid", purpose: "plan-subscription" } },
+        { $group: { _id: "$currency", totalRevenue: { $sum: "$amountTotal" }, count: { $sum: 1 } } }
+      ]),
+      PaymentRecordModel.find({ status: "paid", purpose: "plan-subscription" })
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .lean()
+    ]);
+
+    const platformRevenueTotals = await PaymentRecordModel.aggregate<{
+      _id: string;
+      totalRevenue: number;
+      purchaseCount: number;
+      uniquePurchasers: string[];
+    }>([
+      { $match: { status: "paid" } },
+      {
+        $group: {
+          _id: "$currency",
+          totalRevenue: { $sum: "$amountTotal" },
+          purchaseCount: { $sum: 1 },
+          uniquePurchasers: { $addToSet: "$purchaserEmail" }
+        }
+      }
     ]);
 
     const toolIds = recentPayments.map((record) => String(record.toolId));
@@ -265,6 +293,12 @@ export class AnalyticsService {
       paidFeaturedListings: 0,
       activeFeaturedListings: activeFeaturedCount
     };
+    const primaryPlatformRevenue = platformRevenueTotals[0] ?? {
+      _id: "usd",
+      totalRevenue: 0,
+      purchaseCount: 0,
+      uniquePurchasers: []
+    };
 
     return {
       metrics: {
@@ -279,9 +313,39 @@ export class AnalyticsService {
         totalComparisonClicks: totalsRow.comparisonClicks,
         totalRevenue: primaryRevenue.totalRevenue,
         revenueCurrency: primaryRevenue.currency,
-        paidFeaturedListings: primaryRevenue.paidFeaturedListings
+        paidFeaturedListings: primaryRevenue.paidFeaturedListings,
+        totalPlatformRevenue: primaryPlatformRevenue.totalRevenue,
+        totalPaidPurchases: primaryPlatformRevenue.purchaseCount,
+        totalUniquePurchasers: primaryPlatformRevenue.uniquePurchasers.filter(Boolean).length
       },
       revenue: revenueOverview,
+      platformRevenue: {
+        totals: platformRevenueTotals.map((row) => ({
+          currency: row._id,
+          totalRevenue: row.totalRevenue,
+          purchaseCount: row.purchaseCount,
+          uniquePurchasers: row.uniquePurchasers.filter(Boolean).length
+        }))
+      },
+      subscriptionRevenue: {
+        totals: subscriptionRevenueTotals.map((row) => ({
+          currency: row._id,
+          totalRevenue: row.totalRevenue,
+          purchaseCount: row.count
+        })),
+        recentPayments: recentPlanPayments.map((record) => ({
+          id: String(record._id),
+          purchaserEmail: record.purchaserEmail ?? null,
+          amountTotal: record.amountTotal,
+          currency: record.currency,
+          plan: record.plan ?? "pro",
+          billingCycle: record.billingCycle ?? "monthly",
+          createdAt:
+            record.createdAt instanceof Date
+              ? record.createdAt.toISOString()
+              : new Date(record.createdAt ?? Date.now()).toISOString()
+        }))
+      },
       topTools: {
         mostViewed: mostViewedRecords.map((record) => serializeTool(record)),
         mostFavorited: mostFavoritedRecords.map((record) => serializeTool(record)),

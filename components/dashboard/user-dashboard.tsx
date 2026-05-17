@@ -7,7 +7,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { FavoriteToggle } from "@/components/tools/favorite-toggle";
 import { ToolCard } from "@/components/tools/tool-card";
 import { BillingActions } from "@/components/dashboard/billing-actions";
+import { BillingStatusSync } from "@/components/dashboard/billing-status-sync";
 import { AlertsManager } from "@/components/dashboard/alerts-manager";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { VendorClaimForm } from "@/components/dashboard/vendor-claim-form";
 import { formatDate, formatRelativeDate } from "@/lib/utils";
 
@@ -41,6 +43,8 @@ interface UserDashboardProps {
     };
     activity: UserActivity[];
   };
+  billingStatus?: "success" | "cancel";
+  billingSessionId?: string | undefined;
 }
 
 function getInitials(name: string, email: string) {
@@ -94,9 +98,30 @@ function SubmissionStatusBadge({ status }: { status: Submission["status"] }) {
   return <Badge variant="muted">Pending review</Badge>;
 }
 
-export function UserDashboard({ user, dashboard }: UserDashboardProps) {
+export function UserDashboard({ user, dashboard, billingStatus, billingSessionId }: UserDashboardProps) {
   return (
     <div className="space-y-8">
+      <BillingStatusSync
+        enabled={billingStatus === "success"}
+        expectedPlans={["pro", "vendor"]}
+        sessionId={billingSessionId}
+      />
+      {billingStatus === "success" ? (
+        <Alert className="border-primary/30 bg-primary/5">
+          <AlertTitle>Payment successful</AlertTitle>
+          <AlertDescription>
+            Your plan has been updated to <span className="font-medium capitalize">{user.plan}</span>
+            {user.billingCycle ? ` (${user.billingCycle})` : ""}. Pro/Vendor features are now active.
+          </AlertDescription>
+        </Alert>
+      ) : null}
+      {billingStatus === "cancel" ? (
+        <Alert variant="muted">
+          <AlertTitle>Checkout canceled</AlertTitle>
+          <AlertDescription>No charge was made. You can start checkout again anytime.</AlertDescription>
+        </Alert>
+      ) : null}
+
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <Card>
           <CardHeader className="border-b border-border/70">

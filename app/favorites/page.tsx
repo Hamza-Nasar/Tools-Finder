@@ -11,7 +11,8 @@ import { ToolCard } from "@/components/tools/tool-card";
 export const metadata = buildMetadata({
   title: "Saved tools",
   description: "A personalized list of AI tools favorited by the signed-in user.",
-  path: "/favorites"
+  path: "/favorites",
+  noIndex: true
 });
 
 function toPositiveInt(value: string | undefined, fallback: number) {

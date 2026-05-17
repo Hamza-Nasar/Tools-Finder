@@ -1,4 +1,4 @@
-import { buildMetadata } from "@/lib/seo";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import { featureFlags } from "@/lib/feature-flags";
 import { RecommendationService } from "@/lib/services/recommendation-service";
 import { TelemetryService } from "@/lib/services/telemetry-service";
@@ -42,6 +42,16 @@ export default async function FindAiToolPage({
           inferredTags: [],
           tools: []
         };
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Toolverse AI Tool Finder",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: absoluteUrl("/find-ai-tool"),
+    description:
+      "Describe your workflow and get ranked AI tool recommendations matched by category, tags, and intent."
+  };
 
   if (featureFlags.finderTelemetry && query.length >= 3) {
     try {
@@ -62,6 +72,7 @@ export default async function FindAiToolPage({
 
   return (
     <div className="page-frame py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <PageHero
         eyebrow="AI tool finder"
         title="Describe the job. Get the right tool."

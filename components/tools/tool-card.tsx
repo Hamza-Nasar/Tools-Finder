@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowUpRight, Eye, Heart, Star } from "lucide-react";
@@ -12,11 +14,13 @@ import { compactNumber, formatRelativeDate, getHostnameLabel } from "@/lib/utils
 export function ToolCard({
   tool,
   action,
-  matchReason
+  matchReason,
+  compareAction
 }: {
   tool: Tool;
   action?: ReactNode;
   matchReason?: string;
+  compareAction?: ReactNode;
 }) {
   const metrics: Array<{ icon: ReactNode; label: string; value: string; detail: string }> = [
     ...(tool.reviewCount > 0
@@ -137,8 +141,11 @@ export function ToolCard({
               New listing
             </div>
           ) : null}
-          <div className="flex items-center justify-between gap-3">
-            {action ? <div className="shrink-0">{action}</div> : <div />}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              {compareAction ? <div className="shrink-0">{compareAction}</div> : null}
+              {action ? <div className="shrink-0">{action}</div> : null}
+            </div>
             <Button asChild variant="outline" size="sm" className="group/button">
               <Link href={`/tools/${tool.slug}`}>
                 View details

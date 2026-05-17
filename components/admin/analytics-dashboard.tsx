@@ -152,12 +152,30 @@ export function AnalyticsDashboard({
       label: "Pending submissions",
       value: compactNumber(dashboard.metrics.pendingSubmissions),
       detail: "Listings waiting for moderation review"
+    },
+    {
+      label: "Subscription revenue",
+      value: formatCurrencyFromCents(
+        dashboard.subscriptionRevenue.totals[0]?.totalRevenue ?? 0,
+        dashboard.subscriptionRevenue.totals[0]?.currency ?? "usd"
+      ),
+      detail: `${compactNumber(dashboard.subscriptionRevenue.totals[0]?.purchaseCount ?? 0)} paid plan events`
+    },
+    {
+      label: "Total platform revenue",
+      value: formatCurrencyFromCents(
+        dashboard.metrics.totalPlatformRevenue,
+        dashboard.platformRevenue.totals[0]?.currency ?? dashboard.metrics.revenueCurrency
+      ),
+      detail: `${compactNumber(dashboard.metrics.totalPaidPurchases)} purchases by ${compactNumber(
+        dashboard.metrics.totalUniquePurchasers
+      )} users`
     }
   ];
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-6">
         {metrics.map((metric) => (
           <MetricCard key={metric.label} label={metric.label} value={metric.value} detail={metric.detail} />
         ))}
@@ -266,6 +284,37 @@ export function AnalyticsDashboard({
               ))
             ) : (
               <p className="text-sm text-muted-foreground">No featured payments have been captured yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden">
+          <CardHeader className="border-b border-border/70 bg-gradient-to-br from-white via-white to-background/60">
+            <CardTitle>Recent plan payments</CardTitle>
+            <CardDescription>Latest successful Pro/Vendor subscription charges.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 pt-6">
+            {dashboard.subscriptionRevenue.recentPayments.length ? (
+              dashboard.subscriptionRevenue.recentPayments.map((payment) => (
+                <div key={payment.id} className="surface-subtle px-4 py-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold capitalize">
+                        {payment.plan} ({payment.billingCycle})
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {payment.purchaserEmail ?? "No purchaser email captured"}
+                      </p>
+                    </div>
+                    <Badge variant="accent">
+                      {formatCurrencyFromCents(payment.amountTotal, payment.currency)}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">{formatDate(payment.createdAt)}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No plan payments captured yet.</p>
             )}
           </CardContent>
         </Card>

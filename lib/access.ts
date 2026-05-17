@@ -4,7 +4,12 @@ import { AppError } from "@/lib/errors";
 import { hasPlanFeature, normalizeUserPlan, type PlanFeature } from "@/lib/plans";
 
 export async function requireAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
+  let session = null;
+  try {
+    session = await getServerSession(authOptions);
+  } catch {
+    session = null;
+  }
 
   if (!session?.user?.id) {
     throw new AppError(401, "Please sign in to continue.", "UNAUTHORIZED");

@@ -6,6 +6,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { env } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { UserModel } from "@/models/User";
+import { PaymentRecordModel } from "@/models/PaymentRecord";
 import { normalizeUserPlan } from "@/lib/plans";
 import type { UserPlan } from "@/types";
 import { EmailService } from "@/lib/services/email-service";
@@ -65,7 +66,7 @@ function getPlanProductLabel(selection: PlanSelection) {
 
 function getSubscriptionUrls() {
   return {
-    successUrl: absoluteUrl("/dashboard?billing=success"),
+    successUrl: absoluteUrl("/dashboard?billing=success&session_id={CHECKOUT_SESSION_ID}"),
     cancelUrl: absoluteUrl("/dashboard?billing=cancel")
   };
 }
@@ -306,6 +307,79 @@ export class SubscriptionService {
     revalidatePath("/admin");
     revalidatePath("/admin/growth");
     revalidatePath("/admin/users");
+  }
+
+  static async recordPlanCheckoutPayment(input: {
+    userId: string;
+    plan: "pro" | "vendor";
+    billingCycle: BillingCycle;
+    stripeSessionId: string;
+    stripeSubscriptionId: string | null;
+    stripePaymentIntentId: string | null;
+    amountTotal: number;
+    currency: string;
+    purchaserEmail: string | null;
+  }) {
+    await connectToDatabase();
+
+    await PaymentRecordModel.findOneAndUpdate(
+      { stripeSessionId: input.stripeSessionId },
+      {
+        $set: {
+          purpose: "plan-subscription",
+          userId: input.userId,
+          toolId: null,
+          stripeSubscriptionId: input.stripeSubscriptionId,
+          stripePaymentIntentId: input.stripePaymentIntentId,
+          plan: input.plan,
+          billingCycle: input.billingCycle,
+          amountTotal: input.amountTotal,
+          currency: input.currency || "usd",
+          purchaserEmail: input.purchaserEmail,
+          status: "paid"
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/growth");
+  }
+
+  static async recordPlanInvoicePayment(input: {
+    userId: string;
+    stripeSubscriptionId: string;
+    amountTotal: number;
+    currency: string;
+    purchaserEmail: string | null;
+    plan: "pro" | "vendor";
+    billingCycle: BillingCycle;
+    stripeSessionId: string;
+  }) {
+    await connectToDatabase();
+
+    await PaymentRecordModel.findOneAndUpdate(
+      { stripeSessionId: input.stripeSessionId },
+      {
+        $set: {
+          purpose: "plan-subscription",
+          userId: input.userId,
+          toolId: null,
+          stripeSubscriptionId: input.stripeSubscriptionId,
+          stripePaymentIntentId: null,
+          plan: input.plan,
+          billingCycle: input.billingCycle,
+          amountTotal: input.amountTotal,
+          currency: input.currency || "usd",
+          purchaserEmail: input.purchaserEmail,
+          status: "paid"
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/growth");
   }
 
   static async cancelUserSubscriptionByCustomerId(customerId: string) {

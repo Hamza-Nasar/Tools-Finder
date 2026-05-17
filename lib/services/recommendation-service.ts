@@ -608,8 +608,10 @@ export class RecommendationService {
 
         return {
           tool,
-          score: scored.score + fitScore.score / 5,
-          reason: scored.reason,
+          score: scored.score + fitScore.score / 4.5,
+          reason:
+            scored.reason ||
+            `strong task-fit (${fitScore.breakdown.taskFit}), pricing-fit (${fitScore.breakdown.pricingFit}), and integration-fit (${fitScore.breakdown.integrationFit})`,
           matchedCategories: scored.matchedCategories,
           matchedTags: scored.matchedTags,
           fitScore: fitScore.score,
