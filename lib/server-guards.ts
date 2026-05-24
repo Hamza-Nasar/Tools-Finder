@@ -1,22 +1,12 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
+import { getSafeServerSession } from "@/lib/safe-session";
 
 export async function getOptionalSession() {
-  try {
-    return await getServerSession(authOptions);
-  } catch {
-    return null;
-  }
+  return getSafeServerSession();
 }
 
 export async function requireAuthenticatedSession() {
-  let session = null;
-  try {
-    session = await getServerSession(authOptions);
-  } catch {
-    session = null;
-  }
+  const session = await getSafeServerSession();
 
   if (!session?.user) {
     throw new AppError(401, "Authentication required.", "UNAUTHORIZED");
@@ -26,12 +16,7 @@ export async function requireAuthenticatedSession() {
 }
 
 export async function requireAdminSession() {
-  let session = null;
-  try {
-    session = await getServerSession(authOptions);
-  } catch {
-    session = null;
-  }
+  const session = await getSafeServerSession();
 
   if (!session?.user || session.user.role !== "admin") {
     throw new AppError(403, "Admin access required.", "FORBIDDEN");

@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
 import { AdminInviteExperience } from "@/components/auth/admin-invite-experience";
-import { authOptions } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { getSafeServerSession } from "@/lib/safe-session";
 import { buildMetadata } from "@/lib/seo";
 import { AdminInviteService } from "@/lib/services/admin-invite-service";
 
@@ -23,7 +22,7 @@ export default async function AdminInvitePage({
   const tokenParam = Array.isArray(params.token) ? params.token[0] : params.token;
   const token = tokenParam?.trim() ?? "";
   const [session, invite] = await Promise.all([
-    getServerSession(authOptions),
+    getSafeServerSession(),
     token
       ? AdminInviteService.getInvitePreview(token).catch(() => null)
       : Promise.resolve(null)

@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import { startTransition, useOptimistic, useState } from "react";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { AlertCircle, CheckCircle2, Heart } from "lucide-react";
 import { toggleFavoriteAction } from "@/lib/actions/favorite-actions";
 import { useSsrSafeReducedMotion } from "@/hooks/use-ssr-safe-reduced-motion";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface FavoriteToggleProps {
   toolId: string;
@@ -23,6 +24,9 @@ export function FavoriteToggle({
   const { data: session } = useSession();
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [feedbackTone, setFeedbackTone] = useState<"success" | "error">("success");
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const reduceMotion = useSsrSafeReducedMotion();
   const [isFavorited, updateOptimisticFavorite] = useOptimistic(
     initialIsFavorited,
@@ -38,10 +42,19 @@ export function FavoriteToggle({
     setIsPending(true);
 
     startTransition(async () => {
-      updateOptimisticFavorite(!isFavorited);
+      const nextState = !isFavorited;
+      updateOptimisticFavorite(nextState);
 
       try {
         await toggleFavoriteAction(toolId, ["/favorites", `/tools/${toolSlug}`]);
+        setFeedbackTone("success");
+        setFeedbackMessage(nextState ? "Tool added to favorites." : "Tool removed from favorites.");
+        setIsFeedbackOpen(true);
+      } catch {
+        updateOptimisticFavorite(isFavorited);
+        setFeedbackTone("error");
+        setFeedbackMessage("Unable to update favorites right now. Please try again.");
+        setIsFeedbackOpen(true);
       } finally {
         setIsPending(false);
       }
@@ -49,33 +62,55 @@ export function FavoriteToggle({
   }
 
   return (
-    <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
-      <Button
-        type="button"
-        variant={isFavorited ? "secondary" : "outline"}
-        onClick={handleToggle}
-        disabled={isPending}
-        className="min-w-[9rem]"
-      >
-        <motion.span
-          animate={reduceMotion ? undefined : isFavorited ? { scale: [1, 1.22, 1], rotate: [0, -8, 0] } : { scale: 1, rotate: 0 }}
-          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="mr-2 inline-flex"
+    <>
+      <Dialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {feedbackTone === "success" ? (
+                <CheckCircle2 className="size-5 text-primary" />
+              ) : (
+                <AlertCircle className="size-5 text-destructive" />
+              )}
+              {feedbackTone === "success" ? "Favorites updated" : "Favorite update failed"}
+            </DialogTitle>
+            <DialogDescription>{feedbackMessage}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" onClick={() => setIsFeedbackOpen(false)}>
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <motion.div whileHover={reduceMotion ? undefined : { y: -1 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+        <Button
+          type="button"
+          variant={isFavorited ? "secondary" : "outline"}
+          onClick={handleToggle}
+          disabled={isPending}
+          className="min-w-[9rem]"
         >
-          <Heart className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
-        </motion.span>
-        <AnimatePresence mode="wait" initial={false}>
           <motion.span
-            key={isFavorited ? "saved" : "save"}
-            initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-            transition={{ duration: 0.16 }}
+            animate={reduceMotion ? undefined : isFavorited ? { scale: [1, 1.22, 1], rotate: [0, -8, 0] } : { scale: 1, rotate: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="mr-2 inline-flex"
           >
-            {isFavorited ? "Saved" : "Save tool"}
+            <Heart className={`h-4 w-4 ${isFavorited ? "fill-current" : ""}`} />
           </motion.span>
-        </AnimatePresence>
-      </Button>
-    </motion.div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={isFavorited ? "saved" : "save"}
+              initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+              transition={{ duration: 0.16 }}
+            >
+              {isFavorited ? "Saved" : "Save tool"}
+            </motion.span>
+          </AnimatePresence>
+        </Button>
+      </motion.div>
+    </>
   );
 }

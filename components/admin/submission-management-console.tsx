@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useTransition } from "react";
+import { useActionState, useEffect, useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ActionState } from "@/lib/actions/action-types";
@@ -14,36 +14,58 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 const initialSubmissionState: ActionState<Submission> = { status: "idle" };
 
 function DeleteSubmissionButton({ id }: { id: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   function handleDelete() {
-    const confirmed = window.confirm("Delete this submission?");
-
-    if (!confirmed) {
-      return;
-    }
-
     startTransition(async () => {
       const result = await deleteSubmissionFormAction(id);
 
       if (result.status === "success") {
+        setIsConfirmOpen(false);
         router.refresh();
-      } else {
-        window.alert(result.message ?? "Unable to delete submission.");
       }
     });
   }
 
   return (
-    <Button type="button" variant="outline" onClick={handleDelete} disabled={isPending}>
-      <Trash2 className="mr-2 h-4 w-4" />
-      {isPending ? "Deleting..." : "Delete"}
-    </Button>
+    <>
+      <Button type="button" variant="outline" onClick={() => setIsConfirmOpen(true)} disabled={isPending}>
+        <Trash2 className="mr-2 h-4 w-4" />
+        {isPending ? "Deleting..." : "Delete"}
+      </Button>
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this submission?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the submission from the moderation queue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 

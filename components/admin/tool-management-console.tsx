@@ -22,8 +22,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -39,6 +38,7 @@ function ToolDeleteButton({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   function handleDelete() {
     startTransition(async () => {
@@ -46,6 +46,7 @@ function ToolDeleteButton({
       setMessage(result.message ?? null);
 
       if (result.status === "success") {
+        setIsConfirmOpen(false);
         onDeleted();
         router.refresh();
       }
@@ -54,23 +55,23 @@ function ToolDeleteButton({
 
   return (
     <div className="space-y-2">
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button type="button" variant="outline" disabled={isPending}>
-            <Trash2 className="mr-2 h-4 w-4" />
-            {isPending ? "Deleting..." : "Delete tool"}
-          </Button>
-        </AlertDialogTrigger>
+      <Button type="button" variant="outline" onClick={() => setIsConfirmOpen(true)} disabled={isPending}>
+        <Trash2 className="mr-2 h-4 w-4" />
+        {isPending ? "Deleting..." : "Delete tool"}
+      </Button>
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this tool?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action removes the tool from the directory and cannot be undone.
+              This action will remove the tool listing and related activity records.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete permanently</AlertDialogAction>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

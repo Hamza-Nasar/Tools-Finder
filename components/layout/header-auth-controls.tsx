@@ -5,7 +5,14 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function getInitials(name?: string | null, email?: string | null) {
@@ -44,7 +51,7 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-export function HeaderAuthControls() {
+export function HeaderAuthControls({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const callbackUrl = pathname && !pathname.startsWith("/auth/") ? pathname : "/dashboard";
@@ -61,9 +68,11 @@ export function HeaderAuthControls() {
   if (!session?.user) {
     return (
       <div className="flex items-center gap-2">
-        <Button asChild size="sm" className="hidden md:inline-flex">
-          <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
-        </Button>
+        {!compact ? (
+          <Button asChild size="sm" className="hidden md:inline-flex">
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
+          </Button>
+        ) : null}
         <Button asChild size="sm">
           <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
             <span className="md:hidden">Sign in</span>
@@ -76,30 +85,39 @@ export function HeaderAuthControls() {
 
   return (
     <div className="flex items-center gap-2 md:gap-3">
-      <Button asChild size="sm" className="hidden md:inline-flex">
-        <Link href="/submit">Submit Tool</Link>
-      </Button>
-      <Button asChild variant="ghost" size="sm" className="hidden items-center gap-2 md:inline-flex">
-        <Link href="/favorites">
-          <HeartIcon />
-          <span>Favorites</span>
-        </Link>
-      </Button>
+      {!compact ? (
+        <>
+          <Button asChild size="sm" className="hidden md:inline-flex">
+            <Link href="/submit">Submit Tool</Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm" className="hidden items-center gap-2 xl:inline-flex">
+            <Link href="/favorites">
+              <HeartIcon />
+              <span className="hidden 2xl:inline">Favorites</span>
+            </Link>
+          </Button>
+        </>
+      ) : null}
 
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <motion.button type="button" className="interactive-control flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm hover:border-border hover:bg-white">
+          <motion.button
+            type="button"
+            className="interactive-control flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm hover:border-border hover:bg-white"
+          >
             <Avatar className="h-9 w-9">
               <AvatarImage src={session.user.image ?? undefined} alt={session.user.name ?? "Signed-in user"} referrerPolicy="no-referrer" />
               <AvatarFallback className="bg-primary/12 font-semibold text-primary">
                 {getInitials(session.user.name, session.user.email)}
               </AvatarFallback>
             </Avatar>
-            <span className="hidden text-left lg:block">
-              <span className="block text-sm font-medium text-foreground">{session.user.name ?? "Signed in"}</span>
-              <span className="block text-xs text-muted-foreground">Account</span>
-            </span>
-            <span className="hidden text-muted-foreground md:block">
+            {!compact ? (
+              <span className="hidden text-left lg:block">
+                <span className="block text-sm font-medium text-foreground">{session.user.name ?? "Signed in"}</span>
+                <span className="block text-xs text-muted-foreground">Account</span>
+              </span>
+            ) : null}
+            <span className="text-muted-foreground">
               <ChevronIcon open={false} />
             </span>
           </motion.button>

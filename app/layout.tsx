@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
-import { getServerSession } from "next-auth";
 import "@/app/globals.css";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { AppProviders } from "@/components/layout/app-providers";
 import { PageTransition } from "@/components/shared/page-transition";
-import { authOptions } from "@/lib/auth";
+import { getSafeServerSession } from "@/lib/safe-session";
 import { siteConfig } from "@/lib/constants";
 import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
@@ -40,7 +39,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
+  const session = await getSafeServerSession();
   const websiteStructuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -80,7 +79,7 @@ export default async function RootLayout({
         />
         <AppProviders session={session}>
           <div className="relative flex min-h-screen flex-col">
-            <SiteHeader />
+            <SiteHeader session={session} />
             <main className="flex-1">
               <PageTransition>{children}</PageTransition>
             </main>
