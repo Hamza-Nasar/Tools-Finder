@@ -44,7 +44,7 @@ function ChevronIcon({ open }: { open: boolean }) {
   );
 }
 
-export function HeaderAuthControls() {
+export function HeaderAuthControls({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -94,9 +94,11 @@ export function HeaderAuthControls() {
   if (!session?.user) {
     return (
       <div className="flex items-center gap-2">
-        <Button asChild size="sm" className="hidden md:inline-flex">
-          <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
-        </Button>
+        {!compact ? (
+          <Button asChild size="sm" className="hidden md:inline-flex">
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent("/submit")}`}>Submit Tool</Link>
+          </Button>
+        ) : null}
         <Button asChild size="sm">
           <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
             <span className="md:hidden">Sign in</span>
@@ -107,15 +109,100 @@ export function HeaderAuthControls() {
     );
   }
 
+  if (compact) {
+    return (
+      <div ref={menuRef} className="relative">
+        <motion.button
+          type="button"
+          onClick={() => setMenuOpen((current) => !current)}
+          className="interactive-control flex items-center gap-2 rounded-full border border-border/70 bg-white/80 px-2 py-2 shadow-sm hover:border-border hover:bg-white"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label="Open account menu"
+          whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+        >
+          {session.user.image ? (
+            <motion.img
+              src={session.user.image}
+              alt={session.user.name ?? "Signed-in user"}
+              className="h-9 w-9 rounded-full object-cover"
+              referrerPolicy="no-referrer"
+              whileHover={reduceMotion ? undefined : { scale: 1.04 }}
+            />
+          ) : (
+            <motion.span
+              className="grid h-9 w-9 place-items-center rounded-full bg-primary/12 font-semibold text-primary"
+              whileHover={reduceMotion ? undefined : { scale: 1.04 }}
+            >
+              {getInitials(session.user.name, session.user.email)}
+            </motion.span>
+          )}
+          <span className="text-muted-foreground">
+            <ChevronIcon open={menuOpen} />
+          </span>
+        </motion.button>
+
+        <AnimatePresence>
+          {menuOpen ? (
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 8, scale: 0.98 }}
+              animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.98 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute right-0 top-[calc(100%+0.75rem)] z-50 min-w-60 rounded-[1.4rem] border border-border/70 bg-background/95 p-2 shadow-floating backdrop-blur-xl"
+            >
+              <div className="border-b border-border/70 px-3 py-2">
+                <p className="text-sm font-semibold text-foreground">{session.user.name ?? "Signed in"}</p>
+                <p className="text-xs text-muted-foreground">{session.user.email}</p>
+              </div>
+              <motion.div layout className="grid gap-1 px-1 py-2">
+                {[
+                  { href: "/dashboard", label: "Dashboard" },
+                  { href: "/dashboard#submitted-tools", label: "My Submissions" },
+                  { href: "/my-stack", label: "My Stack" },
+                  { href: "/favorites", label: "Favorites" },
+                  ...(session.user.role === "admin" ? [{ href: "/admin", label: "Admin" }] : [])
+                ].map((item) => (
+                  <motion.div key={item.href} whileHover={reduceMotion ? undefined : { x: 2 }}>
+                    <Link
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="interactive-control block rounded-2xl px-3 py-2 text-sm font-medium text-foreground hover:bg-white"
+                    >
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+              <div className="border-t border-border/70 px-1 pt-2">
+                <motion.button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    void signOut({ callbackUrl: "/" });
+                  }}
+                  className="interactive-control flex w-full items-center rounded-2xl px-3 py-2 text-sm font-medium text-foreground hover:bg-white"
+                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                >
+                  Logout
+                </motion.button>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-2 md:gap-3">
       <Button asChild size="sm" className="hidden md:inline-flex">
         <Link href="/submit">Submit Tool</Link>
       </Button>
-      <Button asChild variant="ghost" size="sm" className="hidden items-center gap-2 md:inline-flex">
+      <Button asChild variant="ghost" size="sm" className="hidden items-center gap-2 xl:inline-flex">
         <Link href="/favorites">
           <HeartIcon />
-          <span>Favorites</span>
+          <span className="hidden 2xl:inline">Favorites</span>
         </Link>
       </Button>
 
@@ -145,8 +232,8 @@ export function HeaderAuthControls() {
               {getInitials(session.user.name, session.user.email)}
             </motion.span>
           )}
-          <span className="hidden text-left lg:block">
-            <span className="block text-sm font-medium text-foreground">{session.user.name ?? "Signed in"}</span>
+          <span className="hidden max-w-[9.5rem] text-left 2xl:block">
+            <span className="block truncate text-sm font-medium text-foreground">{session.user.name ?? "Signed in"}</span>
             <span className="block text-xs text-muted-foreground">Account</span>
           </span>
           <span className="hidden text-muted-foreground md:block">

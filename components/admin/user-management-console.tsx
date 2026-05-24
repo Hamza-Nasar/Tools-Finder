@@ -77,10 +77,12 @@ export function UserManagementConsole({
         invite?: AdminInvite;
         inviteUrl?: string;
         delivered?: boolean;
+        deliveryError?: string | null;
       };
       invite?: AdminInvite;
       inviteUrl?: string;
       delivered?: boolean;
+      deliveryError?: string | null;
     } | null;
   }
 
@@ -124,14 +126,17 @@ export function UserManagementConsole({
           invite?: AdminInvite;
           inviteUrl?: string;
           delivered?: boolean;
+          deliveryError?: string | null;
         };
         invite?: AdminInvite;
         inviteUrl?: string;
         delivered?: boolean;
+        deliveryError?: string | null;
       } | null);
       const invite = result?.data?.invite ?? result?.invite;
       const createdInviteUrl = result?.data?.inviteUrl ?? result?.inviteUrl ?? null;
       const delivered = result?.data?.delivered ?? result?.delivered;
+      const deliveryError = result?.data?.deliveryError ?? result?.deliveryError ?? null;
 
       if (invite) {
         setInvites((currentInvites) => [invite, ...currentInvites.filter((item) => item.email !== invite.email)]);
@@ -143,7 +148,7 @@ export function UserManagementConsole({
       setMessage(
         delivered
           ? "Invite email sent. The link is also available below."
-          : "Invite link created. Email delivery is not configured, so send this link manually."
+          : `Invite link created. Email delivery failed${deliveryError ? `: ${deliveryError}` : "."} Send this link manually.`
       );
     });
   }

@@ -1,12 +1,11 @@
-import { getServerSession } from "next-auth";
 import { handleApiError, ok, parseRequestBody } from "@/lib/api";
-import { authOptions } from "@/lib/auth";
+import { getSafeServerSession } from "@/lib/safe-session";
 import { AdminInviteService } from "@/lib/services/admin-invite-service";
 import { adminInviteAcceptSchema } from "@/lib/validators/user";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getSafeServerSession();
     const payload = await parseRequestBody(request, adminInviteAcceptSchema);
     const result = await AdminInviteService.acceptInvite({
       ...payload,

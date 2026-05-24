@@ -1,10 +1,9 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 import { hasPlanFeature, normalizeUserPlan, type PlanFeature } from "@/lib/plans";
+import { getSafeServerSession } from "@/lib/safe-session";
 
 export async function requireAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
+  const session = await getSafeServerSession();
 
   if (!session?.user?.id) {
     throw new AppError(401, "Please sign in to continue.", "UNAUTHORIZED");

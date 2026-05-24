@@ -126,7 +126,8 @@ export class AdminInviteService {
     return {
       invite: serializeInvite(invite),
       inviteUrl,
-      delivered: emailResult.delivered
+      delivered: emailResult.delivered,
+      deliveryError: emailResult.error ?? null
     };
   }
 

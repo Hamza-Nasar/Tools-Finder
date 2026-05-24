@@ -14,6 +14,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 const initialToolState: ActionState<Tool> = { status: "idle" };
 
@@ -27,19 +37,15 @@ function ToolDeleteButton({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   function handleDelete() {
-    const confirmed = window.confirm("Delete this tool from the directory?");
-
-    if (!confirmed) {
-      return;
-    }
-
     startTransition(async () => {
       const result = await deleteToolFormAction(slug);
       setMessage(result.message ?? null);
 
       if (result.status === "success") {
+        setIsConfirmOpen(false);
         onDeleted();
         router.refresh();
       }
@@ -48,10 +54,26 @@ function ToolDeleteButton({
 
   return (
     <div className="space-y-2">
-      <Button type="button" variant="outline" onClick={handleDelete} disabled={isPending}>
+      <Button type="button" variant="outline" onClick={() => setIsConfirmOpen(true)} disabled={isPending}>
         <Trash2 className="mr-2 h-4 w-4" />
         {isPending ? "Deleting..." : "Delete tool"}
       </Button>
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this tool?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action will remove the tool listing and related activity records.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+              {isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {message ? <p className="text-xs text-muted-foreground">{message}</p> : null}
     </div>
   );

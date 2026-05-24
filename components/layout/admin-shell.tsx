@@ -10,7 +10,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="page-frame grid gap-8 py-10 lg:grid-cols-[280px_1fr]">
-      <aside className="section-shell hero-mesh p-5 lg:sticky lg:top-24 lg:h-fit">
+      <aside className="section-shell hero-mesh p-5 lg:sticky lg:top-24 lg:flex lg:max-h-[calc(100vh-7.5rem)] lg:flex-col lg:overflow-hidden">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Admin</p>
         <h1 className="mt-2 font-[family-name:var(--font-heading)] text-2xl font-bold">
           Platform control
@@ -18,7 +18,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Moderate submissions, shape the taxonomy, and control homepage inventory from one workspace.
         </p>
-        <nav className="mt-6 flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
+        <nav className="mt-6 flex gap-2 overflow-x-auto pb-1 lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-y-auto lg:overflow-x-hidden lg:pr-1">
           {adminNav.map((item) => {
             const isActive = currentPath === item.href;
 

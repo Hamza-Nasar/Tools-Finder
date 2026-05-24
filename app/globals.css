@@ -44,6 +44,8 @@
       linear-gradient(180deg, rgba(255, 255, 255, 0.95), hsl(var(--background)));
     background-attachment: scroll;
     overscroll-behavior-y: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -118,7 +120,7 @@
   }
 
   .surface-card-hover {
-    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)];
   }
 
   .surface-subtle {
@@ -134,15 +136,15 @@
   }
 
   .interactive-control {
-    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color,color,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)];
   }
 
   .interactive-chip {
-    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color,color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color,color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)];
   }
 
   .interactive-panel {
-    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform;
+    @apply transform-gpu transition-[transform,box-shadow,border-color,background-color] duration-[360ms] ease-[cubic-bezier(0.22,1,0.36,1)];
   }
 
   [data-icon="inline-start"],
@@ -201,6 +203,9 @@
     border-color: rgba(255, 255, 255, 0.86);
     background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 253, 250, 0.86));
     background-color: rgba(255, 255, 255, 0.9);
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 820px;
+    contain: layout paint style;
   }
 
   .premium-grid {
@@ -257,12 +262,6 @@
 
   100% {
     background-position: -200% 0;
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    background-attachment: fixed;
   }
 }
 
